@@ -10,82 +10,86 @@ datasource db {
   provider = "postgresql"
   // url removed, handled in prisma.config.ts
 }
-
-// Model 1: User (Core Authentication Data)
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  passwordHash  String
-  role          Role      @default(USER) // USER | ADMIN
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
+ // Model 1: User (Core Authentication Data)
+ model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  role           Role     @default(USER) // USER | ADMIN
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   // Relations
-  profile       Profile?
-  products      Product[] @relation("SellerProducts") // Products the user is selling
-  wonProducts   Product[] @relation("WonProducts")    // Products the user has won
-  bids          Bid[]
-  
-  // Simplified Payment
-  isPaid        Boolean   @default(false) // Used to track if the user has paid for a won auction
-}
-
-// Model 2: Profile (User Details)
-model Profile {
-  id        String    @id @default(uuid())
-  userId    String    @unique
-  user      User      @relation(fields: [userId], references: [id])
-  firstName String?
-  lastName  String?
-  phone     String?   // Lebanon-only number
-  location  String?   // User-provided string (e.g., "Beirut")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-// Model 3: Product (Auction Item)
-model Product {
-  id            String    @id @default(uuid())
-  sellerId      String
-  seller        User      @relation("SellerProducts", fields: [sellerId], references: [id])
-  title         String
-  description   String
-  images        String[]  // URLs of images saved via Formidable
-  startingBid   Float
-  currentBid    Float     @default(0)
-  auctionStart  DateTime  @default(now())
-  auctionEnd    DateTime
-  status        AuctionStatus @default(ACTIVE) // ACTIVE | ENDED | CANCELLED
-  
+  profile        Profile?
+  products       Product[] @relation("SellerProducts") // Products the user is selling
+  wonProducts    Product[] @relation("WonProducts") // Products the user has won
+  bids           Bid[]
+ }
+ // Model 2: Profile (User Details - UPDATED for Location)
+ model Profile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  firstName      String?
+  lastName       String?
+  phone          String?  // Crucial for delivery contact
+  location       String?  // **NEW: User-provided location (e.g., "Beirut", "Outside Beirut")**
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+ }
+ // Model 3: Product (Auction Item - HEAVILY UPDATED for Financial and Delivery Tracking)
+ model Product {
+  id                 String        @id @default(uuid())
+  sellerId           String
+  seller             User          @relation("SellerProducts", fields: [sellerId], references: [id])
+  title              String
+  description        String
+  images             String[]      // URLs of images saved via Formidable
+  startingBid        Float
+  currentBid         Float         @default(0)
+  auctionStart       DateTime      @default(now())
+  auctionEnd         DateTime
+  status             AuctionStatus @default(ACTIVE) // ACTIVE | ENDED | CANCELLED
+  location           String?       // **NEW: Seller's item location (e.g., "Beirut", "Outside Beirut")**
   // Relations
-  bids          Bid[]
-  winnerId      String?
-  winner        User?     @relation("WonProducts", fields: [winnerId], references: [id]) // <-- Explicit relation name
-  
-  // Simplified Payment
-  isPaid        Boolean   @default(false) // Tracks if the winner has paid
-}
-
-// Model 4: Bid (Auction Bids)
-model Bid {
-  id            String    @id @default(uuid())
-  productId     String
-  product       Product   @relation(fields: [productId], references: [id])
-  bidderId      String
-  bidder        User      @relation(fields: [bidderId], references: [id])
-  amount        Float
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-// Enums
-enum Role {
-  USER
-  ADMIN
-}
-
-enum AuctionStatus {
-  ACTIVE
-  ENDED
-  CANCELLED
-}
+  bids               Bid[]
+  winnerId           String?
+  winner             User?         @relation("WonProducts", fields: [winnerId], references: [id])
+  // Financial Fields (NEW - Calculated on Auction Close)
+  finalBidAmount     Float?        // **NEW: The final winning bid amount**
+  deliveryFee        Float?        // **NEW: $3 or $5 based on buyer location**
+  platformCommission Float?        // **NEW: 6% of finalBidAmount**
+  totalCollected     Float?        // **NEW: finalBidAmount + deliveryFee (The amount the buyer pays)**
+  sellerPayout       Float?        // **NEW: finalBidAmount - platformCommission (The amount the seller receives)**
+  // Delivery Status Fields (NEW)
+  deliveryStatus     DeliveryStatus @default(PENDING) // **NEW: Tracking status**
+  isPaid             Boolean       @default(false) // Tracks if the totalCollected amount has been received
+ }
+ // Model 4: Bid (Auction Bids)
+ model Bid {
+  id             String   @id @default(uuid())
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  bidderId       String
+  bidder         User     @relation(fields: [bidderId], references: [id])
+  amount         Float
+ createdAt      DateTime @default(now())
+ updatedAt      DateTime @updatedAt
+ }
+ // Enums
+ enum Role {
+ USER
+ ADMIN
+ }
+ enum AuctionStatus {
+ ACTIVE
+ ENDED
+ CANCELLED
+ }
+ // NEW ENUM for Delivery Tracking
+ enum DeliveryStatus {
+ PENDING
+ REQUESTED
+ PICKED_UP
+ DELIVERED_PAID
+ CANCELLED
+ }
