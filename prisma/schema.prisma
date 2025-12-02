@@ -18,7 +18,12 @@ datasource db {
   role           Role     @default(USER) // USER | ADMIN
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+ 
+   resetToken        String?
+  resetTokenExpire  DateTime?
+ 
   // Relations
+
   profile        Profile?
   products       Product[] @relation("SellerProducts") // Products the user is selling
   wonProducts    Product[] @relation("WonProducts") // Products the user has won
@@ -91,5 +96,8 @@ datasource db {
  REQUESTED
  PICKED_UP
  DELIVERED_PAID
- CANCELLED
+ CANCELLED 
  }
+
+
+  
