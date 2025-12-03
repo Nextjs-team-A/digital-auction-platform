@@ -88,4 +88,16 @@ export const EmailTemplates = {
       <small>Digital Auction Platform Team</small>
     `,
   }),
+  resetPassword: (email: string) => ({
+    to: email,
+    subject: "🔐 Your Password Has Been Reset",
+    html: `
+      <h2>Password Reset Successful</h2>
+      <p>Hello,</p>
+      <p>Your password has been updated successfully.</p>
+      <p>If you did NOT request this password reset, please secure your account immediately.</p>
+      <br/>
+      <small>Digital Auction Platform Team</small>
+    `,
+  }),
 };
