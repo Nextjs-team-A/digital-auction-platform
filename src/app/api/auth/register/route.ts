@@ -1,85 +1,96 @@
-// src/app/api/auth/resetpass/route.ts
-
-import { NextRequest, NextResponse } from "next/server";
-
-import prisma from "@/lib/db";
-import { verifyToken, JwtPayload } from "@/lib/jwt";
+//implement register API
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { RegisterSchema } from "@/utils/validationSchema";
 import { hashPassword } from "@/lib/password-Hash";
+import { createToken } from "@/lib/jwt";
+import { RegisterDTO } from "@/utils/dto";
 
-import { ResetPasswordSchema } from "@/utils/validationSchema";
-import type { ResetPasswordDTO } from "@/utils/dto";
+/**
+ * POST /api/auth/register
+ * -----------------------
+ * Registers a new user.
+ * - Validates email & password using Zod
+ * - Checks if email already exists
+ * - Hashes the password
+ * - Creates user in DB
+ * - Generates JWT token
+ * - Stores JWT in HttpOnly cookie
+ */
 
-import { sendEmail, EmailTemplates } from "@/lib/mail";
+export async function POST(req: Request) {
+  try {
+    // 1. Read request body
+    const body: RegisterDTO = await req.json();
 
-export async function POST(request: NextRequest) {
-    try {
-        // 1) Parse and validate body with Zod (ResetPasswordSchema)
-        const body = await request.json();
-        const parseResult = ResetPasswordSchema.safeParse(body);
-
-        if (!parseResult.success) {
-            return NextResponse.json(
-                {
-                    error: "Invalid input",
-                    details: parseResult.error.flatten().fieldErrors,
-                },
-                { status: 400 }
-            );
-        }
-
-        const { token, newPassword } = parseResult.data as ResetPasswordDTO;
-
-        // 2) Validate JWT reset token
-        const decoded = verifyToken(token);
-
-        if (!decoded || typeof decoded === "string") {
-            return NextResponse.json(
-                { error: "Invalid or expired reset token" },
-                { status: 401 }
-            );
-        }
-
-        const { userId, email } = decoded as JwtPayload;
-
-        // 3) Find user in DB
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-        });
-
-        if (!user || user.email !== email) {
-            return NextResponse.json(
-                { error: "User not found for this token" },
-                { status: 404 }
-            );
-        }
-
-        // 4) Hash new password with shared helper
-        const hashedPassword = await hashPassword(newPassword);
-
-        // 5) Update user password in DB
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                passwordHash: hashedPassword,
-            },
-        });
-
-        // 6) Send confirmation email using centralized mail helper
-        await sendEmail(EmailTemplates.passwordChanged(user.email));
-
-        // 7) Return success response
-        return NextResponse.json(
-            {
-                success: true,
-                message: "Password has been reset successfully.",
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Reset password error:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+    // 2. Validate input using Zod
+    const parsed = RegisterSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { errors: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
+
+    const { email, password, role } = parsed.data;
+
+    // 3. Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { message: "Email already registered" },
+        { status: 409 }
+      );
+    }
+
+    // 4. Hash password
+    const passwordHash = await hashPassword(password);
+
+    // 5. Create the user
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: role ?? "USER", // fallback to USER
+      },
+    });
+
+    // 6. Create a JWT token for the new user
+    const token = createToken({
+      userId: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+    });
+
+    // 7. Set JWT in HttpOnly cookie
+    const response = NextResponse.json(
+      {
+        message: "User registered successfully",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          role: newUser.role,
+        },
+      },
+      { status: 201 }
+    );
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+
+    return response;
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
