@@ -1,74 +1,86 @@
-// implement reset password
-import type { NextApiRequest, NextApiResponse } from "next";
-import bcrypt from "bcryptjs";
+//implement reset password API
 
-import { prisma } from "@/lib/db";
-import { ResetPasswordDTO } from "@/utils/dto";
-import { ResetPasswordSchema } from "@/utils/validationSchema";
+import { NextRequest, NextResponse } from "next/server";
 
+import prisma from "@/lib/db";
 import { verifyToken, JwtPayload } from "@/lib/jwt";
+import { hashPassword } from "@/lib/password-Hash";
+
+import { ResetPasswordSchema } from "@/utils/validationSchema";
+import type { ResetPasswordDTO } from "@/utils/dto";
+
 import { sendEmail, EmailTemplates } from "@/lib/mail";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
-    }
-
+export async function POST(request: NextRequest) {
     try {
-        // 1. Validate incoming body using Zod
-        const parseResult = ResetPasswordSchema.safeParse(req.body);
+        // 1) Parse and validate body with Zod (ResetPasswordSchema)
+        const body = await request.json();
+        const parseResult = ResetPasswordSchema.safeParse(body);
 
         if (!parseResult.success) {
-            return res.status(400).json({
-                error: "Invalid input data",
-                details: parseResult.error.format(),
-            });
+            return NextResponse.json(
+                {
+                    error: "Invalid input",
+                    details: parseResult.error.flatten().fieldErrors,
+                },
+                { status: 400 }
+            );
         }
 
         const { token, newPassword } = parseResult.data as ResetPasswordDTO;
 
-        // 2. Validate the token (JWT)
+        // 2) Validate JWT reset token
         const decoded = verifyToken(token);
 
         if (!decoded || typeof decoded === "string") {
-            return res.status(400).json({
-                error: "Invalid or expired reset token",
-            });
+            return NextResponse.json(
+                { error: "Invalid or expired reset token" },
+                { status: 401 }
+            );
         }
 
         const { userId, email } = decoded as JwtPayload;
 
-        // 3. Check if user exists in DB
+        // 3) Find user in DB
         const user = await prisma.user.findUnique({
             where: { id: userId },
         });
 
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
+        if (!user || user.email !== email) {
+            return NextResponse.json(
+                { error: "User not found for this token" },
+                { status: 404 }
+            );
         }
 
-        // 4. Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        // 4) Hash new password 
+        const hashedPassword = await hashPassword(newPassword);
 
-        // 5. Update user password in DB
+        // 5) Update user password in DB
         await prisma.user.update({
-            where: { id: userId },
+            where: { id: user.id },
             data: {
                 passwordHash: hashedPassword,
             },
         });
 
-        // 6. Send confirmation email
-        await sendEmail(EmailTemplates.passwordChanged(email));
+        // 6) Send confirmation email using centralized mail helper
+        await sendEmail(
+            EmailTemplates.passwordChanged(user.email));
 
-        // 7. Return success response
-        return res.status(200).json({
-            success: true,
-            message: "Password has been reset successfully.",
-        });
-
+        // 7) Return success response
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Password has been reset successfully.",
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("Reset password error:", error);
-        return res.status(500).json({ error: "Internal server error" });
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 }
+        );
     }
 }
