@@ -75,4 +75,29 @@ export const EmailTemplates = {
       <small>Digital Auction Platform</small>
     `,
   }),
+
+  profileCompleted: (email: string, firstName: string | null) => ({
+    to: email,
+    subject: "🎉 Your Profile Is Complete!",
+    html: `
+      <h2>Welcome, ${firstName ?? "User"}! 🎉</h2>
+      <p>Your profile has been successfully created.</p>
+      <p>You are now fully onboarded and ready to use the Digital Auction Platform.</p>
+      <p>Start exploring real time auctions, bidding on items, and enjoying the platform.</p>
+      <br/>
+      <small>Digital Auction Platform Team</small>
+    `,
+  }),
+  resetPassword: (email: string) => ({
+    to: email,
+    subject: "🔐 Your Password Has Been Reset",
+    html: `
+      <h2>Password Reset Successful</h2>
+      <p>Hello,</p>
+      <p>Your password has been updated successfully.</p>
+      <p>If you did NOT request this password reset, please secure your account immediately.</p>
+      <br/>
+      <small>Digital Auction Platform Team</small>
+    `,
+  }),
 };
