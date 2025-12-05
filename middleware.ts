@@ -6,6 +6,7 @@ import { verifyToken } from "@/lib/jwt";
 const protectedPaths = [
   "/profile",
   "/change-password",
+  "/change-email",
   // Add more pages that require login here
 ];
 
@@ -38,5 +39,9 @@ export function middleware(req: NextRequest) {
 
 // Apply middleware only to the paths we care about
 export const config = {
-  matcher: ["/profile/:path*", "/change-password/:path*"],
+  matcher: [
+    "/profile/:path*",
+    "/change-password/:path*",
+    "/change-email/:path*",
+  ],
 };

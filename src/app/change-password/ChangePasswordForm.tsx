@@ -82,6 +82,10 @@ export default function ChangePasswordForm() {
       </button>
 
       {message && <p>{message}</p>}
+
+      <p>
+        Back to profile <a href="/profile">Back to profile </a>
+      </p>
     </form>
   );
 }
