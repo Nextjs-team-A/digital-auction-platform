@@ -114,4 +114,17 @@ export const EmailTemplates = {
       <small>Digital Auction Platform Team</small>
     `,
   }),
+
+  emailChanged: (email: string) => ({
+    to: email,
+    subject: "Email Changed Successfully",
+    html: `
+      <h2>Email Updated</h2>
+      <p>Hello,</p>
+      <p>Your account email has been changed successfully to <strong>${email}</strong>.</p>
+      <p>If you did not request this change, please secure your account immediately.</p>
+      <br/>
+      <small>Digital Auction Platform</small>
+    `,
+  }),
 };
