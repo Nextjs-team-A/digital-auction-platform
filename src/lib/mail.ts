@@ -88,6 +88,7 @@ export const EmailTemplates = {
       <small>Digital Auction Platform Team</small>
     `,
   }),
+
   resetPassword: (email: string) => ({
     to: email,
     subject: "🔐 Your Password Has Been Reset",
@@ -98,6 +99,32 @@ export const EmailTemplates = {
       <p>If you did NOT request this password reset, please secure your account immediately.</p>
       <br/>
       <small>Digital Auction Platform Team</small>
+    `,
+  }),
+
+  // ✅ New template for profile update
+  profileUpdated: (email: string, firstName: string | null) => ({
+    to: email,
+    subject: "✏️ Your Profile Has Been Updated",
+    html: `
+      <h2>Hello, ${firstName ?? "User"}!</h2>
+      <p>Your profile information has been successfully updated.</p>
+      <p>If you did NOT make these changes, please contact support immediately.</p>
+      <br/>
+      <small>Digital Auction Platform Team</small>
+    `,
+  }),
+
+  emailChanged: (email: string) => ({
+    to: email,
+    subject: "Email Changed Successfully",
+    html: `
+      <h2>Email Updated</h2>
+      <p>Hello,</p>
+      <p>Your account email has been changed successfully to <strong>${email}</strong>.</p>
+      <p>If you did not request this change, please secure your account immediately.</p>
+      <br/>
+      <small>Digital Auction Platform</small>
     `,
   }),
 };
