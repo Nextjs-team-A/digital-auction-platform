@@ -10,7 +10,7 @@ import { sendEmail, EmailTemplates } from "@/lib/mail";
  * Authenticated user only
  * Partial updates allowed: firstName, lastName, phone, location
  */
-export async function PUT(request: NextRequest) {
+export async function PATCH(request: NextRequest) {
   try {
     // 1️⃣ Check authentication
     const authUser = getAuthUser(request);
