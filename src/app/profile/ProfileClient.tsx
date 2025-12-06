@@ -1,4 +1,5 @@
-// src/app/profile/ProfileClient.tsx
+
+
 "use client";
 
 import React from "react";
@@ -38,21 +39,23 @@ export default function ProfileClient() {
         >
           Welcome Back
         </h1>
-        <p
-          style={{
-            color: "#4b5563",
-            marginBottom: "2rem",
-          }}
-        >
+
+        <p style={{ color: "#4b5563", marginBottom: "2rem" }}>
           You are successfully logged in.
         </p>
 
         <LogoutButton />
-        <p style={{ color: "black" }}>
-          change email <a href="/change-email">change email</a>
+
+        <p style={{ marginTop: "1rem", color: "black" }}>
+          <a href="/profile/view">View Profile</a>
         </p>
+
         <p style={{ color: "black" }}>
-          change password <a href="/change-password">change password</a>
+          Change Email: <a href="/change-email">change email</a>
+        </p>
+
+        <p style={{ color: "black" }}>
+          Change Password: <a href="/change-password">change password</a>
         </p>
       </div>
     </main>
