@@ -23,7 +23,8 @@ export default function ProfileEditClient() {
   const [success, setSuccess] = useState("");
 
   if (loading) return <p>Loading...</p>;
-  if (!isAuthenticated || !user) return <p>You must be logged in.</p>;
+  if (!isAuthenticated || !user)
+    return <p>You must be logged in to edit your profile.</p>;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

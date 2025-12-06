@@ -16,7 +16,7 @@ export default async function ProfilePage() {
     return (
       <div>
         <h1>Unauthorized</h1>
-        <p>You must be logged in to view this page.</p>
+        <p>You must be logged in to access your profile.</p>
       </div>
     );
   }
