@@ -1,21 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { useAuthContext } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 
-export default function CreateProfilePage() {
+export default function ProfileEditClient() {
   const router = useRouter();
+  const { user, loading, isAuthenticated } = useAuthContext();
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    location: "",
-  });
+  // ⛔ NO useEffect for setForm!
+  // ⛔ NO syncing inside effect!
+  // ✅ Initialize once from user safely
+  const [form, setForm] = useState(() => ({
+    firstName: user?.profile?.firstName || "",
+    lastName: user?.profile?.lastName || "",
+    phone: user?.profile?.phone || "",
+    location: user?.profile?.location || "",
+  }));
 
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  if (loading) return <p>Loading...</p>;
+  if (!isAuthenticated || !user) return <p>You must be logged in.</p>;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -26,69 +34,53 @@ export default function CreateProfilePage() {
   };
 
   const validate = () => {
-    if (!form.firstName || form.firstName.length < 2) {
-      return "First name must be at least 2 characters";
-    }
-
-    if (!form.lastName || form.lastName.length < 2) {
-      return "Last name must be at least 2 characters";
-    }
-
-    if (!form.phone || form.phone.length < 8) {
-      return "Invalid Lebanese phone number";
-    }
-
-    if (!form.location) {
-      return "Location is required";
-    }
-
+    if (!form.firstName || form.firstName.length < 2)
+      return "First name must be at least 2 letters.";
+    if (!form.lastName || form.lastName.length < 2)
+      return "Last name must be at least 2 letters.";
+    if (!form.phone || form.phone.length < 8) return "Invalid phone number.";
+    if (!form.location) return "Location is required.";
     return "";
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSave = async () => {
     const validationError = validate();
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     setError("");
     setSuccess("");
 
     try {
-      const res = await fetch("/api/profile/create", {
-        method: "POST",
+      const res = await fetch("/api/profile/update", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(form),
       });
 
       const data = await res.json();
-      setLoading(false);
+      setSaving(false);
 
       if (!res.ok) {
-        setError(data.message || "Failed to create profile");
+        setError(data.message || "Failed to update profile");
         return;
       }
 
-      setSuccess("Profile created successfully ✅");
-
-      setTimeout(() => {
-        router.push("/profile-setup/edit");
-      }, 800);
+      setSuccess("Profile updated successfully ✔");
     } catch (err) {
-      setLoading(false);
+      setSaving(false);
       setError("Something went wrong");
     }
   };
 
   return (
     <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h2 style={styles.title}>Create Your Profile</h2>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Edit Profile</h2>
 
         {error && <p style={styles.error}>{error}</p>}
         {success && <p style={styles.success}>{success}</p>}
@@ -128,10 +120,10 @@ export default function CreateProfilePage() {
           <option value="Outside Beirut">Outside Beirut</option>
         </select>
 
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? "Saving..." : "Create Profile"}
+        <button onClick={handleSave} disabled={saving} style={styles.button}>
+          {saving ? "Saving..." : "Save Changes"}
         </button>
-      </form>
+      </div>
     </div>
   );
 }
@@ -162,7 +154,6 @@ const styles = {
     marginBottom: "12px",
     borderRadius: "6px",
     border: "1px solid #ccc",
-    outline: "none",
   },
   button: {
     width: "100%",
@@ -174,14 +165,6 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold" as const,
   },
-  error: {
-    color: "red",
-    marginBottom: "10px",
-    fontSize: "14px",
-  },
-  success: {
-    color: "green",
-    marginBottom: "10px",
-    fontSize: "14px",
-  },
+  error: { color: "red", marginBottom: "10px" },
+  success: { color: "green", marginBottom: "10px" },
 };
