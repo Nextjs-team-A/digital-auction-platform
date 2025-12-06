@@ -1,59 +1,38 @@
-// src/app/profile/ProfileClient.tsx
 "use client";
 
 import React from "react";
+import { useAuthContext } from "@/context/auth-context";
 import LogoutButton from "@/components/LogoutButton";
 
 export default function ProfileClient() {
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(to bottom right, #f3f4f6, #e5e7eb)",
-        fontFamily: "var(--font-geist-sans), sans-serif",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-          textAlign: "center",
-          maxWidth: "400px",
-          width: "100%",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "1.875rem",
-            fontWeight: "bold",
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          Welcome Back
-        </h1>
-        <p
-          style={{
-            color: "#4b5563",
-            marginBottom: "2rem",
-          }}
-        >
-          You are successfully logged in.
-        </p>
+  const { user, loading, isAuthenticated } = useAuthContext();
 
-        <LogoutButton />
-        <p style={{ color: "black" }}>
-          change email <a href="/change-email">change email</a>
-        </p>
-        <p style={{ color: "black" }}>
-          change password <a href="/change-password">change password</a>
-        </p>
+  if (loading) return <p>Loading profile...</p>;
+  if (!isAuthenticated || !user)
+    return <p>You must be logged in to access your profile.</p>;
+
+  return (
+    <main>
+      <div>
+        <h2>
+          {user.profile?.firstName} {user.profile?.lastName}
+        </h2>
+        <p>Email: {user.email}</p>
+        <p>Phone: {user.profile?.phone || "Not set"}</p>
+        <p>Location: {user.profile?.location || "Not set"}</p>
+
+        <div style={{ marginTop: "20px" }}>
+          <button onClick={() => (window.location.href = "/profile/edit")}>
+            Edit Profile
+          </button>
+          <button onClick={() => (window.location.href = "/change-email")}>
+            Change Email
+          </button>
+          <button onClick={() => (window.location.href = "/change-password")}>
+            Change Password
+          </button>
+          <LogoutButton />
+        </div>
       </div>
     </main>
   );
