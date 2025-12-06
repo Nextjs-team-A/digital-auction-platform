@@ -34,7 +34,7 @@ export default function RegisterClient() {
         return;
       }
 
-      router.push("/login");
+      router.push("/profile/create");
     } catch (err) {
       console.error(err);
       setError("Something went wrong");
