@@ -34,7 +34,9 @@ export default function ProfileCreateClient() {
     if (form.lastName.trim().length < 2)
       return "Last name must be at least 2 characters";
 
-    const lebaneseRegex = /^(03|70|71|76|78|79|81)\d{6}$/;
+    // New
+    const lebaneseRegex =
+      /^(\+961\d{8}|03\d{6}|70\d{6}|71\d{6}|76\d{6}|78\d{6}|79\d{6}|81\d{6})$/;
     if (!lebaneseRegex.test(form.phone)) return "Invalid Lebanese phone number";
 
     if (!form.location) return "Location is required";
@@ -77,7 +79,7 @@ export default function ProfileCreateClient() {
       await refreshSession();
 
       setTimeout(() => {
-        router.push("/profile/edit");
+        router.push("/profile");
       }, 800);
     } catch {
       setLoading(false);
