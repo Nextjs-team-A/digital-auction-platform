@@ -18,7 +18,11 @@ datasource db {
   role           Role     @default(USER) // USER | ADMIN
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+ 
+ 
+ 
   // Relations
+
   profile        Profile?
   products       Product[] @relation("SellerProducts") // Products the user is selling
   wonProducts    Product[] @relation("WonProducts") // Products the user has won
@@ -32,7 +36,7 @@ datasource db {
   firstName      String?
   lastName       String?
   phone          String?  // Crucial for delivery contact
-  location       String?  // *NEW: User-provided location (e.g., "Beirut", "Outside Beirut")*
+  location       String?  // **NEW: User-provided location (e.g., "Beirut", "Outside Beirut")**
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
  }
@@ -49,19 +53,19 @@ datasource db {
   auctionStart       DateTime      @default(now())
   auctionEnd         DateTime
   status             AuctionStatus @default(ACTIVE) // ACTIVE | ENDED | CANCELLED
-  location           String?       // *NEW: Seller's item location (e.g., "Beirut", "Outside Beirut")*
+  location           String?       // **NEW: Seller's item location (e.g., "Beirut", "Outside Beirut")**
   // Relations
   bids               Bid[]
   winnerId           String?
   winner             User?         @relation("WonProducts", fields: [winnerId], references: [id])
   // Financial Fields (NEW - Calculated on Auction Close)
-  finalBidAmount     Float?        // *NEW: The final winning bid amount*
-  deliveryFee        Float?        // *NEW: $3 or $5 based on buyer location*
-  platformCommission Float?        // *NEW: 6% of finalBidAmount*
-  totalCollected     Float?        // *NEW: finalBidAmount + deliveryFee (The amount the buyer pays)*
-  sellerPayout       Float?        // *NEW: finalBidAmount - platformCommission (The amount the seller receives)*
+  finalBidAmount     Float?        // **NEW: The final winning bid amount**
+  deliveryFee        Float?        // **NEW: $3 or $5 based on buyer location**
+  platformCommission Float?        // **NEW: 6% of finalBidAmount**
+  totalCollected     Float?        // **NEW: finalBidAmount + deliveryFee (The amount the buyer pays)**
+  sellerPayout       Float?        // **NEW: finalBidAmount - platformCommission (The amount the seller receives)**
   // Delivery Status Fields (NEW)
-  deliveryStatus     DeliveryStatus @default(PENDING) // *NEW: Tracking status*
+  deliveryStatus     DeliveryStatus @default(PENDING) // **NEW: Tracking status**
   isPaid             Boolean       @default(false) // Tracks if the totalCollected amount has been received
  }
  // Model 4: Bid (Auction Bids)
@@ -91,5 +95,8 @@ datasource db {
  REQUESTED
  PICKED_UP
  DELIVERED_PAID
- CANCELLED
+ CANCELLED 
  }
+
+
+  
