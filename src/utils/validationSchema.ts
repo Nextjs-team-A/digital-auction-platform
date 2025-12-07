@@ -73,3 +73,26 @@ export const UpdateProfileSchema = z.object({
   phone: z.string().regex(phoneRegex).optional(),
   location: locationEnum.optional(),
 });
+/* ---------------------------------------------
+   PRODUCT VALIDATIONS 
+----------------------------------------------*/
+
+// Create Product Schema
+export const CreateProductSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  images: z.array(z.string().url("Invalid image URL")).min(1, "At least one image is required"),
+  startingBid: z.number().positive("Starting bid must be greater than 0"),
+  auctionEnd: z.date().refine(date => date > new Date(), "Auction end date must be in the future"),
+  location: z.enum(["Beirut", "Outside Beirut"], "Location is required"),
+});
+
+// Update Product Schema (all optional)
+export const UpdateProductSchema = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+  images: z.array(z.string().url()).optional(),
+  startingBid: z.number().positive().optional(),
+  auctionEnd: z.date().refine(date => date > new Date()).optional(),
+  location: z.enum(["Beirut", "Outside Beirut"]).optional(),
+});
