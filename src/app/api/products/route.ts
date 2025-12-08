@@ -1,11 +1,4 @@
-// src/app/api/products/route.ts
-
-/**
- * Products API
- * ---------------------------------------------------------
- * GET  /api/products  → Get all products
- * POST /api/products  → Create new product (with uploaded image URLs)
- */
+// src/app/api/products/route.ts - UPDATED VERSION
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
@@ -16,17 +9,61 @@ import type { CreateProductDTO } from "@/utils/dto";
 /**
  * @method GET
  * @route /api/products
- * @desc Get all products
- * @access Public
+ * @route /api/products?my=true (get only user's products)
+ * @desc Get all products or user's products
+ * @access Public for all products, Private for my products
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const products = await prisma.product.findMany({
-      orderBy: { auctionStart: "desc" },
-    });
+    // Check if requesting user's own products
+    const { searchParams } = new URL(request.url);
+    const myProducts = searchParams.get("my") === "true";
+
+    let products;
+
+    if (myProducts) {
+      // Get authenticated user's products only
+      const cookieHeader = request.headers.get("cookie") || "";
+      const tokenCookie = cookieHeader
+        .split(";")
+        .map((c) => c.trim())
+        .find((c) => c.startsWith("token="));
+      const token = tokenCookie
+        ? tokenCookie.split("=").slice(1).join("=")
+        : null;
+
+      if (!token) {
+        return NextResponse.json(
+          { message: "Authentication required" },
+          { status: 401 }
+        );
+      }
+
+      const decoded = verifyToken(token) as JwtPayload | null;
+      if (!decoded) {
+        return NextResponse.json(
+          { message: "Invalid or expired token" },
+          { status: 401 }
+        );
+      }
+
+      // Fetch only user's products
+      products = await prisma.product.findMany({
+        where: { sellerId: decoded.userId },
+        orderBy: { auctionStart: "desc" },
+      });
+    } else {
+      // Fetch all products (public)
+      products = await prisma.product.findMany({
+        orderBy: { auctionStart: "desc" },
+      });
+    }
 
     if (!products || products.length === 0) {
-      return NextResponse.json({ message: "No products yet" }, { status: 200 });
+      return NextResponse.json(
+        { message: "No products yet", products: [] },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json({ products }, { status: 200 });
@@ -44,8 +81,6 @@ export async function GET() {
  * @route /api/products
  * @desc Create new product
  * @access Private (authenticated user)
- *
- * @body JSON with product data including image URLs from /api/upload
  */
 export async function POST(request: Request) {
   try {
@@ -80,9 +115,19 @@ export async function POST(request: Request) {
     // 3️⃣ Parse JSON body
     const body = await request.json();
 
-    // 4️⃣ Validate with Zod
-    const validation = CreateProductSchema.safeParse(body);
+    // 4️⃣ Convert auctionEnd string to Date if needed
+    const normalizedBody = {
+      ...body,
+      auctionEnd: body.auctionEnd ? new Date(body.auctionEnd) : undefined,
+    };
+
+    console.log("Received body:", body);
+    console.log("Normalized body:", normalizedBody);
+
+    // 5️⃣ Validate with Zod
+    const validation = CreateProductSchema.safeParse(normalizedBody);
     if (!validation.success) {
+      console.error("Validation errors:", validation.error.flatten());
       return NextResponse.json(
         {
           message: "Validation failed",
@@ -94,13 +139,13 @@ export async function POST(request: Request) {
 
     const data = validation.data as CreateProductDTO;
 
-    // 5️⃣ Create product in DB
+    // 6️⃣ Create product in DB
     const product = await prisma.product.create({
       data: {
         sellerId: sellerId,
         title: data.title,
         description: data.description,
-        images: data.images, // URLs from /api/upload
+        images: data.images,
         startingBid: data.startingBid,
         currentBid: 0,
         auctionStart: new Date(),

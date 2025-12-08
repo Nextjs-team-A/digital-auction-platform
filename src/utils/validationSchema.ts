@@ -78,12 +78,18 @@ export const UpdateProfileSchema = z.object({
    PRODUCT VALIDATIONS 
 ----------------------------------------------*/
 
-// Create Product Schema
+// In validationSchema.ts
+
+// Create Product Schema - UPDATED
 export const CreateProductSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   images: z
-    .array(z.string().url("Invalid image URL"))
+    .array(
+      z.string().min(1, "Image path is required")
+      // Changed from z.string().url() to just z.string().min(1)
+      // This accepts both full URLs and relative paths like /uploads/products/...
+    )
     .min(1, "At least one image is required"),
   startingBid: z.number().positive("Starting bid must be greater than 0"),
   auctionEnd: z.coerce
@@ -92,7 +98,6 @@ export const CreateProductSchema = z.object({
       (date) => date > new Date(),
       "Auction end date must be in the future"
     ),
-
   location: z.enum(["Beirut", "Outside Beirut"], "Location is required"),
 });
 

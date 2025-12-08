@@ -31,6 +31,20 @@ export default function ProfileClient() {
           <button onClick={() => (window.location.href = "/change-password")}>
             Change Password
           </button>
+
+          <button onClick={() => (window.location.href = "/products/create")}>
+            Upload Products
+          </button>
+
+          <button onClick={() => (window.location.href = "/products")}>
+            Browse Products
+          </button>
+
+          <button
+            onClick={() => (window.location.href = "/products/my-products")}
+          >
+            My Products
+          </button>
           <LogoutButton />
         </div>
       </div>
