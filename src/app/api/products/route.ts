@@ -1,4 +1,12 @@
 // src/app/api/products/route.ts
+
+/**
+ * Products API
+ * ---------------------------------------------------------
+ * GET  /api/products  → Get all products
+ * POST /api/products  → Create new product (with uploaded image URLs)
+ */
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyToken, JwtPayload } from "@/lib/jwt";
@@ -36,10 +44,12 @@ export async function GET() {
  * @route /api/products
  * @desc Create new product
  * @access Private (authenticated user)
+ *
+ * @body JSON with product data including image URLs from /api/upload
  */
 export async function POST(request: Request) {
   try {
-    // --- Extract token from Cookie header ---
+    // 1️⃣ Extract token from Cookie header
     const cookieHeader = request.headers.get("cookie") || "";
     const tokenCookie = cookieHeader
       .split(";")
@@ -56,7 +66,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // --- Verify token (returns payload or null) ---
+    // 2️⃣ Verify token
     const decoded = verifyToken(token) as JwtPayload | null;
     if (!decoded) {
       return NextResponse.json(
@@ -65,41 +75,45 @@ export async function POST(request: Request) {
       );
     }
 
-    // decoded has shape { userId, email, role }
     const sellerId = decoded.userId;
 
-    // --- Parse JSON body ---
+    // 3️⃣ Parse JSON body
     const body = await request.json();
 
-    // Validate with Zod (CreateProductSchema expects proper types)
+    // 4️⃣ Validate with Zod
     const validation = CreateProductSchema.safeParse(body);
     if (!validation.success) {
-      // Return the first Zod message for simplicity
-      const firstIssueMessage =
-        validation.error?.issues?.[0]?.message || "Validation failed";
-      return NextResponse.json({ message: firstIssueMessage }, { status: 400 });
+      return NextResponse.json(
+        {
+          message: "Validation failed",
+          errors: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
     }
 
     const data = validation.data as CreateProductDTO;
 
-    // --- Create product in DB (matching your Prisma Product model) ---
+    // 5️⃣ Create product in DB
     const product = await prisma.product.create({
       data: {
         sellerId: sellerId,
         title: data.title,
         description: data.description,
-        images: data.images,
+        images: data.images, // URLs from /api/upload
         startingBid: data.startingBid,
         currentBid: 0,
         auctionStart: new Date(),
         auctionEnd: data.auctionEnd,
         location: data.location,
-        // other fields (winnerId, finalBidAmount, etc.) will remain null/ defaults
       },
     });
 
     return NextResponse.json(
-      { message: "Product created successfully", product },
+      {
+        message: "Product created successfully",
+        product,
+      },
       { status: 201 }
     );
   } catch (e) {

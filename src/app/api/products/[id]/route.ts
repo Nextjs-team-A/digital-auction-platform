@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 import { UpdateProductSchema } from "@/utils/validationSchema";
 import type { UpdateProductDTO } from "@/utils/dto";
@@ -30,32 +30,28 @@ import type { UpdateProductDTO } from "@/utils/dto";
  *  - 404: if not found
  */
 export async function GET(
-    request: NextRequest,
-    context: { params: { id: string } }
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-    const { id } = context.params;
+  try {
+    const { id } = await params; // ✅ FIXED: await params
 
-    try {
-        const product = await prisma.product.findUnique({
-            where: { id },
-            // include: { bids: true, seller: true } // if you need relations
-        });
+    const product = await prisma.product.findUnique({
+      where: { id },
+    });
 
-        if (!product) {
-            return NextResponse.json(
-                { message: "Product not found" },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json(product, { status: 200 });
-    } catch (error) {
-        console.error("GET_PRODUCT_ERROR:", error);
-        return NextResponse.json(
-            { message: "Server error" },
-            { status: 500 }
-        );
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
     }
+
+    return NextResponse.json(product, { status: 200 });
+  } catch (error) {
+    console.error("GET PRODUCT BY ID ERROR:", error);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
 }
 
 /**
@@ -70,87 +66,88 @@ export async function GET(
  *  - 404 if product not found
  */
 export async function PUT(
-    request: NextRequest,
-    context: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-    const { id } = context.params;
+  const { id } = await context.params; // ✅ FIXED: await params
 
-    // 1️⃣ Ensure user is authenticated
-    const authUser = getAuthUser(request);
-    if (!authUser) {
-        return NextResponse.json(
-            { message: "Unauthorized" },
-            { status: 401 }
-        );
+  // 1️⃣ Ensure user is authenticated
+  const authUser = getAuthUser(request);
+  if (!authUser) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    // 2️⃣ Ensure product exists first
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
     }
 
-    try {
-        // 2️⃣ Ensure product exists first
-        const existingProduct = await prisma.product.findUnique({
-            where: { id },
-        });
+    // 3️⃣ Authorization: only seller or ADMIN may update
+    const isOwner = existingProduct.sellerId === authUser.userId;
+    const isAdmin = authUser.role === "ADMIN";
 
-        if (!existingProduct) {
-            return NextResponse.json(
-                { message: "Product not found" },
-                { status: 404 }
-            );
-        }
-
-        // 3️⃣ Authorization: only seller or ADMIN may update
-        const isOwner = existingProduct.sellerId === authUser.userId;
-        const isAdmin = authUser.role === "ADMIN";
-
-        if (!isOwner && !isAdmin) {
-            return NextResponse.json(
-                { message: "Forbidden: you cannot edit this product" },
-                { status: 403 }
-            );
-        }
-
-        // 4️⃣ Parse and validate request body
-        const rawBody = (await request.json()) as Partial<UpdateProductDTO>;
-
-        // Handle auctionEnd being sent as string by frontend:
-        const normalizedBody: any = { ...rawBody };
-        if (normalizedBody.auctionEnd && typeof normalizedBody.auctionEnd === "string") {
-            normalizedBody.auctionEnd = new Date(normalizedBody.auctionEnd);
-        }
-
-        const parsed = UpdateProductSchema.safeParse(normalizedBody);
-        if (!parsed.success) {
-            return NextResponse.json(
-                {
-                    message: "Validation failed",
-                    errors: parsed.error.flatten().fieldErrors,
-                },
-                { status: 400 }
-            );
-        }
-
-        const data = parsed.data;
-
-        // 5️⃣ Update product with validated data
-        const updatedProduct = await prisma.product.update({
-            where: { id },
-            data: {
-                title: data.title ?? existingProduct.title,
-                description: data.description ?? existingProduct.description,
-                images: data.images ?? existingProduct.images,
-                startingBid: data.startingBid ?? existingProduct.startingBid,
-                auctionEnd: data.auctionEnd ?? existingProduct.auctionEnd,
-                location: data.location ?? existingProduct.location,
-            },
-        });
-
-        return NextResponse.json(updatedProduct, { status: 200 });
-    } catch (error) {
-        console.error("UPDATE_PRODUCT_ERROR:", error);
-        return NextResponse.json(
-            { message: "Server error" },
-            { status: 500 }
-        );
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json(
+        { message: "Forbidden: you cannot edit this product" },
+        { status: 403 }
+      );
     }
+
+    // 4️⃣ Parse and validate request body
+    const rawBody = (await request.json()) as Partial<UpdateProductDTO>;
+
+    // Handle auctionEnd being sent as string by frontend:
+    const normalizedBody: Partial<UpdateProductDTO> & {
+      auctionEnd?: Date | string;
+    } = {
+      ...rawBody,
+    };
+    if (
+      normalizedBody.auctionEnd &&
+      typeof normalizedBody.auctionEnd === "string"
+    ) {
+      normalizedBody.auctionEnd = new Date(normalizedBody.auctionEnd);
+    }
+
+    const parsed = UpdateProductSchema.safeParse(normalizedBody);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          message: "Validation failed",
+          errors: parsed.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const data = parsed.data;
+
+    // 5️⃣ Update product with validated data
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: {
+        title: data.title ?? existingProduct.title,
+        description: data.description ?? existingProduct.description,
+        images: data.images ?? existingProduct.images,
+        startingBid: data.startingBid ?? existingProduct.startingBid,
+        auctionEnd: data.auctionEnd ?? existingProduct.auctionEnd,
+        location: data.location ?? existingProduct.location,
+      },
+    });
+
+    return NextResponse.json(updatedProduct, { status: 200 });
+  } catch (error) {
+    console.error("UPDATE_PRODUCT_ERROR:", error);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
 }
 
 /**
@@ -164,58 +161,52 @@ export async function PUT(
  *  - 404 if product not found
  */
 export async function DELETE(
-    request: NextRequest,
-    context: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-    const { id } = context.params;
+  const { id } = await context.params; // ✅ FIXED: await params
 
-    // 1️⃣ Ensure user is authenticated
-    const authUser = getAuthUser(request);
-    if (!authUser) {
-        return NextResponse.json(
-            { message: "Unauthorized" },
-            { status: 401 }
-        );
+  // 1️⃣ Ensure user is authenticated
+  const authUser = getAuthUser(request);
+  if (!authUser) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    // 2️⃣ Ensure product exists first
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
     }
 
-    try {
-        // 2️⃣ Ensure product exists first
-        const existingProduct = await prisma.product.findUnique({
-            where: { id },
-        });
+    // 3️⃣ Authorization: only seller or ADMIN may delete
+    const isOwner = existingProduct.sellerId === authUser.userId;
+    const isAdmin = authUser.role === "ADMIN";
 
-        if (!existingProduct) {
-            return NextResponse.json(
-                { message: "Product not found" },
-                { status: 404 }
-            );
-        }
-
-        // 3️⃣ Authorization: only seller or ADMIN may delete
-        const isOwner = existingProduct.sellerId === authUser.userId;
-        const isAdmin = authUser.role === "ADMIN";
-
-        if (!isOwner && !isAdmin) {
-            return NextResponse.json(
-                { message: "Forbidden: you cannot delete this product" },
-                { status: 403 }
-            );
-        }
-
-        // 4️⃣ Delete product
-        await prisma.product.delete({
-            where: { id },
-        });
-
-        return NextResponse.json(
-            { message: "Product deleted successfully" },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("DELETE_PRODUCT_ERROR:", error);
-        return NextResponse.json(
-            { message: "Server error" },
-            { status: 500 }
-        );
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json(
+        { message: "Forbidden: you cannot delete this product" },
+        { status: 403 }
+      );
     }
+
+    // 4️⃣ Delete product
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: "Product deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("DELETE_PRODUCT_ERROR:", error);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
 }
