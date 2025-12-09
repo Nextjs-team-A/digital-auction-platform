@@ -1,8 +1,3 @@
-// ========================================
-// CLIENT COMPONENT
-// ========================================
-// src/app/products/ProductsList.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,6 +20,11 @@ export default function ProductsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // NEW STATES FOR BIDDING
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [bidAmount, setBidAmount] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -46,6 +46,46 @@ export default function ProductsList() {
     }
   };
 
+  // SUBMIT BID FUNCTION
+  const submitBid = async () => {
+    if (!selectedProduct) return;
+
+    const bid = parseFloat(bidAmount);
+    if (isNaN(bid) || bid <= 0) {
+      alert("Please enter a valid bid amount.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/products/${selectedProduct.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bidAmount: bid,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Bid failed");
+        return;
+      }
+
+      alert("Bid placed successfully!");
+      setSelectedProduct(null);
+
+      // Refresh product list to show updated currentBid
+      fetchProducts();
+    } catch (err) {
+      alert("Bid failed. Try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <div style={{ padding: "20px" }}>Loading products...</div>;
   }
@@ -55,121 +95,180 @@ export default function ProductsList() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h1>All Products</h1>
-        <Link
-          href="/products/create"
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px",
-          }}
-        >
-          Create New Product
-        </Link>
-      </div>
-
-      {products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <p>No products available yet.</p>
-        </div>
-      ) : (
+    <>
+      <div style={{ padding: "20px" }}>
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "20px",
           }}
         >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              style={{
-                border: "1px solid #ddd",
-                padding: "15px",
-                borderRadius: "8px",
-              }}
-            >
-              {product.images && product.images.length > 0 && (
-                <img
-                  src={product.images[0]}
-                  alt={product.title}
-                  onError={(e) => {
-                    console.error("Image failed to load:", product.images[0]);
-                    e.currentTarget.src = "/placeholder.png"; // Fallback image
-                  }}
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                    objectFit: "cover",
-                    marginBottom: "10px",
-                    borderRadius: "4px",
-                    backgroundColor: "#f0f0f0",
-                  }}
-                />
-              )}
-              <h3 style={{ marginBottom: "10px" }}>{product.title}</h3>
-              <p
+          <h1>All Products</h1>
+          <Link
+            href="/products/create"
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#0070f3",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "4px",
+            }}
+          >
+            Create New Product
+          </Link>
+        </div>
+
+        {products.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p>No products available yet.</p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {products.map((product) => (
+              <div
+                key={product.id}
                 style={{
-                  fontSize: "14px",
-                  color: "#666",
-                  marginBottom: "10px",
+                  border: "1px solid #ddd",
+                  padding: "15px",
+                  borderRadius: "8px",
                 }}
               >
-                {product.description.length > 100
-                  ? product.description.substring(0, 100) + "..."
-                  : product.description}
-              </p>
-              <div style={{ marginBottom: "10px" }}>
-                <p style={{ margin: "5px 0" }}>
+                {product.images?.[0] && (
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.png";
+                    }}
+                    style={{
+                      width: "100%",
+                      height: "200px",
+                      objectFit: "cover",
+                      borderRadius: "4px",
+                    }}
+                  />
+                )}
+
+                <h3>{product.title}</h3>
+
+                <p style={{ fontSize: "14px", color: "#666" }}>
+                  {product.description.length > 100
+                    ? product.description.substring(0, 100) + "..."
+                    : product.description}
+                </p>
+
+                <p>
                   <strong>Starting Bid:</strong> ${product.startingBid}
                 </p>
-                <p style={{ margin: "5px 0" }}>
+                <p>
                   <strong>Current Bid:</strong> ${product.currentBid}
                 </p>
-                <p style={{ margin: "5px 0" }}>
-                  <strong>Location:</strong> {product.location}
-                </p>
-                <p style={{ margin: "5px 0" }}>
-                  <strong>Status:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        product.status === "ACTIVE"
-                          ? "green"
-                          : product.status === "SOLD"
-                          ? "blue"
-                          : "gray",
-                    }}
-                  >
-                    {product.status}
-                  </span>
-                </p>
-                <p style={{ margin: "5px 0", fontSize: "14px" }}>
+                <p>
                   <strong>Ends:</strong>{" "}
                   {new Date(product.auctionEnd).toLocaleString()}
                 </p>
-              </div>
 
-              {product.images && product.images.length > 1 && (
-                <p style={{ fontSize: "12px", color: "#999" }}>
-                  +{product.images.length - 1} more image(s)
-                </p>
-              )}
-            </div>
-          ))}
+                <button
+                  style={{
+                    marginTop: "10px",
+                    width: "100%",
+                    padding: "10px",
+                    background: "#2563eb",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    setSelectedProduct(product);
+                    setBidAmount("");
+                  }}
+                >
+                  Make a Bid
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* BID MODAL */}
+      {selectedProduct && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 50,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: "20px",
+              width: "400px",
+              borderRadius: "8px",
+            }}
+          >
+            <h3>Place Bid for: {selectedProduct.title}</h3>
+
+            <input
+              type="number"
+              value={bidAmount}
+              onChange={(e) => setBidAmount(e.target.value)}
+              placeholder="Enter your bid"
+              style={{
+                width: "100%",
+                padding: "10px",
+                marginTop: "10px",
+                borderRadius: "6px",
+              }}
+            />
+
+            <button
+              onClick={submitBid}
+              disabled={isSubmitting}
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                padding: "10px",
+                background: "green",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+              }}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Bid"}
+            </button>
+
+            <button
+              onClick={() => setSelectedProduct(null)}
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                padding: "10px",
+                background: "#888",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
