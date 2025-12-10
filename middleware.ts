@@ -1,3 +1,5 @@
+// src/middleware.ts
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/jwt";
@@ -7,7 +9,9 @@ const protectedPaths = [
   "/profile",
   "/change-password",
   "/change-email",
-  // Add more pages that require login here
+  "/products/create",
+  "/products/my-products",
+  "/products/edit",
 ];
 
 export function middleware(req: NextRequest) {
@@ -37,11 +41,14 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Apply middleware only to the paths we care about
+// Apply middleware to protected paths
 export const config = {
   matcher: [
     "/profile/:path*",
     "/change-password/:path*",
     "/change-email/:path*",
+    "/products/create/:path*",
+    "/products/my-products/:path*",
+    "/products/edit/:path*",
   ],
 };

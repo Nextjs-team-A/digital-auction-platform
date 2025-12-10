@@ -46,8 +46,9 @@ export const ChangePasswordSchema = z.object({
 // Accept only these two valid locations.
 const locationEnum = z.enum(["Beirut", "Outside Beirut"]);
 
-// Lebanese phone number validation
-const phoneRegex = /^(\+961|0)[0-9]{8}$/;
+// New: accept +961XXXXXXXX or local 8-digit numbers
+const phoneRegex =
+  /^(\+961\d{8}|03\d{6}|70\d{6}|71\d{6}|76\d{6}|78\d{6}|79\d{6}|81\d{6})$/;
 
 // Create Profile Schema
 export const CreateProfileSchema = z.object({
@@ -77,13 +78,26 @@ export const UpdateProfileSchema = z.object({
    PRODUCT VALIDATIONS 
 ----------------------------------------------*/
 
-// Create Product Schema
+// In validationSchema.ts
+
+// Create Product Schema - UPDATED
 export const CreateProductSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  images: z.array(z.string().url("Invalid image URL")).min(1, "At least one image is required"),
+  images: z
+    .array(
+      z.string().min(1, "Image path is required")
+      // Changed from z.string().url() to just z.string().min(1)
+      // This accepts both full URLs and relative paths like /uploads/products/...
+    )
+    .min(1, "At least one image is required"),
   startingBid: z.number().positive("Starting bid must be greater than 0"),
-  auctionEnd: z.date().refine(date => date > new Date(), "Auction end date must be in the future"),
+  auctionEnd: z.coerce
+    .date()
+    .refine(
+      (date) => date > new Date(),
+      "Auction end date must be in the future"
+    ),
   location: z.enum(["Beirut", "Outside Beirut"], "Location is required"),
 });
 
@@ -93,6 +107,9 @@ export const UpdateProductSchema = z.object({
   description: z.string().min(1).optional(),
   images: z.array(z.string().url()).optional(),
   startingBid: z.number().positive().optional(),
-  auctionEnd: z.date().refine(date => date > new Date()).optional(),
+  auctionEnd: z
+    .date()
+    .refine((date) => date > new Date())
+    .optional(),
   location: z.enum(["Beirut", "Outside Beirut"]).optional(),
 });
