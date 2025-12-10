@@ -22,7 +22,7 @@ interface Props {
   error: string;
   deleteLoading: string | null;
   onDelete: (id: string) => void;
-  onEdit: (id: string) => void;
+  onEdit: (id: string) => void; // kept for compatibility, even though we now use <Link>
 }
 
 export default function MyProductsUI({
@@ -157,19 +157,22 @@ export default function MyProductsUI({
               )}
 
               <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-                <button
-                  onClick={() => onEdit(p.id)}
+                {/* EDIT now navigates to the edit page */}
+                <Link
+                  href={`/products/edit/${p.id}`}
                   style={{
                     flex: 1,
+                    display: "inline-block",
+                    textAlign: "center",
                     padding: "8px",
                     backgroundColor: "#0070f3",
                     color: "white",
-                    border: "none",
+                    textDecoration: "none",
                     borderRadius: "4px",
                   }}
                 >
                   Edit
-                </button>
+                </Link>
 
                 <button
                   onClick={() => onDelete(p.id)}
