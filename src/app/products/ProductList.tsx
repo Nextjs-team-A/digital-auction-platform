@@ -20,7 +20,7 @@ export default function ProductsList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // NEW STATES FOR BIDDING
+  // Bidding states
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +46,6 @@ export default function ProductsList() {
     }
   };
 
-  // SUBMIT BID FUNCTION
   const submitBid = async () => {
     if (!selectedProduct) return;
 
@@ -62,145 +61,127 @@ export default function ProductsList() {
       const res = await fetch(`/api/products/${selectedProduct.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bidAmount: bid,
-        }),
+        body: JSON.stringify({ bidAmount: bid }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Bid failed");
+        alert(data.message ?? "Bid failed");
         return;
       }
 
       alert("Bid placed successfully!");
       setSelectedProduct(null);
-
-      // Refresh product list to show updated currentBid
       fetchProducts();
     } catch (err) {
-      alert("Bid failed. Try again.");
+      alert("Bid failed.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (loading) {
-    return <div style={{ padding: "20px" }}>Loading products...</div>;
-  }
-
-  if (error) {
-    return <div style={{ padding: "20px", color: "red" }}>{error}</div>;
-  }
+  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
+  if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
 
   return (
-    <>
-      <div style={{ padding: "20px" }}>
-        <div
+    <div style={{ padding: "20px" }}>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
+        <h1>All Products</h1>
+        <Link
+          href="/products/create"
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#0070f3",
+            color: "white",
+            borderRadius: "4px",
           }}
         >
-          <h1>All Products</h1>
-          <Link
-            href="/products/create"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: "4px",
-            }}
-          >
-            Create New Product
-          </Link>
-        </div>
-
-        {products.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px" }}>
-            <p>No products available yet.</p>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              gap: "20px",
-            }}
-          >
-            {products.map((product) => (
-              <div
-                key={product.id}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "15px",
-                  borderRadius: "8px",
-                }}
-              >
-                {product.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.title}
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.png";
-                    }}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "cover",
-                      borderRadius: "4px",
-                    }}
-                  />
-                )}
-
-                <h3>{product.title}</h3>
-
-                <p style={{ fontSize: "14px", color: "#666" }}>
-                  {product.description.length > 100
-                    ? product.description.substring(0, 100) + "..."
-                    : product.description}
-                </p>
-
-                <p>
-                  <strong>Starting Bid:</strong> ${product.startingBid}
-                </p>
-                <p>
-                  <strong>Current Bid:</strong> ${product.currentBid}
-                </p>
-                <p>
-                  <strong>Ends:</strong>{" "}
-                  {new Date(product.auctionEnd).toLocaleString()}
-                </p>
-
-                <button
-                  style={{
-                    marginTop: "10px",
-                    width: "100%",
-                    padding: "10px",
-                    background: "#2563eb",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setBidAmount("");
-                  }}
-                >
-                  Make a Bid
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+          Create New Product
+        </Link>
       </div>
 
-      {/* BID MODAL */}
+      {/* Product list */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        {products.map((p) => (
+          <div
+            key={p.id}
+            style={{
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "15px",
+            }}
+          >
+            {p.images?.[0] && (
+              <img
+                src={p.images[0]}
+                alt={p.title}
+                onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  objectFit: "cover",
+                  borderRadius: 4,
+                  marginBottom: 10,
+                }}
+              />
+            )}
+
+            <h3>{p.title}</h3>
+            <p style={{ color: "#666" }}>
+              {p.description.length > 100
+                ? p.description.substring(0, 100) + "..."
+                : p.description}
+            </p>
+
+            <p>
+              <strong>Starting Bid:</strong> ${p.startingBid}
+            </p>
+            <p>
+              <strong>Current Bid:</strong> ${p.currentBid}
+            </p>
+            <p>
+              <strong>Location:</strong> {p.location}
+            </p>
+            <p>
+              <strong>Ends:</strong> {new Date(p.auctionEnd).toLocaleString()}
+            </p>
+
+            <button
+              onClick={() => {
+                setSelectedProduct(p);
+                setBidAmount("");
+              }}
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                padding: "10px",
+                background: "#2563eb",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+              }}
+            >
+              Make a Bid
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Modal */}
       {selectedProduct && (
         <div
           style={{
@@ -210,29 +191,29 @@ export default function ProductsList() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 50,
           }}
         >
           <div
             style={{
               background: "white",
               padding: "20px",
-              width: "400px",
-              borderRadius: "8px",
+              width: 400,
+              borderRadius: 8,
             }}
           >
             <h3>Place Bid for: {selectedProduct.title}</h3>
 
             <input
               type="number"
+              placeholder="Enter your bid"
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
-              placeholder="Enter your bid"
               style={{
                 width: "100%",
                 padding: "10px",
-                marginTop: "10px",
-                borderRadius: "6px",
+                borderRadius: 6,
+                marginTop: 10,
+                border: "1px solid #ccc",
               }}
             />
 
@@ -240,13 +221,12 @@ export default function ProductsList() {
               onClick={submitBid}
               disabled={isSubmitting}
               style={{
-                marginTop: "10px",
+                marginTop: 10,
                 width: "100%",
-                padding: "10px",
+                padding: 10,
                 background: "green",
                 color: "white",
-                border: "none",
-                borderRadius: "6px",
+                borderRadius: 6,
               }}
             >
               {isSubmitting ? "Submitting..." : "Submit Bid"}
@@ -255,13 +235,12 @@ export default function ProductsList() {
             <button
               onClick={() => setSelectedProduct(null)}
               style={{
-                marginTop: "10px",
+                marginTop: 10,
                 width: "100%",
-                padding: "10px",
+                padding: 10,
                 background: "#888",
                 color: "white",
-                border: "none",
-                borderRadius: "6px",
+                borderRadius: 6,
               }}
             >
               Cancel
@@ -269,6 +248,6 @@ export default function ProductsList() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
