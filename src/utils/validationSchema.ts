@@ -101,15 +101,24 @@ export const CreateProductSchema = z.object({
   location: z.enum(["Beirut", "Outside Beirut"], "Location is required"),
 });
 
+// REPLACE the UpdateProductSchema in your validation.ts with this:
+
 // Update Product Schema (all optional)
 export const UpdateProductSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
-  images: z.array(z.string().url()).optional(),
+  images: z
+    .array(
+      z.string().min(1) // Changed from z.string().url() to accept both URLs and paths
+    )
+    .optional(),
   startingBid: z.number().positive().optional(),
-  auctionEnd: z
+  auctionEnd: z.coerce
     .date()
-    .refine((date) => date > new Date())
+    .refine(
+      (date) => date > new Date(),
+      "Auction end date must be in the future"
+    )
     .optional(),
   location: z.enum(["Beirut", "Outside Beirut"]).optional(),
 });
