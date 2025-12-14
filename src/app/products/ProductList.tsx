@@ -1,3 +1,5 @@
+// src/app/products/page.tsx (or wherever your ProductsList component is)
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,6 +15,7 @@ interface Product {
   auctionEnd: string;
   location: string;
   status: string;
+  winnerId?: string;
 }
 
 export default function ProductsList() {
@@ -81,6 +84,75 @@ export default function ProductsList() {
     }
   };
 
+  /**
+   * Check if auction has ended
+   */
+  const isAuctionEnded = (product: Product) => {
+    return (
+      product.status === "ENDED" || new Date(product.auctionEnd) < new Date()
+    );
+  };
+
+  /**
+   * Get auction status badge
+   */
+  const getStatusBadge = (product: Product) => {
+    if (product.status === "ENDED") {
+      return (
+        <span
+          style={{
+            display: "inline-block",
+            padding: "4px 8px",
+            backgroundColor: "#dc3545",
+            color: "white",
+            borderRadius: "4px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            marginBottom: "10px",
+          }}
+        >
+          AUCTION ENDED
+        </span>
+      );
+    }
+
+    if (isAuctionEnded(product)) {
+      return (
+        <span
+          style={{
+            display: "inline-block",
+            padding: "4px 8px",
+            backgroundColor: "#ffc107",
+            color: "#000",
+            borderRadius: "4px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            marginBottom: "10px",
+          }}
+        >
+          ENDING SOON
+        </span>
+      );
+    }
+
+    return (
+      <span
+        style={{
+          display: "inline-block",
+          padding: "4px 8px",
+          backgroundColor: "#28a745",
+          color: "white",
+          borderRadius: "4px",
+          fontSize: "12px",
+          fontWeight: "bold",
+          marginBottom: "10px",
+        }}
+      >
+        LIVE AUCTION
+      </span>
+    );
+  };
+
   if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
   if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
 
@@ -102,6 +174,7 @@ export default function ProductsList() {
             backgroundColor: "#0070f3",
             color: "white",
             borderRadius: "4px",
+            textDecoration: "none",
           }}
         >
           Create New Product
@@ -116,69 +189,103 @@ export default function ProductsList() {
           gap: "20px",
         }}
       >
-        {products.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "15px",
-            }}
-          >
-            {p.images?.[0] && (
-              <img
-                src={p.images[0]}
-                alt={p.title}
-                onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                style={{
-                  width: "100%",
-                  height: 200,
-                  objectFit: "cover",
-                  borderRadius: 4,
-                  marginBottom: 10,
-                }}
-              />
-            )}
+        {products.map((p) => {
+          const ended = isAuctionEnded(p);
 
-            <h3>{p.title}</h3>
-            <p style={{ color: "#666" }}>
-              {p.description.length > 100
-                ? p.description.substring(0, 100) + "..."
-                : p.description}
-            </p>
-
-            <p>
-              <strong>Starting Bid:</strong> ${p.startingBid}
-            </p>
-            <p>
-              <strong>Current Bid:</strong> ${p.currentBid}
-            </p>
-            <p>
-              <strong>Location:</strong> {p.location}
-            </p>
-            <p>
-              <strong>Ends:</strong> {new Date(p.auctionEnd).toLocaleString()}
-            </p>
-
-            <button
-              onClick={() => {
-                setSelectedProduct(p);
-                setBidAmount("");
-              }}
+          return (
+            <div
+              key={p.id}
               style={{
-                marginTop: "10px",
-                width: "100%",
-                padding: "10px",
-                background: "#2563eb",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "15px",
+                opacity: ended ? 0.7 : 1,
               }}
             >
-              Make a Bid
-            </button>
-          </div>
-        ))}
+              {p.images?.[0] && (
+                <img
+                  src={p.images[0]}
+                  alt={p.title}
+                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                  style={{
+                    width: "100%",
+                    height: 200,
+                    objectFit: "cover",
+                    borderRadius: 4,
+                    marginBottom: 10,
+                  }}
+                />
+              )}
+
+              {/* Status Badge */}
+              {getStatusBadge(p)}
+
+              <h3>{p.title}</h3>
+              <p style={{ color: "#666" }}>
+                {p.description.length > 100
+                  ? p.description.substring(0, 100) + "..."
+                  : p.description}
+              </p>
+
+              <p>
+                <strong>Starting Bid:</strong> ${p.startingBid}
+              </p>
+              <p>
+                <strong>Current Bid:</strong> ${p.currentBid}
+              </p>
+              <p>
+                <strong>Location:</strong> {p.location}
+              </p>
+              <p>
+                <strong>Ends:</strong> {new Date(p.auctionEnd).toLocaleString()}
+              </p>
+
+              {/* Bid Button - Disabled if auction ended */}
+              <button
+                onClick={() => {
+                  if (ended) {
+                    alert(
+                      "This auction has ended. Bidding is no longer available."
+                    );
+                    return;
+                  }
+                  setSelectedProduct(p);
+                  setBidAmount("");
+                }}
+                disabled={ended}
+                style={{
+                  marginTop: "10px",
+                  width: "100%",
+                  padding: "10px",
+                  background: ended ? "#ccc" : "#2563eb",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: ended ? "not-allowed" : "pointer",
+                }}
+                title={ended ? "Auction has ended" : "Place a bid"}
+              >
+                {ended ? "Auction Ended" : "Make a Bid"}
+              </button>
+
+              {/* Show winner if auction ended */}
+              {p.status === "ENDED" && p.winnerId && (
+                <p
+                  style={{
+                    marginTop: "10px",
+                    padding: "10px",
+                    backgroundColor: "#d4edda",
+                    borderRadius: "4px",
+                    fontSize: "14px",
+                    color: "#155724",
+                  }}
+                >
+                  ✅ This auction has been won!
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Modal */}
@@ -227,6 +334,7 @@ export default function ProductsList() {
                 background: "green",
                 color: "white",
                 borderRadius: 6,
+                cursor: isSubmitting ? "not-allowed" : "pointer",
               }}
             >
               {isSubmitting ? "Submitting..." : "Submit Bid"}
