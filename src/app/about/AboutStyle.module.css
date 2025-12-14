@@ -1,0 +1,379 @@
+/*
+ * Design Implementation for the About Us Page
+ * Uses standard CSS and CSS Modules (no Tailwind) for a modern, elegant aesthetic.
+ */
+
+/* ========================================================================= */
+/* BASE LAYOUT & GLOBAL STYLING */
+/* ========================================================================= */
+
+.mainContainer {
+    min-height: 100vh;
+    padding-top: 4rem;
+    /* pt-16 */
+    padding-bottom: 3rem;
+    /* pb-12 */
+    /* Uses global CSS variables from globals.css */
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans), sans-serif;
+    /* Using the Geist font variable from layout.tsx */
+}
+
+.sectionContainer {
+    padding: 4rem 1rem;
+    /* py-16 px-4 */
+}
+
+/* Media query for medium/desktop devices (md: and above) */
+@media (min-width: 768px) {
+    .sectionContainer {
+        padding: 7rem 1rem;
+        /* md:py-28 */
+    }
+}
+
+/* Media query for large desktop devices (lg: and above) */
+@media (min-width: 1024px) {
+    .sectionContainer {
+        padding: 9rem 1rem;
+        /* lg:py-36 */
+    }
+}
+
+.contentContainer {
+    max-width: 1280px;
+    /* max-w-7xl */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ========================================================================= */
+/* ANIMATION UTILITIES (Replaces AnimatedSection logic) */
+/* ========================================================================= */
+
+.animatedSection {
+    /* Initial state: invisible and slightly pushed down */
+    opacity: 0;
+    transform: translateY(3rem);
+    /* translate-y-12 (48px) */
+    transition: opacity 1000ms ease-out, transform 1000ms ease-out;
+}
+
+.animatedSection.isVisible {
+    /* Final state: visible and in place */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================================================= */
+/* HERO SECTION STYLES */
+/* ========================================================================= */
+
+.heroSection {
+    text-align: center;
+}
+
+.heroTitle {
+    font-size: 2.25rem;
+    /* text-4xl */
+    font-weight: 800;
+    /* font-extrabold */
+    margin-bottom: 1.5rem;
+    /* mb-6 */
+    letter-spacing: -0.05em;
+    /* tracking-tight */
+}
+
+.heroSubtitle {
+    font-size: 1rem;
+    /* text-md */
+    opacity: 0.7;
+    /* opacity-70 */
+    margin-bottom: 4rem;
+    /* mb-16 */
+    max-width: 64rem;
+    /* max-w-4xl */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive Font Sizes */
+@media (min-width: 640px) {
+
+    /* sm: */
+    .heroTitle {
+        font-size: 3rem;
+    }
+
+    /* sm:text-5xl */
+    .heroSubtitle {
+        font-size: 1.25rem;
+    }
+
+    /* sm:text-xl */
+}
+
+@media (min-width: 768px) {
+
+    /* md: */
+    .heroTitle {
+        font-size: 3.75rem;
+    }
+
+    /* md:text-6xl */
+    .heroSubtitle {
+        font-size: 1.5rem;
+    }
+
+    /* md:text-2xl */
+}
+
+@media (min-width: 1024px) {
+
+    /* lg: */
+    .heroTitle {
+        font-size: 4.5rem;
+    }
+
+    /* lg:text-7xl */
+}
+
+.heroImagePlaceholder {
+    margin: 3rem auto 0;
+    /* mt-12 */
+    width: 100%;
+    max-width: 1280px;
+    /* max-w-7xl */
+    aspect-ratio: 16 / 7;
+    background-color: rgba(180, 180, 180, 0.05);
+    /* bg-gray-200/5 */
+    backdrop-filter: blur(8px);
+    /* backdrop-blur-md */
+    border-radius: 1rem;
+    /* rounded-2xl */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    /* shadow-2xl */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(243, 244, 246, 0.1);
+    /* border-gray-100/10 */
+}
+
+.heroImagePlaceholder p {
+    color: rgba(156, 163, 175, 0.5);
+    /* text-gray-700/50 */
+    font-size: 1.25rem;
+    /* text-xl */
+    font-weight: 500;
+    padding: 1rem;
+}
+
+/* ========================================================================= */
+/* MISSION / VISION / VALUE SECTION STYLES */
+/* ========================================================================= */
+
+.secondarySection {
+    background-color: rgba(249, 250, 251, 0.05);
+    /* bg-gray-50/5 */
+}
+
+.sectionTitle {
+    font-size: 1.875rem;
+    /* text-3xl */
+    font-weight: 700;
+    /* font-bold */
+    text-align: center;
+    margin-bottom: 2.5rem;
+    /* mb-10 or mb-16 */
+}
+
+@media (min-width: 768px) {
+    .sectionTitle {
+        font-size: 2.25rem;
+        /* md:text-4xl */
+    }
+}
+
+.textPlaceholder {
+    font-size: 1.125rem;
+    /* text-lg */
+    max-width: 64rem;
+    /* CRITICAL FIX: Changed from 4rem to 64rem (max-w-4xl) */
+    margin: 1rem auto;
+    /* my-4 */
+    text-align: center;
+    padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+    .textPlaceholder {
+        font-size: 1.25rem;
+        /* md:text-xl */
+    }
+}
+
+/* VALUE CARDS GRID */
+.valueGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    /* grid-cols-1 */
+    gap: 2rem;
+    /* gap-8 */
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+
+    /* md: */
+    .valueGrid {
+        grid-template-columns: repeat(2, 1fr);
+        /* md:grid-cols-2 */
+        gap: 2.5rem;
+        /* md:gap-10 */
+    }
+}
+
+@media (min-width: 1024px) {
+
+    /* lg: */
+    .valueGrid {
+        grid-template-columns: repeat(3, 1fr);
+        /* lg:grid-cols-3 */
+    }
+}
+
+.valueCard {
+    padding: 2rem;
+    /* p-8 */
+    border: 1px solid currentColor;
+    /* border */
+    border-radius: 1rem;
+    /* rounded-2xl */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    /* shadow-xl */
+    transition: all 300ms ease-in-out;
+    background-color: rgba(255, 255, 255, 0.05);
+    /* bg-white/5 */
+    backdrop-filter: blur(4px);
+    /* backdrop-blur-sm */
+}
+
+.valueCard:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* hover:shadow-2xl */
+    transform: scale(1.03);
+    /* hover:scale-[1.03] */
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    /* text-2xl */
+    font-weight: 600;
+    /* font-semibold */
+    margin-bottom: 0.75rem;
+    /* mb-3 */
+}
+
+.cardBody {
+    opacity: 0.7;
+    /* opacity-70 */
+    font-size: 1rem;
+    /* text-base */
+}
+
+/* ========================================================================= */
+/* TEAM SECTION STYLES */
+/* ========================================================================= */
+
+.teamList {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem 2rem;
+    /* gap-x-8 gap-y-12 */
+    max-width: 960px;
+    /* max-w-6xl */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.teamMember {
+    text-align: center;
+    width: 10rem;
+    /* w-40 */
+    transition: transform 300ms ease-in-out;
+}
+
+@media (min-width: 640px) {
+
+    /* sm: */
+    .teamMember {
+        width: 12rem;
+        /* sm:w-48 */
+    }
+}
+
+.teamMember:hover {
+    transform: scale(1.05);
+    /* hover:scale-105 */
+}
+
+.teamImageContainer {
+    width: 8rem;
+    /* w-32 */
+    height: 8rem;
+    /* h-32 */
+    margin: 0 auto;
+    background-color: rgb(209, 213, 219);
+    /* bg-gray-300 */
+    border-radius: 9999px;
+    /* rounded-full */
+    margin-bottom: 1rem;
+    /* mb-4 */
+    overflow: hidden;
+    border: 4px solid transparent;
+    transition: all 300ms ease-in-out;
+}
+
+@media (min-width: 640px) {
+
+    /* sm: */
+    .teamImageContainer {
+        width: 9rem;
+        /* sm:w-36 */
+        height: 9rem;
+        /* sm:h-36 */
+    }
+}
+
+.teamMember:hover .teamImageContainer {
+    border-color: rgba(255, 255, 255, 0.5);
+    /* group-hover:border-white/50 */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    /* group-hover:shadow-xl */
+}
+
+.teamImagePlaceholderText {
+    font-size: 0.875rem;
+    /* text-sm */
+    padding-top: 3rem;
+    /* pt-12 */
+    color: rgb(55, 65, 81);
+    /* text-gray-700 */
+}
+
+.teamName {
+    font-size: 1.25rem;
+    /* text-xl */
+    font-weight: 500;
+}
+
+.teamRole {
+    font-size: 0.875rem;
+    /* text-sm */
+    opacity: 0.7;
+    /* opacity-70 */
+}
