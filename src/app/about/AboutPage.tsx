@@ -1,19 +1,32 @@
+// src/app/about/AboutPage.tsx
 'use client';
 
 // Imports remain the same: using explicit named imports and types
 import { useEffect, useState, useRef, RefObject, FC, ReactNode } from 'react';
-import { Geist } from 'next/font/google';
 import styles from './AboutStyle.module.css';
+
+// NEW IMPORTS: Next.js Image component and React Icons
+import Image from 'next/image';
+import { FaGavel, FaTruck, FaLock } from 'react-icons/fa';
+
+// --- NEW TEAM DATA ---
+const teamMembers = [
+    { name: "Yara", role: "Full-Stack Developer", imagePath: "/pics/yara.png" },
+    { name: "Ali", role: "Full-Stack Developer", imagePath: "/pics/ali.jpg" },
+    { name: "Roya", role: "Front-End Developer", imagePath: "/pics/roya.jpg" },
+    { name: "Ahmad", role: "Front-End Developer", imagePath: "/pics/ahmad.jpg" },
+    { name: "Mohammad", role: "Front-End Developer", imagePath: "/pics/mohammad.jpg" },
+];
+// ---------------------
+
 
 // --- Utility Components for Scroll Interaction ---
 
 /**
  * Custom hook to handle Intersection Observer logic.
- * FIX: The ref parameter is now explicitly typed to include 'null' 
- * to match the return type of useRef(null).
  */
 const useIntersectionObserver = (
-    ref: RefObject<HTMLDivElement | null>, // <--- CRITICAL FIX HERE: Added '| null'
+    ref: RefObject<HTMLDivElement | null>,
     options: IntersectionObserverInit = { threshold: 0.1 }
 ) => {
     const [isIntersecting, setIsIntersecting] = useState(false);
@@ -26,7 +39,6 @@ const useIntersectionObserver = (
             }
         }, options);
 
-        // The ref.current check handles the case where it is null
         if (ref.current) {
             observer.observe(ref.current);
         }
@@ -44,9 +56,8 @@ const useIntersectionObserver = (
 
 // The Animated Section Component
 const AnimatedSection: FC<{ children: ReactNode, className?: string }> = ({ children, className = "" }) => {
-    // This returns RefObject<HTMLDivElement | null>
     const ref = useRef<HTMLDivElement>(null);
-    const isVisible = useIntersectionObserver(ref); // Now correctly accepted
+    const isVisible = useIntersectionObserver(ref);
 
     const visibilityClass = isVisible ? styles.isVisible : '';
 
@@ -67,6 +78,20 @@ const TextPlaceholder: FC<{ children: ReactNode }> = ({ children }) => (
     </div>
 );
 
+// Helper function to get the correct icon for the value card
+const getValueCardIcon = (title: string) => {
+    switch (title) {
+        case 'Live Bidding':
+            return <FaGavel className={styles.valueIcon} />;
+        case 'Managed Logistics':
+            return <FaTruck className={styles.valueIcon} />;
+        case 'Trust & Security':
+            return <FaLock className={styles.valueIcon} />;
+        default:
+            return null;
+    }
+}
+
 // --- Main AboutPage Component ---
 
 const AboutPage: FC = () => {
@@ -84,11 +109,15 @@ const AboutPage: FC = () => {
                         <p className={styles.heroSubtitle}>
                             Redefining premium auction experiences with unwavering trust, transparency, and next-generation technology.
                         </p>
-                        {/* Main Hero Image Placeholder */}
+
+                        {/* HERO IMAGE IMPLEMENTATION */}
                         <div className={styles.heroImagePlaceholder}>
-                            <p className={styles.heroImagePlaceholderText}>
-                                [Placeholder for Responsive Hero Image]
-                            </p>
+                            <Image
+                                src="/pics/hero.png"
+                                alt="Image representing Gainvestor's core business"
+                                layout="fill"
+                                objectFit="cover"
+                            />
                         </div>
                     </div>
                 </section>
@@ -130,6 +159,9 @@ const AboutPage: FC = () => {
                             {/* Cards use module classes for styling and hover effects */}
                             {['Live Bidding', 'Managed Logistics', 'Trust & Security'].map((title, index) => (
                                 <div key={index} className={styles.valueCard}>
+                                    {/* ICON IMPLEMENTATION */}
+                                    {getValueCardIcon(title)}
+
                                     <h3 className={styles.cardTitle}>{title}</h3>
                                     <p className={styles.cardBody}>
                                         {
@@ -147,24 +179,40 @@ const AboutPage: FC = () => {
                 </section>
             </AnimatedSection>
 
-            {/* Placeholder Team Section (Scroll Interaction) */}
+            {/* 5. Team Section (Scroll Interaction) */}
             <AnimatedSection>
                 <section id="team" className={styles.sectionContainer}>
                     <h2 className={styles.sectionTitle} style={{ marginBottom: '4rem' }}>
                         Meet Our Dedicated Team
                     </h2>
-                    <div className={styles.teamList}>
-                        {['Sarah', 'Omar', 'Lena', 'Karim'].map((name) => (
+                    {/* ID added for the Meet The Team button to link to */}
+                    <div className={styles.teamList} id="team-section">
+                        {/* DYNAMIC TEAM MEMBER RENDERING */}
+                        {teamMembers.map((member) => (
                             // Team member wrapper uses module class
-                            <div key={name} className={styles.teamMember}>
+                            <div key={member.name} className={styles.teamMember}>
                                 {/* Team Image Container uses module class */}
                                 <div className={styles.teamImageContainer}>
-                                    <p className={styles.teamImagePlaceholderText}>[Image]</p>
+                                    {/* IMAGE IMPLEMENTATION */}
+                                    <Image
+                                        src={member.imagePath}
+                                        alt={`Picture of ${member.name}`}
+                                        width={150}
+                                        height={150}
+                                        style={{ objectFit: "cover", width: '100%', height: '100%' }}
+                                    />
                                 </div>
-                                <h3 className={styles.teamName}>{name}</h3>
-                                <p className={styles.teamRole}>Role Placeholder</p>
+                                <h3 className={styles.teamName}>{member.name}</h3>
+                                <p className={styles.teamRole}>{member.role}</p>
                             </div>
                         ))}
+                    </div>
+
+                    {/* --- MOVED BUTTON: Now wrapped for centering via CSS Module --- */}
+                    <div className={styles.teamButtonWrapper}>
+                        <a href="#team-section" className={styles.teamButton}>
+                            Meet The Team
+                        </a>
                     </div>
                 </section>
             </AnimatedSection>
