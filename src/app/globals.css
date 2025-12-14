@@ -1,12 +1,29 @@
+/* src/app/globals.css */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- BASE PALETTE --- */
+  --color-navy: #0A2342;
+  --color-light-gray: #F5F6FA;
+  --color-gold: #C6A664;
+  --color-white: #FFFFFF;
+
+  /* --- SEMANTIC VARIABLES (Used throughout the app) --- */
+
+  --background: var(--color-navy);
+  /* Deep Navy Blue */
+  --foreground: var(--color-white);
+  /* White Text */
+  --accent: var(--color-gold);
+  --secondary-bg: color-mix(in srgb, var(--color-navy) 90%, black);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* We are intentionally leaving this block empty 
+       so our custom variables above (e.g., --background: var(--color-navy)) 
+       are used everywhere, regardless of user's system setting. 
+       The initial error was having a second, overriding definition here.
+    */
   }
 }
 
@@ -14,6 +31,11 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+}
+
+/* --- CRITICAL ADDITION FOR SMOOTH SCROLLING --- */
+html {
+  scroll-behavior: smooth;
 }
 
 body {

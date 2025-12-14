@@ -1,0 +1,25 @@
+/* src/components/Header.module.css */
+.header {
+    width: 100%;
+    position: fixed;
+    /* Keeps the header at the top when scrolling */
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    z-index: 1000;
+    /* Ensures header is on top of other content */
+    background-color: color-mix(in srgb, var(--background) 90%, transparent);
+    /* Slight transparency on Navy */
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoContainer {
+    /* Ensures the image respects the container size */
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
