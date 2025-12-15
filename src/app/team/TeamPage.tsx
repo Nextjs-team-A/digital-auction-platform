@@ -29,7 +29,7 @@ const TeamPage: React.FC = () => {
             <header className={styles.hero}>
                 <div className={styles.titleWrapper}>
                     <Image
-                        src="/images/team/logo1.png"
+                        src="/images/logos/logo2.png"
                         alt="Logo Left"
                         width={70}
                         height={70}
@@ -41,7 +41,7 @@ const TeamPage: React.FC = () => {
                     </h1>
 
                     <Image
-                        src="/images/team/logo1.png"
+                        src="/images/logos/logo2.png"
                         alt="Logo Right"
                         width={70}
                         height={70}
