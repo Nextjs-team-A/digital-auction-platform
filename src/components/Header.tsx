@@ -32,7 +32,7 @@ export default function Header() {
             {/* Logo Image and Text Combined */}
             <div className={styles.logoContent}>
               <Image
-                src="/images/team/logo1.png"
+                src="/images/logos/logo2.png"
                 alt="BidZone Logo"
                 width={50}
                 height={50}

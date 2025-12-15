@@ -19,14 +19,30 @@ import Link from "next/link";
 
 // Team Members Data
 const teamMembers = [
-  { name: "Roya", role: "Full-Stack Developer", imagePath: "/pics/yara.png" },
-  { name: "Ali", role: "Full-Stack Developer", imagePath: "/pics/ali.jpg" },
-  { name: "Yara", role: "Front-End Developer", imagePath: "/pics/roya.jpg" },
-  { name: "Ahmad", role: "Front-End Developer", imagePath: "/pics/ahmad.jpg" },
+  {
+    name: "Roya",
+    role: "Full-Stack Developer",
+    imagePath: "/images/team/royakais_v2.png",
+  },
+  {
+    name: "Ali",
+    role: "Full-Stack Developer",
+    imagePath: "/images/team/alichoker.jpeg",
+  },
+  {
+    name: "Yara",
+    role: "Front-End Developer",
+    imagePath: "/images/team/yaraelkassem.jpeg",
+  },
+  {
+    name: "Ahmad",
+    role: "Front-End Developer",
+    imagePath: "/images/team/ahmadkaraki.jpeg",
+  },
   {
     name: "Mohammad",
     role: "Front-End Developer",
-    imagePath: "/pics/mohammad.jpg",
+    imagePath: "/images/team/ahmadkaraki.jpeg",
   },
 ];
 
@@ -186,7 +202,7 @@ const AboutPage: FC = () => {
               <div className={styles.heroImageGlow} />
               <div className={styles.heroImagePlaceholder}>
                 <Image
-                  src="/pics/hero.png"
+                  src="/images/hero/hero.png"
                   alt="Gainvestor Platform"
                   fill
                   style={{ objectFit: "cover" }}
