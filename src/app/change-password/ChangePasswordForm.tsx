@@ -1,91 +1,126 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ChangePasswordForm() {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [oldPass, setOldPass] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [confirm, setConfirm] = useState("");
+
+  const [errors, setErrors] = useState<{
+    oldPass?: string;
+    newPass?: string;
+    confirm?: string;
+  }>({});
+
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMessage("");
 
-    if (newPassword !== confirmPassword) {
-      setMessage("New passwords do not match.");
+    const newErrors: typeof errors = {};
+
+    if (!oldPass) newErrors.oldPass = "Required";
+    if (!newPass) newErrors.newPass = "Required";
+    if (!confirm) newErrors.confirm = "Required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    if (newPass !== confirm) {
+      setErrors({ confirm: "Passwords do not match" });
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
 
     try {
       const res = await fetch("/api/auth/change-pass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // important to send cookies
-        body: JSON.stringify({ oldPassword, newPassword }),
+        credentials: "include",
+        body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage(data.message || "Something went wrong");
-      } else {
-        setMessage(data.message || "Password updated successfully");
+        setErrors({ oldPass: data.message || "Failed to update password" });
+        return;
       }
-    } catch {
-      setMessage("Network error");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Current Password:</label>
-      <br />
-      <input
-        type="password"
-        required
-        value={oldPassword}
-        onChange={(e) => setOldPassword(e.target.value)}
-      />
-      <br />
-      <br />
+    <AuthBackground>
+      <div className={styles.card}>
+        <div className={styles.iconLogo}>🔐</div>
+        <h2 className={styles.title}>Change Password</h2>
 
-      <label>New Password:</label>
-      <br />
-      <input
-        type="password"
-        required
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-      />
-      <br />
-      <br />
+        <form onSubmit={handleSubmit} noValidate>
+          {/* CURRENT PASSWORD */}
+          <div
+            className={`${styles.field} ${errors.oldPass ? styles.fieldError : ""
+              }`}
+          >
+            <input
+              type="password"
+              placeholder=" "
+              value={oldPass}
+              onChange={(e) => setOldPass(e.target.value)}
+            />
+            <label>Current Password</label>
+            {errors.oldPass && (
+              <div className={styles.errorText}>{errors.oldPass}</div>
+            )}
+          </div>
 
-      <label>Confirm New Password:</label>
-      <br />
-      <input
-        type="password"
-        required
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-      <br />
-      <br />
+          {/* NEW PASSWORD */}
+          <div
+            className={`${styles.field} ${errors.newPass ? styles.fieldError : ""
+              }`}
+          >
+            <input
+              type="password"
+              placeholder=" "
+              value={newPass}
+              onChange={(e) => setNewPass(e.target.value)}
+            />
+            <label>New Password</label>
+            {errors.newPass && (
+              <div className={styles.errorText}>{errors.newPass}</div>
+            )}
+          </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? "Updating..." : "Change Password"}
-      </button>
+          {/* CONFIRM PASSWORD */}
+          <div
+            className={`${styles.field} ${errors.confirm ? styles.fieldError : ""
+              }`}
+          >
+            <input
+              type="password"
+              placeholder=" "
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
+            <label>Confirm Password</label>
+            {errors.confirm && (
+              <div className={styles.errorText}>{errors.confirm}</div>
+            )}
+          </div>
 
-      {message && <p>{message}</p>}
-
-      <p>
-        Back to profile <a href="/profile">Back to profile </a>
-      </p>
-    </form>
+          <button className={styles.button} disabled={loading}>
+            {loading ? "Updating..." : "Update Password"}
+          </button>
+        </form>
+      </div>
+    </AuthBackground>
   );
 }

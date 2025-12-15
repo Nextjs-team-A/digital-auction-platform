@@ -1,16 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
-export default function ForgotPasswordForm() {
+export default function ForgotPasswordClient() {
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!email) {
+      setError("Required");
+      return;
+    }
+
+    setError("");
     setLoading(true);
-    setMessage("");
 
     try {
       const res = await fetch("/api/auth/forgot-pass", {
@@ -20,39 +28,35 @@ export default function ForgotPasswordForm() {
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        setMessage(data.error || "Something went wrong");
-      } else {
-        setMessage("If this email exists, a reset link has been sent.");
-      }
+      setMessage(data.message || "If email exists, reset link sent.");
     } catch {
-      setMessage("Network error");
+      setError("Network error");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Email:</label>
-      <br />
-      <input
-        type="email"
-        name="email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
-      <p>
-        Back to login <a href="/login">Login</a>
-      </p>
-      <br />
-      <button type="submit" disabled={loading}>
-        {loading ? "Sending..." : "Send Reset Link"}
-      </button>
-      {message && <p>{message}</p>}
-    </form>
+    <AuthBackground>
+      <div className={styles.card}>
+        <div className={styles.iconLogo}>🔒</div>
+        <h2 className={styles.title}>Forgot Password</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className={`${styles.field} ${error ? styles.fieldError : ""}`}>
+            <input placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label>Email</label>
+            {error && <div className={styles.errorText}>{error}</div>}
+          </div>
+
+          <button className={styles.button} disabled={loading}>
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
+
+        {message && <p className={styles.link}>{message}</p>}
+        <a href="/login" className={styles.link}>Back to login</a>
+      </div>
+    </AuthBackground>
   );
 }

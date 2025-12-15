@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
 export default function RegisterClient() {
   const router = useRouter();
@@ -10,74 +11,129 @@ export default function RegisterClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("USER");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
+
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!email) newErrors.email = "Required";
+    if (!password) newErrors.password = "Required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email, password, role }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
-        setError(data.message || "Registration failed");
-        setIsLoading(false);
+      if (!res.ok) {
+        setErrors({
+          email: data.message || "Registration failed",
+        });
         return;
       }
 
       router.push("/profile/create");
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong");
+    } catch {
+      setErrors({
+        email: "Network error. Please try again.",
+      });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div>
-      <h1>Register</h1>
+    <AuthBackground>
+      <div className={styles.card}>
+        {/* Logo */}
+        <div className={styles.logo}>
+          <img src="/logo-auction.png" alt="Auction Logo" />
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <br />
-        <input
-          type="password"
-          placeholder="Password (min 6 chars)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <br />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="USER">User</option>
-        </select>
-        <br />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Registering..." : "Register"}
-        </button>
+        <h2 className={styles.title}>Create Account</h2>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </form>
+        <form onSubmit={handleSubmit} noValidate>
+          {/* EMAIL */}
+          <div
+            className={`${styles.field} ${errors.email ? styles.fieldError : ""
+              }`}
+          >
+            <input
+              type="email"
+              placeholder=" "
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <label>Email</label>
+            {errors.email && (
+              <div className={styles.errorText}>{errors.email}</div>
+            )}
+          </div>
 
-      <p>
-        Already have an account? <Link href="/login">Login</Link>
-      </p>
-    </div>
+          {/* PASSWORD */}
+          <div
+            className={`${styles.field} ${errors.password ? styles.fieldError : ""
+              }`}
+          >
+            <input
+              type="password"
+              placeholder=" "
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <label>Password</label>
+            {errors.password && (
+              <div className={styles.errorText}>{errors.password}</div>
+            )}
+          </div>
+
+          {/* ROLE */}
+          <div className={styles.field}>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "14px 12px",
+                borderRadius: "12px",
+                background: "rgba(5, 17, 32, 0.6)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#f5f6fa",
+              }}
+            >
+              <option value="USER">User</option>
+            </select>
+          </div>
+
+          <button className={styles.button} disabled={loading}>
+            {loading ? "Creating..." : "Register"}
+          </button>
+        </form>
+
+        <a href="/login" className={styles.link}>
+          Already have an account? Login
+        </a>
+      </div>
+    </AuthBackground>
   );
 }
