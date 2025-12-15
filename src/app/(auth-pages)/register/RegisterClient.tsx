@@ -58,7 +58,7 @@ export default function RegisterClient() {
         <br />
         <input
           type="password"
-          placeholder="Password (min 6 chars)"
+          placeholder="Password (min 8 chars)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
