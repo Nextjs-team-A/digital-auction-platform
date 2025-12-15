@@ -42,7 +42,7 @@ const teamMembers = [
   {
     name: "Mohammad",
     role: "Front-End Developer",
-    imagePath: "/images/team/ahmadkaraki.jpeg",
+    imagePath: "/images/team/Mohamad.jpeg",
   },
 ];
 
