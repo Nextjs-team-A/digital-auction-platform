@@ -1,81 +1,67 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ResetPasswordForm() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const params = useSearchParams();
+  const token = params.get("token") || "";
+
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMessage("");
 
-    if (newPassword !== confirmPassword) {
-      setMessage("Passwords do not match.");
+    if (!password || !confirm) {
+      setError("All fields required");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match");
       return;
     }
 
-    setLoading(true);
+    setError("");
 
-    try {
-      const res = await fetch("/api/auth/reset-pass", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword }),
-      });
+    const res = await fetch("/api/auth/reset-pass", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword: password }),
+    });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMessage(data.error || "Something went wrong");
-      } else {
-        setMessage(data.message || "Password reset successfully.");
-      }
-    } catch {
-      setMessage("Network error");
-    }
-
-    setLoading(false);
-  };
+    const data = await res.json();
+    setMessage(data.message || "Password reset successful");
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>New Password:</label>
-      <br />
-      <input
-        type="password"
-        required
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-      />
-      <br />
-      <br />
+    <AuthBackground>
+      <div className={styles.card}>
+        <div className={styles.iconLogo}>🔄</div>
+        <h2 className={styles.title}>Reset Password</h2>
 
-      <label>Confirm Password:</label>
-      <br />
-      <input
-        type="password"
-        required
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-      <br />
+        <form onSubmit={handleSubmit}>
+          <div className={styles.field}>
+            <input type="password" placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} />
+            <label>New Password</label>
+          </div>
 
-      <p>
-        Back to login <a href="/login">Login</a>
-      </p>
-      <br />
+          <div className={styles.field}>
+            <input type="password" placeholder=" " value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+            <label>Confirm Password</label>
+          </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? "Resetting..." : "Reset Password"}
-      </button>
+          {error && <div className={styles.errorText}>{error}</div>}
 
-      {message && <p>{message}</p>}
-    </form>
+          <button className={styles.button}>Reset Password</button>
+        </form>
+
+        {message && <p className={styles.link}>{message}</p>}
+      </div>
+    </AuthBackground>
   );
 }

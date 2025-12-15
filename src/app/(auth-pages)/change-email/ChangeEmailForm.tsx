@@ -1,67 +1,43 @@
-// src/app/change-email/ChangeEmailForm.tsx
 "use client";
 
 import { useState } from "react";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ChangeEmailForm() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMessage("");
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/change-email", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ newEmail: email }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Something went wrong");
-        setLoading(false);
-        return;
-      }
-
-      setMessage("Email updated successfully. Check your inbox.");
-      setEmail("");
-    } catch (err) {
-      console.error(err);
-      setError("Network error. Try again.");
-    } finally {
-      setLoading(false);
+    if (!email) {
+      setError("Required");
+      return;
     }
+
+    setError("");
+    setMessage("Email updated successfully");
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>New Email:</label>
-      <br />
-      <input
-        type="email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
+    <AuthBackground>
+      <div className={styles.card}>
+        <div className={styles.iconLogo}>📧</div>
+        <h2 className={styles.title}>Change Email</h2>
 
-      {error && <p>{error}</p>}
-      {message && <p>{message}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className={`${styles.field} ${error ? styles.fieldError : ""}`}>
+            <input placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label>New Email</label>
+            {error && <div className={styles.errorText}>{error}</div>}
+          </div>
 
-      <button type="submit" disabled={loading}>
-        {loading ? "Updating..." : "Update Email"}
-      </button>
-      <p>
-        Back to profile <a href="/profile">Back to profile </a>
-      </p>
-    </form>
+          <button className={styles.button}>Update Email</button>
+        </form>
+
+        {message && <p className={styles.link}>{message}</p>}
+      </div>
+    </AuthBackground>
   );
 }

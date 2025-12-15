@@ -1,125 +1,91 @@
-// src/app/login/LoginClient.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import AuthBackground from "@/components/AuthBackground";
+import styles from "@/app/style/AuthStyles.module.css";
 
-/**
- * LoginClient Component
- *
- * This page handles:
- * - User login form
- * - Sending credentials to /api/auth/login
- * - Refreshing the global auth session AFTER a successful login
- * - Redirecting the user to /profile
- *
- * It works together with the Global Auth Context, which:
- * - Automatically rehydrates session on page load
- * - Loads authenticated user data
- * - Provides refreshSession() and logout()
- */
 export default function LoginClient() {
   const router = useRouter();
 
-  // Pull refreshSession() from global AuthContext
-  // refreshSession() --> fetches /api/auth/me + /api/profile/me and updates global user state
-  const { refreshSession } = useAuth();
-
-  // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // UI state
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Handle Login Submission
-   *
-   * Steps:
-   * 1) Send email + password to backend
-   * 2) If login is successful → backend sets HttpOnly auth cookies
-   * 3) Call refreshSession() to load user into global context
-   * 4) Redirect user to profile page
-   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+
+    const newErrors: typeof errors = {};
+    if (!email) newErrors.email = "Required";
+    if (!password) newErrors.password = "Required";
+
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
 
     try {
-      // 1️⃣ Send login request
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Important: ensures HttpOnly cookies are stored
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-
-      // 2️⃣ Handle failed login
       if (!res.ok) {
-        setError(data.message || "Login failed");
-        setLoading(false);
+        setErrors({ email: data.message || "Login failed" });
         return;
       }
 
-      // 3️⃣ Login successful → refresh global session
-      // This loads user → AuthContext.user = { id, email, role, profile }
-      await refreshSession();
-
-      // 4️⃣ Move user to profile page
       router.push("/profile");
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong.");
+    } catch {
+      setErrors({ email: "Network error" });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main>
-      <h1>Login</h1>
+    <AuthBackground>
+      <div className={styles.card}>
+        <div className={styles.logo}>
+          <img src="/logo-auction.png" alt="Auction Logo" />
+        </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <h2 className={styles.title}>Welcome Back</h2>
 
-      {/* Login Form */}
-      <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit} noValidate>
+          <div className={`${styles.field} ${errors.email ? styles.fieldError : ""}`}>
+            <input placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label>Email</label>
+            {errors.email && <div className={styles.errorText}>{errors.email}</div>}
+          </div>
 
-        <br />
+          <div className={`${styles.field} ${errors.password ? styles.fieldError : ""}`}>
+            <input
+              type="password"
+              placeholder=" "
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <label>Password</label>
+            {errors.password && <div className={styles.errorText}>{errors.password}</div>}
+          </div>
 
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <button className={styles.button} disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-        <br />
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-
-      <p>
-        Do not have an account? <a href="/register">Register</a>
-      </p>
-
-      <p>
-        Forgot Password? <a href="/forgot-password">Forgot Password</a>
-      </p>
-    </main>
+        <a href="/forgot-password" className={styles.link}>
+          Forgot password?
+        </a>
+      </div>
+    </AuthBackground>
   );
 }

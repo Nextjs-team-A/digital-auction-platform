@@ -1,13 +1,9 @@
-import ForgotPasswordForm from "./ForgotPasswordClient";
+import ForgotPasswordClient from "./ForgotPasswordClient";
+
 export const metadata = {
-  title: "Forgot Password | Digital Auction Platform",
-  description: "Forgot Password to access your account.",
+  title: "Forgot Password",
 };
-export default function ForgotPasswordPage() {
-  return (
-    <div>
-      <h1>Forgot Password</h1>
-      <ForgotPasswordForm />
-    </div>
-  );
+
+export default function Page() {
+  return <ForgotPasswordClient />;
 }
