@@ -133,7 +133,7 @@ export default function RegisterClient() {
         <a href="/login" className={styles.link}>
           Already have an account? Login
         </a>
-      </div>
-    </AuthBackground>
+      </div >
+    </AuthBackground >
   );
 }
