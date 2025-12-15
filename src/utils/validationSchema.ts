@@ -122,3 +122,10 @@ export const UpdateProductSchema = z.object({
     .optional(),
   location: z.enum(["Beirut", "Outside Beirut"]).optional(),
 });
+
+// CONTACT VALIDATION
+
+export const ContactSchema = z.object({
+  subject: z.string().min(3, "Subject must be at least 3 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});

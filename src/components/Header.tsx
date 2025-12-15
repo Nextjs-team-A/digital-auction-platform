@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Header.module.css";
-import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -22,22 +22,31 @@ export default function Header() {
   return (
     <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.headerContainer}>
-        {/* Animated Logo */}
+        {/* Animated Logo with Text */}
         <div className={styles.logoWrapper}>
-          <div className={styles.logoContainer}>
+          <Link href="/" className={styles.logoContainer}>
             <div className={styles.logoBackground}>
               <div className={styles.logoShine} />
             </div>
-            <Image
-              src="/pics/logo.jpg"
-              alt="Gainvestor Logo"
-              width={160}
-              height={45}
-              priority
-              className={styles.logoImage}
-            />
+
+            {/* Logo Image and Text Combined */}
+            <div className={styles.logoContent}>
+              <Image
+                src="/images/team/logo1.png"
+                alt="BidZone Logo"
+                width={50}
+                height={50}
+                priority
+                className={styles.logoImage}
+              />
+              <div className={styles.logoText}>
+                <h1 className={styles.brandName}>BidZone</h1>
+                <p className={styles.brandTagline}>Digital Auction Platform</p>
+              </div>
+            </div>
+
             <div className={styles.logoBorder} />
-          </div>
+          </Link>
           <div className={styles.logoGlow} />
         </div>
 
@@ -46,7 +55,6 @@ export default function Header() {
           <Link href="/" className={styles.navLink}>
             Home
           </Link>
-
           <Link href="/contact" className={styles.navLink}>
             Contact
           </Link>
@@ -85,44 +93,41 @@ export default function Header() {
         }`}
       >
         <nav className={styles.mobileNav}>
-          <a
-            href="#hero"
+          <Link
+            href="/"
             className={styles.mobileNavLink}
             onClick={() => setMobileMenuOpen(false)}
           >
             Home
-          </a>
-          <a
-            href="#mission"
+          </Link>
+          <Link
+            href="/contact"
             className={styles.mobileNavLink}
             onClick={() => setMobileMenuOpen(false)}
           >
-            Mission
-          </a>
-          <a
-            href="#value"
-            className={styles.mobileNavLink}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Features
-          </a>
-          <a
-            href="#team"
+            Contact
+          </Link>
+          <Link
+            href="/team"
             className={styles.mobileNavLink}
             onClick={() => setMobileMenuOpen(false)}
           >
             Team
-          </a>
-          <a
-            href="#vision"
+          </Link>
+          <Link
+            href="/about"
             className={styles.mobileNavLink}
             onClick={() => setMobileMenuOpen(false)}
           >
-            Vision
-          </a>
+            About
+          </Link>
           <div className={styles.mobileCta}>
-            <button className={styles.loginButton}>Login</button>
-            <button className={styles.signupButton}>Get Started</button>
+            <Link href="/login" className={styles.loginButton}>
+              Login
+            </Link>
+            <Link href="/register" className={styles.signupButton}>
+              Get Started
+            </Link>
           </div>
         </nav>
       </div>

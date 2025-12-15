@@ -33,7 +33,7 @@
 }
 
 /* ========================================================================= */
-/* ANIMATED LOGO WITH RECTANGLE FRAME */
+/* ANIMATED LOGO WITH RECTANGLE FRAME + TEXT */
 /* ========================================================================= */
 
 .logoWrapper {
@@ -44,12 +44,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  height: 70px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 14px;
+  height: 65px;
+  padding: 0.625rem 1.25rem;
+  border-radius: 12px;
   overflow: hidden;
   transition: all 0.4s ease;
   cursor: pointer;
+  text-decoration: none;
 }
 
 /* Animated Background */
@@ -99,23 +100,71 @@
   }
 }
 
-/* Logo Image - MUCH LARGER & CLEARER */
-.logoImage {
+/* Logo Content Container */
+.logoContent {
   position: relative;
   z-index: 2;
-  height: auto;
-  width: auto;
-  max-height: 55px;
-  max-width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+/* Logo Image - Clear PNG */
+.logoImage {
+  position: relative;
+  height: 45px;
+  width: 45px;
+  object-fit: contain;
   transition: all 0.4s ease;
-  filter: drop-shadow(0 3px 10px rgba(255, 204, 0, 0.4));
+  filter: drop-shadow(0 2px 8px rgba(255, 204, 0, 0.3));
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
 
 .logoContainer:hover .logoImage {
-  transform: scale(1.03);
-  filter: drop-shadow(0 5px 15px rgba(255, 204, 0, 0.6));
+  transform: scale(1.08);
+  filter: drop-shadow(0 4px 12px rgba(255, 204, 0, 0.5));
+}
+
+/* Logo Text Container */
+.logoText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  justify-content: center;
+}
+
+.brandName {
+  font-size: 1.625rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent) 0%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3px;
+  margin: 0;
+  line-height: 1.1;
+  transition: all 0.3s ease;
+}
+
+.logoContainer:hover .brandName {
+  letter-spacing: 0.8px;
+}
+
+.brandTagline {
+  font-size: 0.56rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 0;
+  line-height: 1.1;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.logoContainer:hover .brandTagline {
+  color: var(--accent);
 }
 
 /* Animated Border */
@@ -240,59 +289,6 @@
   width: 100%;
 }
 
-/* Dropdown */
-.navDropdown {
-  position: relative;
-}
-
-.dropdownIcon {
-  font-size: 0.75rem;
-  transition: transform 0.3s ease;
-}
-
-.navDropdown:hover .dropdownIcon {
-  transform: rotate(180deg);
-}
-
-.dropdownMenu {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  min-width: 180px;
-  background: rgba(13, 27, 62, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 0.5rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.navDropdown:hover .dropdownMenu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-.dropdownItem {
-  display: block;
-  color: var(--foreground);
-  text-decoration: none;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  transition: all 0.3s ease;
-}
-
-.dropdownItem:hover {
-  background: rgba(255, 204, 0, 0.1);
-  color: var(--accent);
-  transform: translateX(5px);
-}
-
 /* ========================================================================= */
 /* CTA BUTTONS */
 /* ========================================================================= */
@@ -318,6 +314,8 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .loginButton {
@@ -455,16 +453,54 @@
 
 @media (max-width: 768px) {
   .headerContainer {
-    padding: 1rem 1.5rem;
+    padding: 0.875rem 1.5rem;
   }
 
   .logoContainer {
-    height: 60px;
+    height: 58px;
     padding: 0.5rem 1rem;
   }
 
   .logoImage {
-    max-height: 48px;
-    max-width: 220px;
+    height: 38px;
+    width: 38px;
+  }
+
+  .brandName {
+    font-size: 1.35rem;
+  }
+
+  .brandTagline {
+    font-size: 0.5rem;
+    letter-spacing: 0.8px;
+  }
+
+  .logoContent {
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoContainer {
+    padding: 0.4rem 0.75rem;
+    height: 54px;
+  }
+
+  .logoImage {
+    height: 34px;
+    width: 34px;
+  }
+
+  .brandName {
+    font-size: 1.2rem;
+  }
+
+  .brandTagline {
+    font-size: 0.45rem;
+    letter-spacing: 0.6px;
+  }
+
+  .logoContent {
+    gap: 0.55rem;
   }
 }
