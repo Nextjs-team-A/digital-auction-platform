@@ -1,224 +1,378 @@
 // src/app/about/AboutPage.tsx
-'use client';
+"use client";
 
-// Imports remain the same: using explicit named imports and types
-import { useEffect, useState, useRef, RefObject, FC, ReactNode } from 'react';
-import styles from './AboutStyle.module.css';
+import { useEffect, useState, useRef, RefObject, FC, ReactNode } from "react";
+import styles from "./AboutStyle.module.css";
+import Image from "next/image";
+import {
+  FaGavel,
+  FaTruck,
+  FaShieldAlt,
+  FaChartLine,
+  FaUsers,
+  FaAward,
+  FaRocket,
+  FaGem,
+  FaBolt,
+} from "react-icons/fa";
+import Link from "next/link";
 
-// NEW IMPORTS: Next.js Image component and React Icons
-import Image from 'next/image';
-import { FaGavel, FaTruck, FaLock } from 'react-icons/fa';
-
-// --- NEW TEAM DATA ---
+// Team Members Data
 const teamMembers = [
-    { name: "Yara", role: "Full-Stack Developer", imagePath: "/pics/yara.png" },
-    { name: "Ali", role: "Full-Stack Developer", imagePath: "/pics/ali.jpg" },
-    { name: "Roya", role: "Front-End Developer", imagePath: "/pics/roya.jpg" },
-    { name: "Ahmad", role: "Front-End Developer", imagePath: "/pics/ahmad.jpg" },
-    { name: "Mohammad", role: "Front-End Developer", imagePath: "/pics/mohammad.jpg" },
+  { name: "Roya", role: "Full-Stack Developer", imagePath: "/pics/yara.png" },
+  { name: "Ali", role: "Full-Stack Developer", imagePath: "/pics/ali.jpg" },
+  { name: "Yara", role: "Front-End Developer", imagePath: "/pics/roya.jpg" },
+  { name: "Ahmad", role: "Front-End Developer", imagePath: "/pics/ahmad.jpg" },
+  {
+    name: "Mohammad",
+    role: "Front-End Developer",
+    imagePath: "/pics/mohammad.jpg",
+  },
 ];
-// ---------------------
 
+// Stats Data
+const stats = [
+  { icon: FaChartLine, value: "99.9%", label: "Uptime Guarantee" },
+  { icon: FaUsers, value: "50K+", label: "Active Users" },
+  { icon: FaAward, value: "10K+", label: "Successful Auctions" },
+  { icon: FaGem, value: "$10M+", label: "Transaction Volume" },
+];
 
-// --- Utility Components for Scroll Interaction ---
+// Enhanced Value Cards Data
+const valueCards = [
+  {
+    icon: FaGavel,
+    title: "Live Bidding",
+    description:
+      "Instant, transparent bidding powered by real-time technology (Socket.IO) for immediate updates on the product detail page.",
+    color: "rgba(255, 204, 0, 0.1)",
+  },
+  {
+    icon: FaTruck,
+    title: "Managed Logistics",
+    description:
+      "Secure, integrated delivery and payment collection facilitated through our trusted partner, Ahmad Delivery.",
+    color: "rgba(59, 130, 246, 0.1)",
+  },
+  {
+    icon: FaShieldAlt,
+    title: "Trust & Security",
+    description:
+      "A streamlined, secure process leveraging modern stack components (JWT, TypeScript, Next.js) for high reliability.",
+    color: "rgba(16, 185, 129, 0.1)",
+  },
+];
 
-/**
- * Custom hook to handle Intersection Observer logic.
- */
+// Custom Hook: Intersection Observer
 const useIntersectionObserver = (
-    ref: RefObject<HTMLDivElement | null>,
-    options: IntersectionObserverInit = { threshold: 0.1 }
+  ref: RefObject<HTMLDivElement | null>,
+  options: IntersectionObserverInit = { threshold: 0.1 }
 ) => {
-    const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isIntersecting, setIsIntersecting] = useState(false);
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                setIsIntersecting(true);
-                observer.unobserve(entry.target);
-            }
-        }, options);
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsIntersecting(true);
+        observer.unobserve(entry.target);
+      }
+    }, options);
 
-        if (ref.current) {
-            observer.observe(ref.current);
-        }
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
 
-        return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
-            }
-        };
-    }, [ref, options]);
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [ref, options]);
 
-    return isIntersecting;
+  return isIntersecting;
 };
 
+// Animated Section Component
+const AnimatedSection: FC<{
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}> = ({ children, className = "", delay = 0 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isVisible = useIntersectionObserver(ref);
 
-// The Animated Section Component
-const AnimatedSection: FC<{ children: ReactNode, className?: string }> = ({ children, className = "" }) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const isVisible = useIntersectionObserver(ref);
-
-    const visibilityClass = isVisible ? styles.isVisible : '';
-
-    return (
-        <div
-            ref={ref}
-            className={`${styles.animatedSection} ${visibilityClass} ${className}`}
-        >
-            {children}
-        </div>
-    );
-};
-
-// TextPlaceholder component refactored to use CSS Module
-const TextPlaceholder: FC<{ children: ReactNode }> = ({ children }) => (
-    <div className={styles.textPlaceholder}>
-        {children}
+  return (
+    <div
+      ref={ref}
+      className={`${styles.animatedSection} ${
+        isVisible ? styles.isVisible : ""
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
     </div>
+  );
+};
+
+// Text Placeholder Component
+const TextPlaceholder: FC<{ children: ReactNode }> = ({ children }) => (
+  <div className={styles.textPlaceholder}>{children}</div>
 );
 
-// Helper function to get the correct icon for the value card
-const getValueCardIcon = (title: string) => {
-    switch (title) {
-        case 'Live Bidding':
-            return <FaGavel className={styles.valueIcon} />;
-        case 'Managed Logistics':
-            return <FaTruck className={styles.valueIcon} />;
-        case 'Trust & Security':
-            return <FaLock className={styles.valueIcon} />;
-        default:
-            return null;
-    }
-}
-
-// --- Main AboutPage Component ---
-
+// Main AboutPage Component
 const AboutPage: FC = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-    return (
-        <main className={styles.mainContainer}>
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
 
-            {/* 1. Hero Section (Appears immediately) */}
-            <div className={styles.animatedSection + ' ' + styles.isVisible}>
-                <section id="hero" className={`${styles.sectionContainer} ${styles.heroSection}`}>
-                    <div className={styles.contentContainer}>
-                        <h1 className={styles.heroTitle}>
-                            The Future of Premium Digital Commerce
-                        </h1>
-                        <p className={styles.heroSubtitle}>
-                            Redefining premium auction experiences with unwavering trust, transparency, and next-generation technology.
-                        </p>
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
-                        {/* HERO IMAGE IMPLEMENTATION */}
-                        <div className={styles.heroImagePlaceholder}>
-                            <Image
-                                src="/pics/hero.png"
-                                alt="Image representing Gainvestor's core business"
-                                layout="fill"
-                                objectFit="cover"
-                            />
-                        </div>
-                    </div>
-                </section>
+  return (
+    <main className={styles.mainContainer}>
+      {/* Animated Background Elements */}
+      <div className={styles.backgroundGradient} />
+      <div
+        className={styles.cursorGlow}
+        style={{
+          left: `${mousePosition.x}px`,
+          top: `${mousePosition.y}px`,
+        }}
+      />
+
+      {/* Hero Section */}
+      <div className={`${styles.animatedSection} ${styles.isVisible}`}>
+        <section
+          id="hero"
+          className={`${styles.sectionContainer} ${styles.heroSection}`}
+        >
+          <div className={styles.contentContainer}>
+            <div className={styles.heroContent}>
+              <div className={styles.heroBadge}>
+                <FaRocket className={styles.badgeIcon} />
+                <span>Pioneering Digital Auctions</span>
+              </div>
+
+              <h1 className={styles.heroTitle}>
+                The Future of
+                <span className={styles.gradientText}>
+                  {" "}
+                  Premium Digital Commerce
+                </span>
+              </h1>
+
+              <p className={styles.heroSubtitle}>
+                Redefining premium auction experiences with unwavering trust,
+                transparency, and next-generation technology that empowers every
+                transaction.
+              </p>
+
+              <div className={styles.heroButtons}>
+                <button className={styles.primaryButton}>
+                  Explore The digital world
+                  <FaBolt className={styles.buttonIcon} />
+                </button>
+                <button className={styles.secondaryButton}>
+                  Unlimited Auctions
+                </button>
+              </div>
             </div>
 
-            {/* 2. Mission Statement (Scroll Interaction) */}
-            <AnimatedSection className={styles.secondarySection}>
-                <section id="mission" className={styles.sectionContainer}>
-                    <div className={styles.contentContainer}>
-                        <h2 className={styles.sectionTitle}>Our Mission</h2>
-                        <TextPlaceholder>
-                            Our mission is to build the most trustworthy and seamless digital auction platform, empowering both sellers and buyers with cutting-edge technology and managed logistics.
-                        </TextPlaceholder>
+            <div className={styles.heroImageWrapper}>
+              <div className={styles.heroImageGlow} />
+              <div className={styles.heroImagePlaceholder}>
+                <Image
+                  src="/pics/hero.png"
+                  alt="Gainvestor Platform"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  priority
+                />
+              </div>
+              <div
+                className={styles.floatingCard}
+                style={{ top: "10%", left: "5%" }}
+              >
+                <FaGavel />
+                <span>Live Auction</span>
+              </div>
+              <div
+                className={styles.floatingCard}
+                style={{ bottom: "15%", right: "8%" }}
+              >
+                <FaShieldAlt />
+                <span>Secure</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Stats Section */}
+      <AnimatedSection className={styles.statsSection} delay={100}>
+        <div className={styles.statsContainer}>
+          {stats.map((stat, index) => (
+            <div key={index} className={styles.statCard}>
+              <stat.icon className={styles.statIcon} />
+              <div className={styles.statValue}>{stat.value}</div>
+              <div className={styles.statLabel}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </AnimatedSection>
+
+      {/* Mission Section */}
+      <AnimatedSection className={styles.secondarySection}>
+        <section id="mission" className={styles.sectionContainer}>
+          <div className={styles.contentContainer}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionBadge}>Our Mission</span>
+              <h2 className={styles.sectionTitle}>
+                Empowering Trust in Every Transaction
+              </h2>
+            </div>
+            <TextPlaceholder>
+              Our mission is to build the most trustworthy and seamless digital
+              auction platform, empowering both sellers and buyers with
+              cutting-edge technology and managed logistics that set new
+              industry standards.
+            </TextPlaceholder>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* Vision Section */}
+      <AnimatedSection>
+        <section id="vision" className={styles.sectionContainer}>
+          <div className={styles.contentContainer}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionBadge}>Our Vision</span>
+              <h2 className={styles.sectionTitle}>
+                Global Benchmark for Excellence
+              </h2>
+            </div>
+            <TextPlaceholder>
+              To be the global benchmark for premium online auctions, recognized
+              for our commitment to transparent processes, real-time engagement,
+              and reliable managed delivery through Ahmad Delivery partnerships.
+            </TextPlaceholder>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* Platform Value Section */}
+      <AnimatedSection className={styles.secondarySection}>
+        <section id="value" className={styles.sectionContainer}>
+          <div className={styles.contentContainer}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionBadge}>Platform Excellence</span>
+              <h2 className={styles.sectionTitle}>
+                Revolutionizing Digital Auctions
+              </h2>
+            </div>
+
+            <div className={styles.valueGrid}>
+              {valueCards.map((card, index) => (
+                <div
+                  key={index}
+                  className={styles.valueCard}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div
+                    className={styles.cardIconWrapper}
+                    style={{ backgroundColor: card.color }}
+                  >
+                    <card.icon className={styles.valueIcon} />
+                  </div>
+                  <h3 className={styles.cardTitle}>{card.title}</h3>
+                  <p className={styles.cardBody}>{card.description}</p>
+                  <div className={styles.cardGlow} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* Team Section */}
+      <AnimatedSection>
+        <section id="team" className={styles.sectionContainer}>
+          <div className={styles.contentContainer}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionBadge}>Our Team</span>
+              <h2 className={styles.sectionTitle}>Meet the Visionaries</h2>
+              <p className={styles.sectionSubtitle}>
+                Passionate experts driving innovation in digital commerce
+              </p>
+            </div>
+
+            <div className={styles.teamList} id="team-section">
+              {teamMembers.map((member, index) => (
+                <div
+                  key={member.name}
+                  className={styles.teamMember}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className={styles.teamImageContainer}>
+                    <Image
+                      src={member.imagePath}
+                      alt={member.name}
+                      width={150}
+                      height={150}
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                    <div className={styles.teamImageOverlay}>
+                      <FaUsers className={styles.teamIcon} />
                     </div>
-                </section>
-            </AnimatedSection>
+                  </div>
+                  <h3 className={styles.teamName}>{member.name}</h3>
+                  <p className={styles.teamRole}>{member.role}</p>
+                  <div className={styles.teamSocial}>
+                    <div className={styles.socialDot} />
+                    <div className={styles.socialDot} />
+                    <div className={styles.socialDot} />
+                  </div>
+                </div>
+              ))}
+            </div>
 
-            {/* 3. Vision Section (Scroll Interaction) */}
-            <AnimatedSection>
-                <section id="vision" className={styles.sectionContainer}>
-                    <div className={styles.contentContainer}>
-                        <h2 className={styles.sectionTitle}>Our Vision</h2>
-                        <TextPlaceholder>
-                            To be the global benchmark for premium online auctions, recognized for our commitment to transparent processes, real-time engagement, and reliable managed delivery (Ahmad Delivery).
-                        </TextPlaceholder>
-                    </div>
-                </section>
-            </AnimatedSection>
+            <div className={styles.teamButtonWrapper}>
+              <Link href="/team" className={styles.teamButton}>
+                <span>Meet the Team</span>
+                <FaRocket className={styles.buttonIcon} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
 
-            {/* 4. Platform Value / What We Do (Scroll Interaction) */}
-            <AnimatedSection className={styles.secondarySection}>
-                <section id="value" className={styles.sectionContainer}>
-                    <div className={styles.contentContainer}>
-                        <h2 className={styles.sectionTitle} style={{ marginBottom: '4rem' }}>
-                            Platform Value & Key Features
-                        </h2>
-                        <div className={styles.valueGrid}>
-
-                            {/* Cards use module classes for styling and hover effects */}
-                            {['Live Bidding', 'Managed Logistics', 'Trust & Security'].map((title, index) => (
-                                <div key={index} className={styles.valueCard}>
-                                    {/* ICON IMPLEMENTATION */}
-                                    {getValueCardIcon(title)}
-
-                                    <h3 className={styles.cardTitle}>{title}</h3>
-                                    <p className={styles.cardBody}>
-                                        {
-                                            title === 'Live Bidding' ?
-                                                'Instant, transparent bidding powered by real-time technology (Socket.IO) for immediate updates on the product detail page.' :
-                                                title === 'Managed Logistics' ?
-                                                    'Secure, integrated delivery and payment collection facilitated through our trusted partner, Ahmad Delivery.' :
-                                                    'A streamlined, secure process leveraging modern stack components (JWT, TypeScript, Next.js) for high reliability.'
-                                        }
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            </AnimatedSection>
-
-            {/* 5. Team Section (Scroll Interaction) */}
-            <AnimatedSection>
-                <section id="team" className={styles.sectionContainer}>
-                    <h2 className={styles.sectionTitle} style={{ marginBottom: '4rem' }}>
-                        Meet Our Dedicated Team
-                    </h2>
-                    {/* ID added for the Meet The Team button to link to */}
-                    <div className={styles.teamList} id="team-section">
-                        {/* DYNAMIC TEAM MEMBER RENDERING */}
-                        {teamMembers.map((member) => (
-                            // Team member wrapper uses module class
-                            <div key={member.name} className={styles.teamMember}>
-                                {/* Team Image Container uses module class */}
-                                <div className={styles.teamImageContainer}>
-                                    {/* IMAGE IMPLEMENTATION */}
-                                    <Image
-                                        src={member.imagePath}
-                                        alt={`Picture of ${member.name}`}
-                                        width={150}
-                                        height={150}
-                                        style={{ objectFit: "cover", width: '100%', height: '100%' }}
-                                    />
-                                </div>
-                                <h3 className={styles.teamName}>{member.name}</h3>
-                                <p className={styles.teamRole}>{member.role}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* --- MOVED BUTTON: Now wrapped for centering via CSS Module --- */}
-                    <div className={styles.teamButtonWrapper}>
-                        <a href="#team-section" className={styles.teamButton}>
-                            Meet The Team
-                        </a>
-                    </div>
-                </section>
-            </AnimatedSection>
-
-        </main>
-    );
+      {/* CTA Section */}
+      <AnimatedSection className={styles.ctaSection}>
+        <div className={styles.ctaContainer}>
+          <div className={styles.ctaContent}>
+            <h2 className={styles.ctaTitle}>Ready to Experience the Future?</h2>
+            <p className={styles.ctaDescription}>
+              Join thousands of satisfied users and discover a new era of
+              digital auctions
+            </p>
+            <Link href="/register" className={styles.ctaButton}>
+              Get Started Today
+              <FaBolt className={styles.buttonIcon} />
+            </Link>
+          </div>
+          <div className={styles.ctaGlow} />
+        </div>
+      </AnimatedSection>
+    </main>
+  );
 };
 
 export default AboutPage;

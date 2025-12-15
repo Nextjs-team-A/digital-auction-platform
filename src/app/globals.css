@@ -2,10 +2,10 @@
 
 :root {
   /* --- BASE PALETTE --- */
-  --color-navy: #0A2342;
-  --color-light-gray: #F5F6FA;
-  --color-gold: #C6A664;
-  --color-white: #FFFFFF;
+  --color-navy: #0a2342;
+  --color-light-gray: #f5f6fa;
+  --color-gold: #c6a664;
+  --color-white: #ffffff;
 
   /* --- SEMANTIC VARIABLES (Used throughout the app) --- */
 
