@@ -21,7 +21,7 @@ import Link from "next/link";
 const teamMembers = [
   {
     name: "Roya",
-    role: "Full-Stack Developer",
+    role: " Front-End Developer",
     imagePath: "/images/team/royakais_v2.png",
   },
   {
@@ -31,7 +31,7 @@ const teamMembers = [
   },
   {
     name: "Yara",
-    role: "Front-End Developer",
+    role: "Full-Stack Developer",
     imagePath: "/images/team/yaraelkassem.jpeg",
   },
   {
