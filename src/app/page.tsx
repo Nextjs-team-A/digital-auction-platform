@@ -67,7 +67,8 @@ class Star {
     const baseR = layer === 0 ? 0.7 : layer === 1 ? 1.0 : 1.4;
     this.r = baseR + Math.random() * 0.9;
 
-    this.a = (layer === 0 ? 0.12 : layer === 1 ? 0.16 : 0.22) + Math.random() * 0.12;
+    this.a =
+      (layer === 0 ? 0.12 : layer === 1 ? 0.16 : 0.22) + Math.random() * 0.12;
   }
 
   step() {
@@ -85,7 +86,8 @@ class Star {
       if (dist < pullRadius) {
         const closeness = 1 - dist / pullRadius;
         const pull = (animationState.pointer.down ? 0.18 : 0.08) * closeness;
-        const layerBoost = this.layer === 2 ? 1.25 : this.layer === 1 ? 1.0 : 0.75;
+        const layerBoost =
+          this.layer === 2 ? 1.25 : this.layer === 1 ? 1.0 : 0.75;
 
         this.vx += (dx / dist) * pull * layerBoost;
         this.vy += (dy / dist) * pull * layerBoost;
@@ -184,10 +186,8 @@ class ShootingStar {
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(true);
   const [showTop, setShowTop] = useState(false);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
@@ -198,22 +198,62 @@ export default function Home() {
 
   const whyChoose = useMemo<Feature[]>(
     () => [
-      { icon: <FaBolt />, title: "Fast, smooth experience", text: "A clean UI built for speed from browsing to bidding." },
-      { icon: <FaRegListAlt />, title: "Clear auction flow", text: "Simple steps, transparent process, no confusion." },
-      { icon: <FaLeaf />, title: "Modern and trustworthy", text: "A premium UI that feels safe and professional." },
-      { icon: <FaUsers />, title: "Built for buyers and sellers", text: "Bid, buy, or sell with a consistent experience." },
-      { icon: <FaTruck />, title: "Reliable delivery", text: "Delivery options with clear pricing and expectations." },
-      { icon: <FaHeadset />, title: "Support and guidance", text: "Helpful UX patterns that keep the flow straightforward." },
+      {
+        icon: <FaBolt />,
+        title: "Fast, smooth experience",
+        text: "A clean UI built for speed from browsing to bidding.",
+      },
+      {
+        icon: <FaRegListAlt />,
+        title: "Clear auction flow",
+        text: "Simple steps, transparent process, no confusion.",
+      },
+      {
+        icon: <FaLeaf />,
+        title: "Modern and trustworthy",
+        text: "A premium UI that feels safe and professional.",
+      },
+      {
+        icon: <FaUsers />,
+        title: "Built for buyers and sellers",
+        text: "Bid, buy, or sell with a consistent experience.",
+      },
+      {
+        icon: <FaTruck />,
+        title: "Reliable delivery",
+        text: "Delivery options with clear pricing and expectations.",
+      },
+      {
+        icon: <FaHeadset />,
+        title: "Support and guidance",
+        text: "Helpful UX patterns that keep the flow straightforward.",
+      },
     ],
     []
   );
 
   const howItWorks = useMemo<Step[]>(
     () => [
-      { icon: <FaSearch />, title: "Browse items", text: "Explore auctions and listings with clear details." },
-      { icon: <FaGavel />, title: "Bid or buy", text: "Place bids to compete, or buy directly when available." },
-      { icon: <FaCheckCircle />, title: "Win and checkout", text: "If you win, confirm and complete the checkout securely." },
-      { icon: <FaMapMarkerAlt />, title: "Delivery", text: "Choose delivery: $3 Beirut, $5 outside Beirut." },
+      {
+        icon: <FaSearch />,
+        title: "Browse items",
+        text: "Explore auctions and listings with clear details.",
+      },
+      {
+        icon: <FaGavel />,
+        title: "Bid or buy",
+        text: "Place bids to compete, or buy directly when available.",
+      },
+      {
+        icon: <FaCheckCircle />,
+        title: "Win and checkout",
+        text: "If you win, confirm and complete the checkout securely.",
+      },
+      {
+        icon: <FaMapMarkerAlt />,
+        title: "Delivery",
+        text: "Choose delivery: $3 Beirut, $5 outside Beirut.",
+      },
     ],
     []
   );
@@ -229,7 +269,8 @@ export default function Home() {
     if (!ctx) return;
 
     animationState.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    animationState.reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    animationState.reducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 
     const resize = () => {
       animationState.w = window.innerWidth;
@@ -276,7 +317,7 @@ export default function Home() {
 
           const max = 170;
           if (d < max) {
-            const alpha = 0.10 * (1 - d / max);
+            const alpha = 0.1 * (1 - d / max);
             ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -392,7 +433,9 @@ export default function Home() {
       <div className={styles.bgGradient} aria-hidden="true" />
 
       {/* Render canvas only after mount to avoid hydration mismatch */}
-      {mounted && <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />}
+      {mounted && (
+        <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
+      )}
 
       <div className={styles.content} suppressHydrationWarning>
         {/* Render Header only after mount to avoid hydration mismatch */}
@@ -400,14 +443,17 @@ export default function Home() {
 
         <section className={styles.hero} suppressHydrationWarning>
           <div className={styles.heroInner}>
-            <div className={styles.badge}>BidZone • Digital Auction Platform</div>
+            <div className={styles.badge}>
+              BidZone • Digital Auction Platform
+            </div>
 
             <h1 className={styles.title}>
               Premium auctions, <span>built for trust and speed</span>
             </h1>
 
             <p className={styles.subtitle}>
-              A clean auction experience focused on clarity, performance, and secure transactions.
+              A clean auction experience focused on clarity, performance, and
+              secure transactions.
             </p>
 
             <div className={styles.heroActions}>
@@ -419,14 +465,18 @@ export default function Home() {
               </Link>
             </div>
 
-            <p className={styles.hint}>Move your mouse to pull stars. Click to trigger a shooting star.</p>
+            <p className={styles.hint}>
+              Move your mouse to pull stars. Click to trigger a shooting star.
+            </p>
           </div>
         </section>
 
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Why Choose BidZone</h2>
-            <p className={styles.sectionDesc}>A premium experience built for clarity, speed, and trust.</p>
+            <p className={styles.sectionDesc}>
+              A premium experience built for clarity, speed, and trust.
+            </p>
           </div>
 
           <div className={styles.cards6}>
@@ -467,7 +517,9 @@ export default function Home() {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Security & Trust</h2>
-            <p className={styles.sectionDesc}>Designed to feel safe, professional, and transparent.</p>
+            <p className={styles.sectionDesc}>
+              Designed to feel safe, professional, and transparent.
+            </p>
           </div>
 
           <div className={styles.cards3}>
@@ -476,7 +528,9 @@ export default function Home() {
                 <FaLock />
               </div>
               <h3 className={styles.trustTitle}>Secure Payments</h3>
-              <p className={styles.trustText}>Smooth checkout experience with a security-first mindset.</p>
+              <p className={styles.trustText}>
+                Smooth checkout experience with a security-first mindset.
+              </p>
             </div>
 
             <div className={styles.trustCard}>
@@ -484,7 +538,9 @@ export default function Home() {
                 <FaUserCheck />
               </div>
               <h3 className={styles.trustTitle}>Verified Users</h3>
-              <p className={styles.trustText}>A marketplace that prioritizes credibility and trust.</p>
+              <p className={styles.trustText}>
+                A marketplace that prioritizes credibility and trust.
+              </p>
             </div>
 
             <div className={styles.trustCard}>
@@ -492,7 +548,9 @@ export default function Home() {
                 <FaChartLine />
               </div>
               <h3 className={styles.trustTitle}>Transparent Bidding</h3>
-              <p className={styles.trustText}>Clear bidding flow that keeps the experience honest and fair.</p>
+              <p className={styles.trustText}>
+                Clear bidding flow that keeps the experience honest and fair.
+              </p>
             </div>
           </div>
         </section>
@@ -500,7 +558,9 @@ export default function Home() {
         <section className={`${styles.section} ${styles.deliverySection}`}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Delivery Pricing</h2>
-            <p className={styles.sectionDesc}>Simple, clear delivery costs with no surprises.</p>
+            <p className={styles.sectionDesc}>
+              Simple, clear delivery costs with no surprises.
+            </p>
           </div>
 
           <div className={styles.deliveryGrid}>
@@ -509,7 +569,9 @@ export default function Home() {
                 <span className={styles.deliveryTitle}>Beirut</span>
                 <span className={styles.deliveryPrice}>$3</span>
               </div>
-              <p className={styles.deliveryText}>Fast local delivery inside Beirut.</p>
+              <p className={styles.deliveryText}>
+                Fast local delivery inside Beirut.
+              </p>
             </div>
 
             <div className={styles.deliveryCard}>
@@ -517,7 +579,9 @@ export default function Home() {
                 <span className={styles.deliveryTitle}>Outside Beirut</span>
                 <span className={styles.deliveryPrice}>$5</span>
               </div>
-              <p className={styles.deliveryText}>Reliable delivery across other areas.</p>
+              <p className={styles.deliveryText}>
+                Reliable delivery across other areas.
+              </p>
             </div>
           </div>
         </section>
@@ -525,7 +589,9 @@ export default function Home() {
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>For Buyers & Sellers</h2>
-            <p className={styles.sectionDesc}>Built for both sides with a clean workflow.</p>
+            <p className={styles.sectionDesc}>
+              Built for both sides with a clean workflow.
+            </p>
           </div>
 
           <div className={styles.twoCol}>
@@ -550,7 +616,9 @@ export default function Home() {
         </section>
 
         <button
-          className={`${styles.scrollTop} ${showTop ? styles.scrollTopVisible : ""}`}
+          className={`${styles.scrollTop} ${
+            showTop ? styles.scrollTopVisible : ""
+          }`}
           onClick={scrollToTop}
           aria-label="Scroll to top"
           type="button"
