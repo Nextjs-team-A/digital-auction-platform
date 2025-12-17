@@ -1,9 +1,8 @@
-// src/app/products/page.tsx (or wherever your ProductsList component is)
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import styles from "./ProductsList.module.css";
 
 interface Product {
   id: string;
@@ -22,11 +21,84 @@ export default function ProductsList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Bidding states
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [scrollTopVisible, setScrollTopVisible] = useState(false);
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Star animation effect
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      vx: number;
+      vy: number;
+      alpha: number;
+    }> = [];
+
+    for (let i = 0; i < 150; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.5 + 0.5,
+      });
+    }
+
+    function animate() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((star) => {
+        star.x += star.vx;
+        star.y += star.vy;
+
+        if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
+        if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(16, 185, 129, ${star.alpha})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollTopVisible(window.scrollY > 400);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -76,6 +148,7 @@ export default function ProductsList() {
 
       alert("Bid placed successfully!");
       setSelectedProduct(null);
+      setBidAmount("");
       fetchProducts();
     } catch (err) {
       alert("Bid failed.");
@@ -84,278 +157,287 @@ export default function ProductsList() {
     }
   };
 
-  /**
-   * Check if auction has ended
-   */
   const isAuctionEnded = (product: Product) => {
     return (
       product.status === "ENDED" || new Date(product.auctionEnd) < new Date()
     );
   };
 
-  /**
-   * Get auction status badge
-   */
   const getStatusBadge = (product: Product) => {
     if (product.status === "ENDED") {
-      return (
-        <span
-          style={{
-            display: "inline-block",
-            padding: "4px 8px",
-            backgroundColor: "#dc3545",
-            color: "white",
-            borderRadius: "4px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
-          AUCTION ENDED
-        </span>
-      );
+      return <span className={styles.badgeEnded}>AUCTION ENDED</span>;
     }
 
     if (isAuctionEnded(product)) {
-      return (
-        <span
-          style={{
-            display: "inline-block",
-            padding: "4px 8px",
-            backgroundColor: "#ffc107",
-            color: "#000",
-            borderRadius: "4px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            marginBottom: "10px",
-          }}
-        >
-          ENDING SOON
-        </span>
-      );
+      return <span className={styles.badgeEndingSoon}>ENDING SOON</span>;
     }
 
-    return (
-      <span
-        style={{
-          display: "inline-block",
-          padding: "4px 8px",
-          backgroundColor: "#28a745",
-          color: "white",
-          borderRadius: "4px",
-          fontSize: "12px",
-          fontWeight: "bold",
-          marginBottom: "10px",
-        }}
-      >
-        LIVE AUCTION
-      </span>
-    );
+    return <span className={styles.badgeLive}>LIVE AUCTION</span>;
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
-  if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  return (
-    <div style={{ padding: "20px" }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "20px",
-        }}
-      >
-        <h1>All Products</h1>
-        <Link
-          href="/products/create"
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            borderRadius: "4px",
-            textDecoration: "none",
-          }}
-        >
-          Create New Product
-        </Link>
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.spinner}></div>
+            <p>Loading products...</p>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      {/* Product list */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {products.map((p) => {
-          const ended = isAuctionEnded(p);
-
-          return (
-            <div
-              key={p.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "15px",
-                opacity: ended ? 0.7 : 1,
-              }}
-            >
-              {p.images?.[0] && (
-                <img
-                  src={p.images[0]}
-                  alt={p.title}
-                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                  style={{
-                    width: "100%",
-                    height: 200,
-                    objectFit: "cover",
-                    borderRadius: 4,
-                    marginBottom: 10,
-                  }}
-                />
-              )}
-
-              {/* Status Badge */}
-              {getStatusBadge(p)}
-
-              <h3>{p.title}</h3>
-              <p style={{ color: "#666" }}>
-                {p.description.length > 100
-                  ? p.description.substring(0, 100) + "..."
-                  : p.description}
-              </p>
-
-              <p>
-                <strong>Starting Bid:</strong> ${p.startingBid}
-              </p>
-              <p>
-                <strong>Current Bid:</strong> ${p.currentBid}
-              </p>
-              <p>
-                <strong>Location:</strong> {p.location}
-              </p>
-              <p>
-                <strong>Ends:</strong> {new Date(p.auctionEnd).toLocaleString()}
-              </p>
-
-              {/* Bid Button - Disabled if auction ended */}
-              <button
-                onClick={() => {
-                  if (ended) {
-                    alert(
-                      "This auction has ended. Bidding is no longer available."
-                    );
-                    return;
-                  }
-                  setSelectedProduct(p);
-                  setBidAmount("");
-                }}
-                disabled={ended}
-                style={{
-                  marginTop: "10px",
-                  width: "100%",
-                  padding: "10px",
-                  background: ended ? "#ccc" : "#2563eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: ended ? "not-allowed" : "pointer",
-                }}
-                title={ended ? "Auction has ended" : "Place a bid"}
-              >
-                {ended ? "Auction Ended" : "Make a Bid"}
-              </button>
-
-              {/* Show winner if auction ended */}
-              {p.status === "ENDED" && p.winnerId && (
-                <p
-                  style={{
-                    marginTop: "10px",
-                    padding: "10px",
-                    backgroundColor: "#d4edda",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                    color: "#155724",
-                  }}
-                >
-                  ✅ This auction has been won!
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Modal */}
-      {selectedProduct && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "20px",
-              width: 400,
-              borderRadius: 8,
-            }}
-          >
-            <h3>Place Bid for: {selectedProduct.title}</h3>
-
-            <input
-              type="number"
-              placeholder="Enter your bid"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: 6,
-                marginTop: 10,
-                border: "1px solid #ccc",
-              }}
-            />
-
-            <button
-              onClick={submitBid}
-              disabled={isSubmitting}
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                background: "green",
-                color: "white",
-                borderRadius: 6,
-                cursor: isSubmitting ? "not-allowed" : "pointer",
-              }}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Bid"}
-            </button>
-
-            <button
-              onClick={() => setSelectedProduct(null)}
-              style={{
-                marginTop: 10,
-                width: "100%",
-                padding: 10,
-                background: "#888",
-                color: "white",
-                borderRadius: 6,
-              }}
-            >
-              Cancel
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.errorContainer}>
+            <div className={styles.errorIcon}>⚠️</div>
+            <h2>Error Loading Products</h2>
+            <p>{error}</p>
+            <button onClick={fetchProducts} className={styles.retryBtn}>
+              Try Again
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.page}>
+      {/* Layer 0: Animated gradient */}
+      <div className={styles.bgGradient}></div>
+
+      {/* Layer 1: Stars canvas */}
+      <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+
+      {/* Layer 2: Content */}
+      <div className={styles.content}>
+        {/* Hero Section */}
+        <section className={styles.hero}>
+          <div className={styles.heroInner}>
+            <div className={styles.badge}>🏆 LIVE AUCTIONS</div>
+            <h1 className={styles.title}>
+              Discover Amazing <span>Products</span>
+            </h1>
+            <p className={styles.subtitle}>
+              Browse our curated selection of premium items. Place your bids and
+              win incredible deals on products you love.
+            </p>
+          </div>
+        </section>
+
+        {/* Products Section */}
+        <section className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.headerTop}>
+              <div>
+                <h2 className={styles.sectionTitle}>Available Auctions</h2>
+                <p className={styles.sectionDesc}>
+                  {products.length}{" "}
+                  {products.length === 1 ? "product" : "products"} available
+                </p>
+              </div>
+              <Link href="/products/create" className={styles.createBtn}>
+                <span>➕</span> Create New Product
+              </Link>
+            </div>
+          </div>
+
+          <div className={styles.productsGrid}>
+            {products.map((p) => {
+              const ended = isAuctionEnded(p);
+
+              return (
+                <div
+                  key={p.id}
+                  className={`${styles.productCard} ${
+                    ended ? styles.productCardEnded : ""
+                  }`}
+                >
+                  {/* Image */}
+                  <div className={styles.productImage}>
+                    {p.images?.[0] ? (
+                      <img
+                        src={p.images[0]}
+                        alt={p.title}
+                        onError={(e) =>
+                          (e.currentTarget.src = "/placeholder.png")
+                        }
+                      />
+                    ) : (
+                      <div className={styles.placeholderImage}>
+                        <span>📦</span>
+                      </div>
+                    )}
+                    <div className={styles.statusBadgeWrapper}>
+                      {getStatusBadge(p)}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className={styles.productContent}>
+                    <h3 className={styles.productTitle}>{p.title}</h3>
+                    <p className={styles.productDesc}>
+                      {p.description.length > 100
+                        ? p.description.substring(0, 100) + "..."
+                        : p.description}
+                    </p>
+
+                    <div className={styles.productInfo}>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Starting Bid</span>
+                        <span className={styles.infoValue}>
+                          ${p.startingBid}
+                        </span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Current Bid</span>
+                        <span className={styles.infoCurrent}>
+                          ${p.currentBid}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.productMeta}>
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaIcon}>📍</span>
+                        <span>{p.location}</span>
+                      </div>
+                      <div className={styles.metaItem}>
+                        <span className={styles.metaIcon}>⏰</span>
+                        <span>
+                          {new Date(p.auctionEnd).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Winner Badge */}
+                    {p.status === "ENDED" && p.winnerId && (
+                      <div className={styles.winnerBadge}>
+                        ✅ This auction has been won!
+                      </div>
+                    )}
+
+                    {/* Bid Button */}
+                    <button
+                      onClick={() => {
+                        if (ended) {
+                          alert(
+                            "This auction has ended. Bidding is no longer available."
+                          );
+                          return;
+                        }
+                        setSelectedProduct(p);
+                        setBidAmount("");
+                      }}
+                      disabled={ended}
+                      className={`${styles.bidBtn} ${
+                        ended ? styles.bidBtnDisabled : ""
+                      }`}
+                    >
+                      {ended ? "Auction Ended" : "Place Bid"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {products.length === 0 && (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📭</div>
+              <h3>No Products Available</h3>
+              <p>Check back later for new auctions</p>
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* Bid Modal */}
+      {selectedProduct && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Place Your Bid</h3>
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className={styles.modalClose}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.modalProduct}>
+                <h4>{selectedProduct.title}</h4>
+                <p className={styles.modalCurrentBid}>
+                  Current Bid: <span>${selectedProduct.currentBid}</span>
+                </p>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Your Bid Amount</label>
+                <input
+                  type="number"
+                  placeholder={`Min: $${selectedProduct.currentBid + 1}`}
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  className={styles.formInput}
+                  min={selectedProduct.currentBid + 1}
+                  step="0.01"
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  onClick={submitBid}
+                  disabled={isSubmitting}
+                  className={styles.submitBtn}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className={styles.btnSpinner}></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <span>💰</span> Submit Bid
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className={styles.cancelBtn}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Scroll to Top */}
+      <button
+        onClick={scrollToTop}
+        className={`${styles.scrollTop} ${
+          scrollTopVisible ? styles.scrollTopVisible : ""
+        }`}
+      >
+        ↑
+      </button>
     </div>
   );
 }
