@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import AuthBackground from "@/components/AuthBackground";
 import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ResetPasswordForm() {
+  const router = useRouter();
   const params = useSearchParams();
   const token = params.get("token") || "";
 
@@ -28,14 +29,29 @@ export default function ResetPasswordForm() {
 
     setError("");
 
-    const res = await fetch("/api/auth/reset-pass", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, newPassword: password }),
-    });
+    try {
+      const res = await fetch("/api/auth/reset-pass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword: password }),
+      });
 
-    const data = await res.json();
-    setMessage(data.message || "Password reset successful");
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage(
+          data.message || "Password reset successful! Redirecting to login..."
+        );
+        // Redirect after 2 seconds so user sees the message
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      } else {
+        setError(data.error || "Failed to reset password");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    }
   }
 
   return (
@@ -46,12 +62,22 @@ export default function ResetPasswordForm() {
 
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
-            <input type="password" placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} />
+            <input
+              type="password"
+              placeholder=" "
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <label>New Password</label>
           </div>
 
           <div className={styles.field}>
-            <input type="password" placeholder=" " value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+            <input
+              type="password"
+              placeholder=" "
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+            />
             <label>Confirm Password</label>
           </div>
 
