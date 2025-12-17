@@ -11,21 +11,19 @@ export interface JwtPayload {
   role: "USER" | "ADMIN";
 }
 
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-prod";
+
 //Create a JWT token
 export const createToken = (payload: JwtPayload) => {
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET || "dev-secret-change-in-prod",
-    {
-      expiresIn: "1d",
-    }
-  );
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "1d",
+  });
 };
 
 //Verify a JWT token
 export const verifyToken = (token: string) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!);
+    return jwt.verify(token, JWT_SECRET);
   } catch {
     return null;
   }
