@@ -65,13 +65,10 @@ export default function RegisterClient() {
   return (
     <AuthBackground>
       <div className={styles.card}>
-        {/* Logo */}
-        <div className={styles.logo}>
-          <img src="/logo-auction.png" alt="Auction Logo" />
-        </div>
-
         <h2 className={styles.title}>Create Account</h2>
-
+        <p className={styles.subtitle}>
+          Register to create an account.
+        </p>
         <form onSubmit={handleSubmit} noValidate>
           {/* EMAIL */}
           <div

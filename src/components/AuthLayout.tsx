@@ -16,24 +16,20 @@ export default function AuthLayout({
     children,
 }: Props) {
     return (
-        <div className={styles.authPage}>
-            <div className={styles.card}>
-                {showLogo && (
-                    <div className={styles.logoWrapper}>
-                        <img
-                            src="/logo-auction.png"
-                            alt="Auction Platform Logo"
-                            className={styles.logoImage}
-                        />
-                    </div>
-                )}
+        <div className={styles.card}>
+            {showLogo && (
+                <div className={styles.logo}>
+                    <img src="/logo-auction.png" alt="BidZone Logo" />
+                </div>
+            )}
 
-                <h1 className={styles.title}>{title}</h1>
+            <h1 className={styles.title}>{title}</h1>
 
-                {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+            {subtitle && (
+                <p className={styles.subtitle}>{subtitle}</p>
+            )}
 
-                {children}
-            </div>
+            {children}
         </div>
     );
 }

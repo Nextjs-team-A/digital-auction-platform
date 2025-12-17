@@ -5,34 +5,34 @@ import AuthBackground from "@/components/AuthBackground";
 import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ChangePasswordForm() {
-  const [oldPass, setOldPass] = useState("");
-  const [newPass, setNewPass] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
   const [errors, setErrors] = useState<{
-    oldPass?: string;
-    newPass?: string;
+    oldPassword?: string;
+    newPassword?: string;
     confirm?: string;
   }>({});
 
+  const [serverError, setServerError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setServerError("");
+    setSuccess("");
 
-    const newErrors: typeof errors = {};
+    const errs: typeof errors = {};
+    if (!oldPassword) errs.oldPassword = "Required";
+    if (!newPassword) errs.newPassword = "Required";
+    if (!confirm) errs.confirm = "Required";
+    if (newPassword && confirm && newPassword !== confirm)
+      errs.confirm = "Passwords do not match";
 
-    if (!oldPass) newErrors.oldPass = "Required";
-    if (!newPass) newErrors.newPass = "Required";
-    if (!confirm) newErrors.confirm = "Required";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    if (newPass !== confirm) {
-      setErrors({ confirm: "Passwords do not match" });
+    if (Object.keys(errs).length) {
+      setErrors(errs);
       return;
     }
 
@@ -40,19 +40,26 @@ export default function ChangePasswordForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/change-pass", {
+      const res = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass }),
+        body: JSON.stringify({ oldPassword, newPassword }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({ oldPass: data.message || "Failed to update password" });
+        setServerError(data.message || "Failed to change password");
         return;
       }
+
+      setSuccess("Password updated successfully.");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirm("");
+    } catch {
+      setServerError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -61,63 +68,60 @@ export default function ChangePasswordForm() {
   return (
     <AuthBackground>
       <div className={styles.card}>
-        <div className={styles.iconLogo}>🔐</div>
         <h2 className={styles.title}>Change Password</h2>
+        <p className={styles.subtitle}>
+          Change your password.
+        </p>
+
+        {serverError && (
+          <div className={styles.errorText}>{serverError}</div>
+        )}
+
+        {success && (
+          <div style={{ color: "#059669", fontWeight: 700, marginBottom: 12 }}>
+            {success}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} noValidate>
-          {/* CURRENT PASSWORD */}
-          <div
-            className={`${styles.field} ${errors.oldPass ? styles.fieldError : ""
-              }`}
-          >
+          {/* OLD */}
+          <div className={`${styles.field} ${errors.oldPassword ? styles.fieldError : ""}`}>
             <input
               type="password"
               placeholder=" "
-              value={oldPass}
-              onChange={(e) => setOldPass(e.target.value)}
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
             />
             <label>Current Password</label>
-            {errors.oldPass && (
-              <div className={styles.errorText}>{errors.oldPass}</div>
-            )}
+            {errors.oldPassword && <div className={styles.errorText}>{errors.oldPassword}</div>}
           </div>
 
-          {/* NEW PASSWORD */}
-          <div
-            className={`${styles.field} ${errors.newPass ? styles.fieldError : ""
-              }`}
-          >
+          {/* NEW */}
+          <div className={`${styles.field} ${errors.newPassword ? styles.fieldError : ""}`}>
             <input
               type="password"
               placeholder=" "
-              value={newPass}
-              onChange={(e) => setNewPass(e.target.value)}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
             <label>New Password</label>
-            {errors.newPass && (
-              <div className={styles.errorText}>{errors.newPass}</div>
-            )}
+            {errors.newPassword && <div className={styles.errorText}>{errors.newPassword}</div>}
           </div>
 
-          {/* CONFIRM PASSWORD */}
-          <div
-            className={`${styles.field} ${errors.confirm ? styles.fieldError : ""
-              }`}
-          >
+          {/* CONFIRM */}
+          <div className={`${styles.field} ${errors.confirm ? styles.fieldError : ""}`}>
             <input
               type="password"
               placeholder=" "
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
             />
-            <label>Confirm Password</label>
-            {errors.confirm && (
-              <div className={styles.errorText}>{errors.confirm}</div>
-            )}
+            <label>Confirm New Password</label>
+            {errors.confirm && <div className={styles.errorText}>{errors.confirm}</div>}
           </div>
 
           <button className={styles.button} disabled={loading}>
-            {loading ? "Updating..." : "Update Password"}
+            {loading ? "Updating..." : "Change Password"}
           </button>
         </form>
       </div>

@@ -1,56 +1,96 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import styles from "@/app/style/AuthStyles.module.css";
+import { useEffect, useRef, useState } from "react";
+import pageStyles from "@/app/page.module.css";
+import authStyles from "@/app/style/AuthStyles.module.css";
 
 export default function AuthBackground({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [click, setClick] = useState<{ x: number; y: number } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-    };
-
-    const onClick = (e: MouseEvent) => {
-      setClick({ x: e.clientX, y: e.clientY });
-      setTimeout(() => setClick(null), 200);
-    };
-
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mousedown", onClick);
-
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mousedown", onClick);
-    };
+    setMounted(true);
   }, []);
 
-  return (
-    <div className={styles.authPage}>
-      <div className={styles.glow} style={{ left: pos.x, top: pos.y }} />
+  useEffect(() => {
+    if (!mounted) return;
 
-      {click && (
-        <div
-          className={styles.ripple}
-          style={{ left: click.x, top: click.y }}
-        />
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    const stars = Array.from({ length: 140 }).map(() => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.4 + 0.6,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.15,
+    }));
+
+    let raf = 0;
+    const loop = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const s of stars) {
+        s.x += s.vx;
+        s.y += s.vy;
+
+        if (s.x < 0) s.x = w;
+        if (s.x > w) s.x = 0;
+        if (s.y < 0) s.y = h;
+        if (s.y > h) s.y = 0;
+
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = "rgba(15,23,42,0.9)";
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(loop);
+    };
+
+    loop();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, [mounted]);
+
+  return (
+    <div className={pageStyles.page}>
+      {/* Layer 0 */}
+      <div className={pageStyles.bgGradient} />
+
+      {/* Layer 1 */}
+      {mounted && (
+        <canvas ref={canvasRef} className={pageStyles.starsBg} />
       )}
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
+      {/* ✅ Layer 2 — CENTERED AUTH CONTENT */}
+      <div className={authStyles.centerWrapper}>
         {children}
       </div>
     </div>

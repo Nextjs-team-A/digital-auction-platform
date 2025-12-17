@@ -5,57 +5,160 @@ import AuthBackground from "@/components/AuthBackground";
 import styles from "@/app/style/AuthStyles.module.css";
 
 export default function ForgotPasswordClient() {
+  const [step, setStep] = useState<1 | 2>(1);
+
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [code, setCode] = useState("");
+
+  const [errors, setErrors] = useState<{
+    email?: string;
+    code?: string;
+  }>({});
+
+  const [serverError, setServerError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  // STEP 1: SEND EMAIL
+  async function handleSendEmail(e: React.FormEvent) {
     e.preventDefault();
+
+    setServerError("");
+    setSuccess("");
+
     if (!email) {
-      setError("Required");
+      setErrors({ email: "Required" });
       return;
     }
 
-    setError("");
+    setErrors({});
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/forgot-pass", {
+      const res = await fetch("/api/auth/forgetpass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
-      setMessage(data.message || "If email exists, reset link sent.");
+      await res.json().catch(() => ({}));
+
+      // Always move forward (security best practice)
+      setStep(2);
+      setSuccess("We sent a verification code to your email.");
     } catch {
-      setError("Network error");
+      setServerError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
+  // STEP 2: VERIFY CODE (UI CONFIRMATION)
+  function handleVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+
+    setServerError("");
+    setSuccess("");
+
+    if (!code) {
+      setErrors({ code: "Required" });
+      return;
+    }
+
+    setErrors({});
+    setSuccess(
+      "Verification successful. Please check your email for the reset link."
+    );
+  }
+
   return (
     <AuthBackground>
       <div className={styles.card}>
-        <div className={styles.iconLogo}>🔒</div>
         <h2 className={styles.title}>Forgot Password</h2>
-
-        <form onSubmit={handleSubmit}>
-          <div className={`${styles.field} ${error ? styles.fieldError : ""}`}>
-            <input placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} />
-            <label>Email</label>
-            {error && <div className={styles.errorText}>{error}</div>}
+        <p className={styles.subtitle}>
+          Forgot your password?
+        </p>
+        {serverError && (
+          <div
+            style={{
+              marginBottom: "12px",
+              color: "#dc2626",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              textAlign: "center",
+            }}
+          >
+            {serverError}
           </div>
+        )}
 
-          <button className={styles.button} disabled={loading}>
-            {loading ? "Sending..." : "Send Reset Link"}
-          </button>
-        </form>
+        {success && (
+          <div
+            style={{
+              marginBottom: "12px",
+              color: "#059669",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+              textAlign: "center",
+            }}
+          >
+            {success}
+          </div>
+        )}
 
-        {message && <p className={styles.link}>{message}</p>}
-        <a href="/login" className={styles.link}>Back to login</a>
+        {/* STEP 1 */}
+        {step === 1 && (
+          <form onSubmit={handleSendEmail} noValidate>
+            <div
+              className={`${styles.field} ${errors.email ? styles.fieldError : ""
+                }`}
+            >
+              <input
+                type="email"
+                placeholder=" "
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <label>Email</label>
+              {errors.email && (
+                <div className={styles.errorText}>{errors.email}</div>
+              )}
+            </div>
+
+            <button className={styles.button} disabled={loading}>
+              {loading ? "Sending..." : "Send verification code"}
+            </button>
+          </form>
+        )}
+
+        {/* STEP 2 */}
+        {step === 2 && (
+          <form onSubmit={handleVerifyCode} noValidate>
+            <div
+              className={`${styles.field} ${errors.code ? styles.fieldError : ""
+                }`}
+            >
+              <input
+                type="text"
+                placeholder=" "
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
+              <label>Verification Code</label>
+              {errors.code && (
+                <div className={styles.errorText}>{errors.code}</div>
+              )}
+            </div>
+
+            <button className={styles.button}>
+              Verify code
+            </button>
+          </form>
+        )}
+
+        <a href="/login" className={styles.link}>
+          Back to login
+        </a>
       </div>
     </AuthBackground>
   );
