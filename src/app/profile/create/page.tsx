@@ -9,12 +9,7 @@ export default async function Page() {
   const token = cookieStore.get("token")?.value;
 
   if (!token || !verifyToken(token)) {
-    return (
-      <div>
-        <h1>Unauthorized</h1>
-        <p>You must be registered to create an account.</p>
-      </div>
-    );
+    return <ProfileCreateClient unauthorized />;
   }
 
   return <ProfileCreateClient />;
