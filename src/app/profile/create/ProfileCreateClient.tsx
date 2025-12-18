@@ -4,6 +4,16 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/auth-context";
+import {
+  FiUser,
+  FiPhone,
+  FiMapPin,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiArrowRight,
+  FiEdit3,
+  FiLock,
+} from "react-icons/fi";
 import styles from "./ProfileCreateStyle.module.css";
 
 export default function ProfileCreateClient({
@@ -26,7 +36,7 @@ export default function ProfileCreateClient({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Star Animation
+  // Enhanced Star Animation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -133,7 +143,6 @@ export default function ProfileCreateClient({
     if (form.lastName.trim().length < 2)
       return "Last name must be at least 2 characters";
 
-    // New
     const lebaneseRegex =
       /^(\+961\d{8}|03\d{6}|70\d{6}|71\d{6}|76\d{6}|78\d{6}|79\d{6}|81\d{6})$/;
     if (!lebaneseRegex.test(form.phone)) return "Invalid Lebanese phone number";
@@ -174,7 +183,6 @@ export default function ProfileCreateClient({
 
       setSuccess("Profile created successfully");
 
-      // refresh global state
       await refreshSession();
 
       setTimeout(() => {
@@ -193,11 +201,16 @@ export default function ProfileCreateClient({
         <canvas ref={canvasRef} className={styles.starsBg}></canvas>
         <div className={styles.content}>
           <div className={styles.unauthorizedCard}>
-            <h1 className={styles.unauthorizedTitle}>Unauthorized</h1>
+            <div className={styles.unauthorizedIcon}>
+              <FiLock />
+            </div>
+            <h1 className={styles.unauthorizedTitle}>Unauthorized Access</h1>
             <p className={styles.unauthorizedSubtitle}>
-              You must be logged in to create a profile.
+              You must be logged in to create a profile. Please sign in to
+              continue.
             </p>
             <Link href="/login" className={styles.primaryButton}>
+              <FiArrowRight className={styles.btnIcon} />
               Go to Login
             </Link>
           </div>
@@ -207,99 +220,155 @@ export default function ProfileCreateClient({
   }
 
   return (
-    <div style={inlineStyles.container}>
-      <form onSubmit={handleSubmit} style={inlineStyles.card}>
-        <h2 style={inlineStyles.title}>Create Your Profile</h2>
+    <div className={styles.page}>
+      <div className={styles.bgGradient}></div>
+      <canvas ref={canvasRef} className={styles.starsBg}></canvas>
 
-        {error && <p style={inlineStyles.error}>{error}</p>}
-        {success && <p style={inlineStyles.success}>{success}</p>}
+      <div className={styles.content}>
+        <div className={styles.formContainer}>
+          {/* Hero Section */}
+          <div className={styles.formHeader}>
+            <div className={styles.badge}>
+              <FiEdit3 className={styles.badgeIcon} />
+              SETUP YOUR PROFILE
+            </div>
+            <h1 className={styles.title}>
+              Create Your <span className={styles.titleAccent}>Profile</span>
+            </h1>
+            <p className={styles.subtitle}>
+              Complete your profile to start bidding on amazing products and
+              creating your own auctions.
+            </p>
+          </div>
 
-        <input
-          name="firstName"
-          placeholder="First Name"
-          value={form.firstName}
-          onChange={handleChange}
-          style={inlineStyles.input}
-        />
+          {/* Form Card */}
+          <div className={styles.formCard}>
+            <div className={styles.formWrapper}>
+              {/* Alert Messages */}
+              {error && (
+                <div className={styles.alertError}>
+                  <FiAlertCircle className={styles.alertIcon} />
+                  <span>{error}</span>
+                </div>
+              )}
 
-        <input
-          name="lastName"
-          placeholder="Last Name"
-          value={form.lastName}
-          onChange={handleChange}
-          style={inlineStyles.input}
-        />
+              {success && (
+                <div className={styles.alertSuccess}>
+                  <FiCheckCircle className={styles.alertIcon} />
+                  <span>{success}</span>
+                </div>
+              )}
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={form.phone}
-          onChange={handleChange}
-          style={inlineStyles.input}
-        />
+              {/* First Name */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FiUser className={styles.labelIcon} />
+                  First Name
+                </label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    value={form.firstName}
+                    onChange={handleChange}
+                    className={styles.input}
+                  />
+                </div>
+              </div>
 
-        <select
-          name="location"
-          value={form.location}
-          onChange={handleChange}
-          style={inlineStyles.input}
-        >
-          <option value="">Select Location</option>
-          <option value="Beirut">Beirut</option>
-          <option value="Outside Beirut">Outside Beirut</option>
-        </select>
+              {/* Last Name */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FiUser className={styles.labelIcon} />
+                  Last Name
+                </label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    value={form.lastName}
+                    onChange={handleChange}
+                    className={styles.input}
+                  />
+                </div>
+              </div>
 
-        <button type="submit" disabled={loading} style={inlineStyles.button}>
-          {loading ? "Saving..." : "Create Profile"}
-        </button>
-      </form>
+              {/* Phone */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FiPhone className={styles.labelIcon} />
+                  Phone Number
+                </label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="+961 or 03/70/71/76/78/79/81"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className={styles.input}
+                  />
+                </div>
+                <small className={styles.inputHint}>
+                  Lebanese phone number format (e.g., +96170123456 or 03123456)
+                </small>
+              </div>
+
+              {/* Location */}
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FiMapPin className={styles.labelIcon} />
+                  Location
+                </label>
+                <div className={styles.inputWrapper}>
+                  <select
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    className={styles.select}
+                  >
+                    <option value="">Select your location</option>
+                    <option value="Beirut">Beirut</option>
+                    <option value="Outside Beirut">Outside Beirut</option>
+                  </select>
+                  <FiMapPin className={styles.selectIcon} />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className={styles.submitButton}
+              >
+                {loading ? (
+                  <>
+                    <div className={styles.spinner}></div>
+                    Creating Profile...
+                  </>
+                ) : (
+                  <>
+                    <FiCheckCircle className={styles.btnIcon} />
+                    Create Profile
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div className={styles.formFooter}>
+              <p className={styles.footerText}>
+                Already have a profile?{" "}
+                <Link href="/profile" className={styles.footerLink}>
+                  View Profile
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-const inlineStyles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#f5f7fa",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "400px",
-    background: "#fff",
-    padding: "30px",
-    borderRadius: "10px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-  },
-  title: {
-    textAlign: "center" as const,
-    marginBottom: "20px",
-  },
-  input: {
-    width: "100%",
-    padding: "12px",
-    marginBottom: "12px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    width: "100%",
-    padding: "12px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "bold" as const,
-  },
-  error: {
-    color: "red",
-    marginBottom: "10px",
-  },
-  success: {
-    color: "green",
-    marginBottom: "10px",
-  },
-};
