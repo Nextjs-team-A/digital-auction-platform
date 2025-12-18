@@ -8,23 +8,20 @@ import { createToken } from "../../../../lib/jwt";
 import { sendEmail } from "../../../../lib/mail";
 import prisma from "../../../../lib/db";
 
-
-
 export async function POST(req: Request) {
   try {
     // 1. Parse body
     const body: ForgotPasswordDTO = await req.json();
 
     // 2. Validate input
-   const parsed = ForgotPasswordSchema.safeParse(body);
+    const parsed = ForgotPasswordSchema.safeParse(body);
 
-if (!parsed.success) {
-  return NextResponse.json(
-    { error: parsed.error.issues[0].message },
-    { status: 400 }
-  );
-}
-
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0].message },
+        { status: 400 }
+      );
+    }
 
     const { email } = parsed.data;
 
@@ -48,8 +45,8 @@ if (!parsed.success) {
       role: user.role,
     });
 
-    // 5. Build reset URL
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`;
+    // 5. Build reset URL (Points to verify-email first)
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${resetToken}`;
 
     // 6. Send email
     await sendEmail({
@@ -57,8 +54,12 @@ if (!parsed.success) {
       subject: "Reset Your Password",
       html: `
         <h2>Password Reset Request</h2>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetUrl}" target="_blank">Reset Password</a>
+        <p>You requested to reset your password.</p>
+        <p>To confirm this request, please click the link below to verify your email first:</p>
+        <br/>
+        <a href="${resetUrl}" target="_blank" style="padding: 10px 20px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">Verify Email & Reset Password</a>
+        <br/><br/>
+        <p>Or verify using this link: <a href="${resetUrl}">${resetUrl}</a></p>
         <p>This link will expire in 24 hours.</p>
       `,
     });

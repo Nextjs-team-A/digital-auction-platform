@@ -1,5 +1,5 @@
-// src/app/profile/page.tsx
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { verifyToken } from "@/lib/jwt";
 import ProfileClient from "./ProfileClient";
 
@@ -13,12 +13,7 @@ export default async function ProfilePage() {
 
   // Protect page: only logged-in users
   if (!token || !verifyToken(token)) {
-    return (
-      <div>
-        <h1>Unauthorized</h1>
-        <p>You must be logged in to access your profile.</p>
-      </div>
-    );
+    redirect("/login");
   }
 
   return <ProfileClient />;

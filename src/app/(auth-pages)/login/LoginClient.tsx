@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthBackground from "@/components/AuthBackground";
 import styles from "@/app/style/AuthStyles.module.css";
+import { useAuthContext } from "@/context/auth-context";
 
 export default function LoginClient() {
   const router = useRouter();
+  const { refreshSession } = useAuthContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,6 +47,7 @@ export default function LoginClient() {
         return;
       }
 
+      await refreshSession();
       router.push("/profile");
     } catch {
       setServerError("Network error. Please try again.");
@@ -72,10 +75,16 @@ export default function LoginClient() {
               onChange={(e) => setEmail(e.target.value)}
             />
             <label>Email</label>
-            {errors.email && <div className={styles.errorText}>{errors.email}</div>}
+            {errors.email && (
+              <div className={styles.errorText}>{errors.email}</div>
+            )}
           </div>
 
-          <div className={`${styles.field} ${errors.password ? styles.fieldError : ""}`}>
+          <div
+            className={`${styles.field} ${
+              errors.password ? styles.fieldError : ""
+            }`}
+          >
             <input
               type="password"
               placeholder=" "
@@ -83,7 +92,9 @@ export default function LoginClient() {
               onChange={(e) => setPassword(e.target.value)}
             />
             <label>Password</label>
-            {errors.password && <div className={styles.errorText}>{errors.password}</div>}
+            {errors.password && (
+              <div className={styles.errorText}>{errors.password}</div>
+            )}
           </div>
 
           <button className={styles.button} disabled={loading}>

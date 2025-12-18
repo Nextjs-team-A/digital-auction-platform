@@ -1,11 +1,25 @@
-// src/app/products/my-products/MyProductsUI.tsx
-// UPDATED VERSION - Add delivery management features
-
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import {
+  FiEdit3,
+  FiTrash2,
+  FiTruck,
+  FiDollarSign,
+  FiMapPin,
+  FiClock,
+  FiCheckCircle,
+  FiPackage,
+  FiPlusCircle,
+  FiGrid,
+  FiAlertCircle,
+  FiZap,
+  FiLock,
+  FiTrendingUp,
+} from "react-icons/fi";
+import styles from "./MyProductsUI.module.css";
 
 interface Product {
   id: string;
@@ -45,6 +59,99 @@ export default function MyProductsUI({
   const [requestingDelivery, setRequestingDelivery] = useState<string | null>(
     null
   );
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Enhanced star animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      vx: number;
+      vy: number;
+      alpha: number;
+      pulseSpeed: number;
+      pulsePhase: number;
+    }> = [];
+
+    for (let i = 0; i < 180; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.6 + 0.4,
+        pulseSpeed: Math.random() * 0.02 + 0.01,
+        pulsePhase: Math.random() * Math.PI * 2,
+      });
+    }
+
+    let animationFrame = 0;
+
+    function animate() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      animationFrame++;
+
+      stars.forEach((star) => {
+        star.x += star.vx;
+        star.y += star.vy;
+
+        if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
+        if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+
+        const pulse =
+          Math.sin(animationFrame * star.pulseSpeed + star.pulsePhase) * 0.3 +
+          0.7;
+        const currentAlpha = star.alpha * pulse;
+
+        const gradient = ctx.createRadialGradient(
+          star.x,
+          star.y,
+          0,
+          star.x,
+          star.y,
+          star.radius * 3
+        );
+        gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
+        gradient.addColorStop(0.5, `rgba(16, 185, 129, ${currentAlpha * 0.3})`);
+        gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(16, 185, 129, ${currentAlpha})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleEditClick = (productId: string) => {
     router.push(`/products/edit/${productId}`);
@@ -60,9 +167,6 @@ export default function MyProductsUI({
     }
   };
 
-  /**
-   * Request Delivery for a sold product
-   */
   const handleRequestDelivery = async (
     productId: string,
     productTitle: string
@@ -89,8 +193,6 @@ export default function MyProductsUI({
       alert(
         "✅ Delivery requested successfully!\n\nAhmad Delivery will contact you soon."
       );
-
-      // Refresh page to show updated status
       window.location.reload();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to request delivery");
@@ -101,269 +203,293 @@ export default function MyProductsUI({
   };
 
   if (loading) {
-    return <div style={{ padding: "20px" }}>Loading your products...</div>;
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.spinner}></div>
+            <p>Loading your products...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div style={{ padding: "20px", color: "red" }}>{error}</div>;
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.errorContainer}>
+            <FiAlertCircle className={styles.errorIcon} />
+            <h2>Error Loading Products</h2>
+            <p>{error}</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h1>My Products</h1>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <Link
-            href="/products"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#666",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: "4px",
-            }}
-          >
-            Browse Products
-          </Link>
+    <div className={styles.page}>
+      <div className={styles.bgGradient}></div>
+      <canvas ref={canvasRef} className={styles.starsBg}></canvas>
 
-          <Link
-            href="/products/create"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: "4px",
-            }}
-          >
-            Create Product
-          </Link>
-        </div>
-      </div>
+      <div className={styles.content}>
+        {/* Hero Section */}
+        <section className={styles.hero}>
+          <div className={styles.heroInner}>
+            <div className={styles.badge}>
+              <FiPackage className={styles.badgeIcon} />
+              MY AUCTIONS
+            </div>
+            <h1 className={styles.title}>
+              Your <span className={styles.titleAccent}>Products</span>
+            </h1>
+            <p className={styles.subtitle}>
+              Manage your auction listings, track sales, and handle deliveries
+              all in one place.
+            </p>
+          </div>
+        </section>
 
-      {/* Empty State */}
-      {products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <p>You have no products yet.</p>
-          <Link
-            href="/products/create"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: "4px",
-              display: "inline-block",
-              marginTop: "10px",
-            }}
-          >
-            Create Your First Product
-          </Link>
-        </div>
-      ) : (
-        /* Products Grid */
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {products.map((p) => {
-            const isSold = p.status === "ENDED" && p.winnerId;
-            const canRequestDelivery = isSold && p.deliveryStatus === "PENDING";
-
-            return (
-              <div
-                key={p.id}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "15px",
-                  borderRadius: "8px",
-                  backgroundColor: "#fff",
-                }}
-              >
-                {/* Product Image */}
-                {p.images?.[0] && (
-                  <img
-                    src={p.images[0]}
-                    alt={p.title}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "cover",
-                      borderRadius: "6px",
-                      marginBottom: "10px",
-                    }}
-                  />
-                )}
-
-                {/* Status Badge */}
-                {isSold && (
-                  <div
-                    style={{
-                      display: "inline-block",
-                      padding: "4px 8px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    ✅ SOLD
-                  </div>
-                )}
-
-                <h3 style={{ marginBottom: "10px" }}>{p.title}</h3>
-
-                <p
-                  style={{
-                    color: "#666",
-                    fontSize: "14px",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {p.description.length > 100
-                    ? p.description.slice(0, 100) + "..."
-                    : p.description}
-                </p>
-
-                {/* Product Details */}
-                <p style={{ marginBottom: "5px" }}>
-                  <b>Starting Bid:</b> ${p.startingBid}
-                </p>
-                <p style={{ marginBottom: "5px" }}>
-                  <b>Current Bid:</b> ${p.currentBid}
-                </p>
-                <p style={{ marginBottom: "5px" }}>
-                  <b>Location:</b> {p.location}
-                </p>
-                <p style={{ marginBottom: "5px" }}>
-                  <b>Status:</b> {p.status}
-                </p>
-
-                {/* Show financial info if sold */}
-                {isSold && (
-                  <>
-                    <p style={{ marginBottom: "5px", color: "#28a745" }}>
-                      <b>Final Bid:</b> ${p.finalBidAmount?.toFixed(2)}
-                    </p>
-                    <p style={{ marginBottom: "5px", color: "#0070f3" }}>
-                      <b>Your Payout:</b> ${p.sellerPayout?.toFixed(2)}
-                    </p>
-                    <p style={{ marginBottom: "5px" }}>
-                      <b>Delivery:</b> {p.deliveryStatus || "PENDING"}
-                    </p>
-                  </>
-                )}
-
-                <p style={{ marginBottom: "10px" }}>
-                  <b>Ends:</b> {new Date(p.auctionEnd).toLocaleString()}
-                </p>
-
-                {p.images?.length > 1 && (
-                  <small
-                    style={{
-                      color: "#888",
-                      display: "block",
-                      marginBottom: "15px",
-                    }}
-                  >
-                    +{p.images.length - 1} more image(s)
-                  </small>
-                )}
-
-                {/* Action Buttons */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                  }}
-                >
-                  {/* Request Delivery Button (only for sold items) */}
-                  {canRequestDelivery && (
-                    <button
-                      onClick={() => handleRequestDelivery(p.id, p.title)}
-                      disabled={requestingDelivery === p.id}
-                      style={{
-                        padding: "8px",
-                        backgroundColor:
-                          requestingDelivery === p.id ? "#ccc" : "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor:
-                          requestingDelivery === p.id
-                            ? "not-allowed"
-                            : "pointer",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      {requestingDelivery === p.id
-                        ? "Requesting..."
-                        : "🚚 Request Delivery"}
-                    </button>
-                  )}
-
-                  {/* Edit/Delete Buttons (only for active auctions) */}
-                  {p.status === "ACTIVE" && (
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <button
-                        onClick={() => handleEditClick(p.id)}
-                        style={{
-                          flex: 1,
-                          padding: "8px",
-                          backgroundColor: "#0070f3",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteClick(p.id, p.title)}
-                        disabled={deleteLoading === p.id}
-                        style={{
-                          flex: 1,
-                          padding: "8px",
-                          backgroundColor:
-                            deleteLoading === p.id ? "#ccc" : "#dc3545",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor:
-                            deleteLoading === p.id ? "not-allowed" : "pointer",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {deleteLoading === p.id ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  )}
+        {/* Actions Bar */}
+        <section className={styles.actionsBar}>
+          <div className={styles.actionsInner}>
+            <div className={styles.statsGroup}>
+              <div className={styles.statItem}>
+                <FiGrid className={styles.statIcon} />
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>{products.length}</span>
+                  <span className={styles.statLabel}>Total Products</span>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+              <div className={styles.statItem}>
+                <FiZap className={styles.statIcon} />
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {products.filter((p) => p.status === "ACTIVE").length}
+                  </span>
+                  <span className={styles.statLabel}>Active</span>
+                </div>
+              </div>
+              <div className={styles.statItem}>
+                <FiCheckCircle className={styles.statIcon} />
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {
+                      products.filter((p) => p.status === "ENDED" && p.winnerId)
+                        .length
+                    }
+                  </span>
+                  <span className={styles.statLabel}>Sold</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.actionButtons}>
+              <Link href="/products" className={styles.secondaryBtn}>
+                <FiGrid className={styles.btnIcon} />
+                Browse All
+              </Link>
+              <Link href="/products/create" className={styles.primaryBtn}>
+                <FiPlusCircle className={styles.btnIcon} />
+                Create Product
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Products Section */}
+        <section className={styles.section}>
+          {products.length === 0 ? (
+            <div className={styles.emptyState}>
+              <FiPackage className={styles.emptyIcon} />
+              <h3>No Products Yet</h3>
+              <p>Start creating your first auction listing to get started.</p>
+              <Link href="/products/create" className={styles.createBtn}>
+                <FiPlusCircle className={styles.btnIcon} />
+                Create Your First Product
+              </Link>
+            </div>
+          ) : (
+            <div className={styles.productsGrid}>
+              {products.map((p, index) => {
+                const isSold = p.status === "ENDED" && p.winnerId;
+                const isActive = p.status === "ACTIVE";
+                const canRequestDelivery =
+                  isSold && p.deliveryStatus === "PENDING";
+
+                return (
+                  <div
+                    key={p.id}
+                    className={`${styles.productCard} ${
+                      !isActive ? styles.productCardEnded : ""
+                    }`}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    {/* Image */}
+                    <div className={styles.productImage}>
+                      {p.images?.[0] ? (
+                        <img
+                          src={p.images[0]}
+                          alt={p.title}
+                          onError={(e) =>
+                            (e.currentTarget.src = "/placeholder.png")
+                          }
+                        />
+                      ) : (
+                        <div className={styles.placeholderImage}>
+                          <FiPackage className={styles.placeholderIcon} />
+                        </div>
+                      )}
+
+                      {/* Status Badge */}
+                      <div className={styles.statusBadgeWrapper}>
+                        {isSold ? (
+                          <span className={styles.badgeSold}>
+                            <FiCheckCircle className={styles.badgeIconSmall} />
+                            SOLD
+                          </span>
+                        ) : isActive ? (
+                          <span className={styles.badgeLive}>
+                            <FiZap className={styles.badgeIconSmall} />
+                            LIVE
+                          </span>
+                        ) : (
+                          <span className={styles.badgeEnded}>
+                            <FiLock className={styles.badgeIconSmall} />
+                            ENDED
+                          </span>
+                        )}
+                      </div>
+
+                      {p.images && p.images.length > 1 && (
+                        <div className={styles.imageCount}>
+                          <FiGrid className={styles.imageCountIcon} />
+                          {p.images.length}
+                        </div>
+                      )}
+
+                      <div className={styles.imageOverlay}></div>
+                    </div>
+
+                    {/* Content */}
+                    <div className={styles.productContent}>
+                      <h3 className={styles.productTitle}>{p.title}</h3>
+                      <p className={styles.productDesc}>
+                        {p.description.length > 100
+                          ? p.description.substring(0, 100) + "..."
+                          : p.description}
+                      </p>
+
+                      {/* Bid Info */}
+                      <div className={styles.bidInfo}>
+                        <div className={styles.bidItem}>
+                          <span className={styles.bidLabel}>
+                            <FiDollarSign className={styles.bidIcon} />
+                            Starting
+                          </span>
+                          <span className={styles.bidValue}>
+                            ${p.startingBid}
+                          </span>
+                        </div>
+                        <div className={styles.bidItem}>
+                          <span className={styles.bidLabel}>
+                            <FiTrendingUp className={styles.bidIcon} />
+                            {isSold ? "Final" : "Current"}
+                          </span>
+                          <span className={styles.bidCurrent}>
+                            ${p.currentBid}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Sold Info */}
+                      {isSold && p.sellerPayout && (
+                        <div className={styles.payoutInfo}>
+                          <div className={styles.payoutItem}>
+                            <FiDollarSign className={styles.payoutIcon} />
+                            <div className={styles.payoutDetails}>
+                              <span className={styles.payoutLabel}>
+                                Your Payout
+                              </span>
+                              <span className={styles.payoutValue}>
+                                ${p.sellerPayout.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                          {p.deliveryStatus && (
+                            <div className={styles.deliveryStatus}>
+                              <FiTruck className={styles.deliveryIcon} />
+                              <span>{p.deliveryStatus}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Meta */}
+                      <div className={styles.productMeta}>
+                        <div className={styles.metaItem}>
+                          <FiMapPin className={styles.metaIcon} />
+                          <span>{p.location}</span>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <FiClock className={styles.metaIcon} />
+                          <span>
+                            {new Date(p.auctionEnd).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className={styles.productActions}>
+                        {canRequestDelivery && (
+                          <button
+                            onClick={() => handleRequestDelivery(p.id, p.title)}
+                            disabled={requestingDelivery === p.id}
+                            className={styles.deliveryBtn}
+                          >
+                            <FiTruck className={styles.btnIcon} />
+                            {requestingDelivery === p.id
+                              ? "Requesting..."
+                              : "Request Delivery"}
+                          </button>
+                        )}
+
+                        {isActive && (
+                          <div className={styles.actionGroup}>
+                            <button
+                              onClick={() => handleEditClick(p.id)}
+                              className={styles.editBtn}
+                            >
+                              <FiEdit3 className={styles.btnIcon} />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(p.id, p.title)}
+                              disabled={deleteLoading === p.id}
+                              className={styles.deleteBtn}
+                            >
+                              <FiTrash2 className={styles.btnIcon} />
+                              {deleteLoading === p.id
+                                ? "Deleting..."
+                                : "Delete"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

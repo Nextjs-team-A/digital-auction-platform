@@ -1,10 +1,68 @@
 /* TeamPage.module.css */
 
+
+/* --- NEW CSS ANIMATION KEYFRAMES (Moving Gradient) --- */
+@keyframes move-background {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+/* =======================================================
+   DESIGN TOKENS (Match Home Page)
+   ======================================================= */
+:root {
+    --ink: #0f172a;
+    --muted: rgba(15, 23, 42, 0.72);
+
+    /* Premium Green Box Look */
+    --panel-bg: radial-gradient(900px 400px at 20% 30%,
+            rgba(16, 185, 129, 0.16),
+            transparent 65%),
+        linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.03));
+    --panel-border: rgba(15, 23, 42, 0.08);
+    --panel-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
+    --panel-hover-border: rgba(16, 185, 129, 0.3);
+    --panel-hover-shadow: 0 24px 64px rgba(16, 185, 129, 0.14);
+}
+
 /* ---- Container ---- */
 .container {
     min-height: 100vh;
-    background: radial-gradient(circle at 50% 0%, rgba(198, 166, 100, 0.1) 0%, transparent 70%), #0A2342;
+    position: relative;
     padding: 0;
+    /* Removed fixed dark background */
+}
+
+/* Layer 0: animated gradient behind everything */
+.bgGradient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+
+    background: linear-gradient(-45deg, #ffffff, #f8fafc, #e2e8f0, #f0f4f8);
+    background-size: 400% 400%;
+    animation: move-background 20s ease infinite;
+    pointer-events: none;
+}
+
+/* Layer 1: FULL PAGE BACKGROUND CANVAS (stars) */
+.starsBg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.95;
 }
 
 /* ---- Hero Section ---- */
@@ -13,6 +71,9 @@
     padding: 5rem 2rem 3rem;
     position: relative;
     overflow: hidden;
+    z-index: 2;
+    margin-top: 1rem;
+    /* Bring above background */
 }
 
 .titleWrapper {
@@ -25,73 +86,85 @@
     z-index: 1;
 }
 
-
 .flankingLogo {
     width: 70px;
     height: 70px;
     object-fit: contain;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
     flex-shrink: 0;
+
 }
 
+
 .title {
-    font-size: 4rem;
-    font-weight: 600;
-    color: #F5F6FA;
+    font-size: 5rem;
+    font-weight: 950;
+    color: var(--ink);
+    /* Changed to Ink */
     margin: 0;
     line-height: 1;
     position: relative;
     z-index: 1;
     letter-spacing: -0.5px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .title span {
-    color: #C6A664;
+    color: #059669;
+    /* Green Accent */
+    text-shadow: 0 18px 42px rgba(16, 185, 129, 0.18);
 }
 
 .subtitle {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     font-weight: 200;
-    color: #F5F6FA;
+    color: var(--muted);
+    /* Changed to Muted */
     max-width: 700px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
-    opacity: 0.9;
     line-height: 1.6;
 }
 
 .subtitle span {
-    color: #C6A664;
+    color: #059669;
+    /* Green Accent */
 }
 
 /* ---- Grid Container ---- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.2rem;
     padding: 4rem 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
 /* ---- Card ---- */
 .card {
-    background: #F5F6FA;
+    background: var(--panel-bg);
+    /* Use panel bg */
+    border: 1px solid var(--panel-border);
     border-radius: 10px;
     padding: 0;
     text-align: left;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(14px);
+
     opacity: 0;
     transform: translateY(40px);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
 }
 
+/* Top bar color */
 .card::before {
     content: '';
     position: absolute;
@@ -99,7 +172,8 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #C6A664 0%, #d4b87a 100%);
+    background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+    /* Green gradient */
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.4s ease;
@@ -116,8 +190,8 @@
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
+    border-color: var(--panel-hover-border);
+    box-shadow: var(--panel-hover-shadow);
 }
 
 /* ---- Avatar ---- */
@@ -139,7 +213,8 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(198, 166, 100, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+    /* Green tint */
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -159,10 +234,6 @@
     transition: transform 0.3s ease;
 }
 
-/* .card:hover .image {
-    transform: scale(1.01);
-} */
-
 /* ---- Card Content ---- */
 .cardContent {
     padding: 1.5rem;
@@ -175,7 +246,8 @@
 .name {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0A2342;
+    color: var(--ink);
+    /* Ink */
     margin-bottom: 0.5rem;
     letter-spacing: -0.3px;
     line-height: 1.3;
@@ -184,9 +256,41 @@
 .role {
     font-size: 1rem;
     font-weight: 600;
-    color: #C6A664;
+    color: #059669;
+    /* Green */
     margin-bottom: 0.6rem;
     letter-spacing: 0.3px;
+}
+
+.skillsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.skillTag {
+    background: #059669;
+    /* Dark background */
+    color: #f1f5f9;
+    /* Light text */
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.1);
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.skillTag:hover {
+
+    background: rgba(15, 23, 42, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(5, 150, 105, 0.25);
+    border-color: rgba(5, 150, 105, 0.4);
 }
 
 .descriptionWrapper {
@@ -197,13 +301,11 @@
 
 .desc {
     font-size: 0.9rem;
-    color: #0A2342;
+    color: var(--muted);
     line-height: 1.5;
     margin-bottom: 0;
-    opacity: 0.85;
+    cursor: pointer;
 }
-
-
 
 .descTruncated {
     display: -webkit-box;
@@ -223,7 +325,8 @@
 }
 
 .showMore {
-    color: #C6A664;
+    color: #059669;
+    /* Green */
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
@@ -237,13 +340,13 @@
 }
 
 .showMore:hover {
-    color: #0A2342;
+    color: var(--ink);
     text-decoration: none;
 }
 
 /* ---- LinkedIn Link ---- */
 .linkedin {
-    color: #0A2342;
+    color: var(--ink);
     text-decoration: none;
     transition: all 0.2s ease;
     display: inline-flex;
@@ -256,7 +359,8 @@
 }
 
 .linkedin:hover {
-    color: #C6A664;
+    color: #059669;
+    /* Green */
 }
 
 /* ---- Responsive Design ---- */
@@ -289,6 +393,11 @@
 
     .cardContent {
         padding: 1.25rem;
+    }
+
+    .image {
+        object-position: top center;
+
     }
 }
 
@@ -336,4 +445,12 @@
         padding: 0.65rem 1.25rem;
         font-size: 0.9rem;
     }
+
+    .image {
+        object-position: top center;
+        /* or center center */
+    }
+
+
+
 }

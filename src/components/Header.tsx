@@ -1,14 +1,72 @@
 // src/components/Header.tsx
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { FaBars, FaTimes } from "react-icons/fa";
+import LogoutButton from "./LogoutButton";
+
+// --- STAR ANIMATION LOGIC (Adapted from page.tsx) ---
+const animationState = {
+  w: 0,
+  h: 0,
+  dpr: 1,
+  reducedMotion: false,
+};
+
+class Star {
+  c: CanvasRenderingContext2D;
+  layer: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  a: number;
+
+  constructor(ctx: CanvasRenderingContext2D, layer: number) {
+    this.c = ctx;
+    this.layer = layer;
+    this.x = Math.random() * animationState.w;
+    this.y = Math.random() * animationState.h;
+
+    const baseSpeed = layer === 0 ? 0.05 : layer === 1 ? 0.09 : 0.13;
+    this.vx = (Math.random() - 0.5) * baseSpeed;
+    this.vy = (Math.random() - 0.5) * baseSpeed;
+
+    const baseR = layer === 0 ? 0.7 : layer === 1 ? 1.0 : 1.4;
+    this.r = baseR + Math.random() * 0.9;
+    this.a = (layer === 0 ? 0.12 : layer === 1 ? 0.16 : 0.22) + Math.random() * 0.12;
+  }
+
+  step() {
+    if (animationState.reducedMotion) return;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x < -30) this.x = animationState.w + 30;
+    if (this.x > animationState.w + 30) this.x = -30;
+    if (this.y < -30) this.y = animationState.h + 30;
+    if (this.y > animationState.h + 30) this.y = -30;
+  }
+
+  draw() {
+    this.c.save();
+    this.c.globalAlpha = this.a;
+    this.c.fillStyle = "rgba(15, 23, 42, 0.90)"; // Dark stars
+    this.c.beginPath();
+    this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    this.c.fill();
+    this.c.restore();
+  }
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,37 +77,85 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // --- CANVAS EFFECT ---
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !headerRef.current) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    animationState.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    animationState.reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+
+    const resize = () => {
+      if (!headerRef.current) return false;
+      const rect = headerRef.current.getBoundingClientRect();
+      animationState.w = rect.width;
+      animationState.h = rect.height;
+
+      if (!animationState.w || !animationState.h) return false;
+
+      canvas.width = Math.floor(animationState.w * animationState.dpr);
+      canvas.height = Math.floor(animationState.h * animationState.dpr);
+      ctx.setTransform(animationState.dpr, 0, 0, animationState.dpr, 0, 0);
+      return true;
+    };
+
+    const stars: Star[] = [];
+    const buildStars = () => {
+      stars.length = 0;
+      // Fewer stars for header area
+      const count = Math.floor(animationState.w / 60);
+      for (let i = 0; i < count; i++) {
+        stars.push(new Star(ctx, i % 3));
+      }
+    };
+
+    let raf = 0;
+    const loop = () => {
+      ctx.clearRect(0, 0, animationState.w, animationState.h);
+      for (const s of stars) {
+        s.step();
+        s.draw();
+      }
+      raf = requestAnimationFrame(loop);
+    };
+
+    const onResize = () => {
+      if (resize()) buildStars();
+    };
+
+    window.addEventListener("resize", onResize);
+
+    // Init
+    if (resize()) {
+      buildStars();
+      loop();
+    }
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+    <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+      {/* Background Canvas */}
+      <canvas ref={canvasRef} className={styles.headerCanvas} aria-hidden="true" />
+
       <div className={styles.headerContainer}>
-        {/* Animated Logo with Text */}
-        <div className={styles.logoWrapper}>
-          <Link href="/" className={styles.logoContainer}>
-            <div className={styles.logoBackground}>
-              <div className={styles.logoShine} />
-            </div>
 
-            {/* Logo Image and Text Combined */}
-            <div className={styles.logoContent}>
-              <Image
-                src="/images/logos/logo2.png"
-                alt="BidZone Logo"
-                width={50}
-                height={50}
-                priority
-                className={styles.logoImage}
-              />
-              <div className={styles.logoText}>
-                <h1 className={styles.brandName}>BidZone</h1>
-                <p className={styles.brandTagline}>Digital Auction Platform</p>
-              </div>
-            </div>
+        <div className={styles.logoContainer}>
+          <Image
+            src="/images/logos/logoo1.png"
+            alt="logo of the website"
+            width={1000}
+            height={100}
+            className={styles.logo}
+          />
 
-            <div className={styles.logoBorder} />
-          </Link>
-          <div className={styles.logoGlow} />
         </div>
-
         {/* Desktop Navigation */}
         <nav className={styles.desktopNav}>
           <Link href="/" className={styles.navLink}>
@@ -66,17 +172,12 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* CTA Buttons */}
-        <div className={styles.ctaButtons}>
-          <Link href="/login" className={styles.loginButton}>
-            Login
-          </Link>
-          <Link href="/register" className={styles.signupButton}>
-            Get Started
-          </Link>
+        <div >
+          {/* dark mode theme */}
         </div>
 
         {/* Mobile Menu Toggle */}
+        
         <button
           className={styles.mobileMenuToggle}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -88,9 +189,8 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`${styles.mobileMenu} ${
-          mobileMenuOpen ? styles.mobileMenuOpen : ""
-        }`}
+        className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ""
+          }`}
       >
         <nav className={styles.mobileNav}>
           <Link
@@ -121,14 +221,7 @@ export default function Header() {
           >
             About
           </Link>
-          <div className={styles.mobileCta}>
-            <Link href="/login" className={styles.loginButton}>
-              Login
-            </Link>
-            <Link href="/register" className={styles.signupButton}>
-              Get Started
-            </Link>
-          </div>
+
         </nav>
       </div>
     </header>

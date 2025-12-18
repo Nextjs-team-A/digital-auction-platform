@@ -8,8 +8,12 @@ export default function ProfileClient() {
   const { user, loading, isAuthenticated } = useAuthContext();
 
   if (loading) return <p>Loading profile...</p>;
-  if (!isAuthenticated || !user)
-    return <p>You must be logged in to access your profile.</p>;
+
+  // Extra safety: If client auth fails (rare if server passed), don't show error text, just return null or redirect
+  if (!isAuthenticated || !user) {
+    // Optional: window.location.href = "/login";
+    return null;
+  }
 
   return (
     <main>
