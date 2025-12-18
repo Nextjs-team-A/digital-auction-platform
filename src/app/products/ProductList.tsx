@@ -30,9 +30,13 @@ interface Product {
   winnerId?: string;
 }
 
-export default function ProductsList() {
+export default function ProductsList({
+  unauthorized = false,
+}: {
+  unauthorized?: boolean;
+}) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!unauthorized); // Don't load if unauthorized
   const [error, setError] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [bidAmount, setBidAmount] = useState("");
@@ -145,8 +149,10 @@ export default function ProductsList() {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!unauthorized) {
+      fetchProducts();
+    }
+  }, [unauthorized]);
 
   const fetchProducts = async () => {
     try {
@@ -249,6 +255,26 @@ export default function ProductsList() {
 
   const liveProducts = products.filter((p) => !isAuctionEnded(p));
   const endedProducts = products.filter((p) => isAuctionEnded(p));
+
+  if (unauthorized) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.unauthorizedCard}>
+            <h1 className={styles.unauthorizedTitle}>Unauthorized</h1>
+            <p className={styles.unauthorizedSubtitle}>
+              You must be logged in to browse products.
+            </p>
+            <Link href="/login" className={styles.primaryButton}>
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
