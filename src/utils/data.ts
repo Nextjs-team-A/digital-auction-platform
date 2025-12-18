@@ -6,6 +6,7 @@ export interface TeamMember {
     role: string;
     desc: string;
     linkedin: string;
+    skills?: string[];
 }
 
 export const teamMembers: TeamMember[] = [
@@ -16,7 +17,8 @@ export const teamMembers: TeamMember[] = [
         desc: `Computer Science graduate with skills in HTML,CSS, JavaScript, React, Next.js,and MySQL.          
     Currently learning Java Spring Boot to strengthen backend development.
     Motivated self-learner focused on growth and building impactful web solutions.`,
-        linkedin: "https://www.linkedin.com/in/yara-el-kassem-b0005226b?"
+        linkedin: "https://www.linkedin.com/in/yara-el-kassem-b0005226b?",
+        skills: ["React.js", "Next.js", " Spring Boot"]
     },
     {
         image: "/images/team/alichoker.jpeg",
@@ -24,10 +26,11 @@ export const teamMembers: TeamMember[] = [
         role: "Full-Stack Developer",
         desc: `Focused on building secure and scalable web applications.
 Skilled in backend engineering, RESTful APIs, and database design with MySQL, PostgreSQL & MongoDB.
-Experienced with modern tech including Laravel Nextjs
-Graduated with honors from LIU – Khiara Campus and completed a Next.js internship at Noya AI.
- Always driven to create efficient, clean, and impactful digital solutions.`,
+    Experienced with modern tech including Laravel Nextjs
+    Graduated with honors from LIU – Khiara Campus and completed a Next.js internship at Noya AI.
+    Always driven to create efficient, clean, and impactful digital solutions.`,
         linkedin: " https://www.linkedin.com/in/ali-choker-b18377245?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+        skills: ["PostgreSQL", "Laravel", "Next.js"]
     },
     {
         image: "/images/team/royakais_v2.png",
@@ -36,13 +39,15 @@ Graduated with honors from LIU – Khiara Campus and completed a Next.js interns
         desc: `Web Developer with experience in building responsive websites and full-stack projects using HTML, CSS, JavaScript, React, Node.js, and SQL.
     I've worked on CRUD applications, database systems, JavaFX tools.`,
         linkedin: "https://www.linkedin.com/in/royakais",
+        skills: ["React.js", "Node.js", "JavaScript"]
     },
     {
         image: "/images/team/ahmadkaraki.jpeg",
         name: "Ahmad Karaki",
         role: "Front-End Developer",
         desc: `Computer Science student at USAL University, continuously improving my skills in modern web technologies and best practices.`,
-        linkedin: "https://www.linkedin.com/in/ahmad-karaki-256155392?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+        linkedin: "https://www.linkedin.com/in/ahmad-karaki-256155392?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+        skills: ["HTML", "CSS", "JavaScript"]
     },
     {
         image: "/images/team/Mohamad.jpeg",
@@ -51,7 +56,7 @@ Graduated with honors from LIU – Khiara Campus and completed a Next.js interns
         desc: `Web Developer skilled in HTML, CSS, JavaScript, React.js, and Tailwind CSS. 
         Passionate about creating responsive, user-friendly web applications and continuously improving my frontend development skills.`,
         linkedin: "https://www.linkedin.com/in/mhamad-aboubaker-430833375?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
-
+        skills: ["React.js", "Tailwind CSS", "JavaScript"]
     }
 
 ];

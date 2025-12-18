@@ -1,7 +1,19 @@
-/* ============================================================================
-   PREMIUM HEADER COMPONENT STYLES - 2027 DESIGN
-   Animated Logo with Rectangle Frame & Glassmorphism
-   ============================================================================ */
+/* Header.module.css */
+
+/* Animation Keyframes (Same as page.tsx) */
+@keyframes move-background {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
 
 .header {
   position: fixed;
@@ -9,290 +21,106 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(13, 27, 62, 0.7);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  height: 5rem;
+  /* White Animated Gradient from page.tsx */
+  background: linear-gradient(-45deg, #ffffff, #f8fafc, #e2e8f0, #f0fdf4);
+  background-size: 400% 400%;
+  animation: move-background 20s ease infinite;
+  border-top: 1px solid rgba(16, 185, 129, 0.15);
+  border-bottom: 2px solid rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
 }
 
-.header.scrolled {
-  background: rgba(13, 27, 62, 0.95);
-  backdrop-filter: blur(30px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+.headerCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .headerContainer {
-  max-width: 1400px;
+  position: relative;
+  z-index: 1;
+  /* Above canvas */
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0.25rem 2rem;
+  /* Tight padding to keep header small */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-}
-
-/* ========================================================================= */
-/* ANIMATED LOGO WITH RECTANGLE FRAME + TEXT */
-/* ========================================================================= */
-
-.logoWrapper {
-  position: relative;
+  height: 100%;
 }
 
 .logoContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 65px;
-  padding: 0.625rem 1.25rem;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  cursor: pointer;
-  text-decoration: none;
+  width: 250px;
+  height: 350px;
+  margin-top: .5rem;
+  /* background-color: #059669; */
 }
 
-/* Animated Background */
-.logoBackground {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 204, 0, 0.08) 0%,
-    rgba(255, 204, 0, 0.03) 100%
-  );
-  border-radius: 14px;
-  transition: all 0.4s ease;
-}
-
-.logoContainer:hover .logoBackground {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 204, 0, 0.15) 0%,
-    rgba(255, 204, 0, 0.08) 100%
-  );
-}
-
-/* Animated Shine Effect */
-.logoShine {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  animation: logoShine 3s ease-in-out infinite;
-}
-
-@keyframes logoShine {
-  0% {
-    left: -100%;
-  }
-  50%,
-  100% {
-    left: 200%;
-  }
-}
-
-/* Logo Content Container */
-.logoContent {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-}
-
-/* Logo Image - Clear PNG */
-.logoImage {
-  position: relative;
-  height: 45px;
-  width: 45px;
+.logo {
   object-fit: contain;
-  transition: all 0.4s ease;
-  filter: drop-shadow(0 2px 8px rgba(255, 204, 0, 0.3));
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  width: 100% !important;
+  height: 100% !important;
 }
 
-.logoContainer:hover .logoImage {
-  transform: scale(1.08);
-  filter: drop-shadow(0 4px 12px rgba(255, 204, 0, 0.5));
-}
-
-/* Logo Text Container */
-.logoText {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  justify-content: center;
-}
-
-.brandName {
-  font-size: 1.625rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent) 0%, #ffd700 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 0.3px;
-  margin: 0;
-  line-height: 1.1;
-  transition: all 0.3s ease;
-}
-
-.logoContainer:hover .brandName {
-  letter-spacing: 0.8px;
-}
-
-.brandTagline {
-  font-size: 0.56rem;
-  color: rgba(255, 255, 255, 0.65);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin: 0;
-  line-height: 1.1;
-  transition: color 0.3s ease;
-  white-space: nowrap;
-}
-
-.logoContainer:hover .brandTagline {
-  color: var(--accent);
-}
-
-/* Animated Border */
-.logoBorder {
-  position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  padding: 2px;
-  background: linear-gradient(
-    135deg,
-    var(--accent) 0%,
-    #ffd700 50%,
-    var(--accent) 100%
-  );
-  background-size: 200% 200%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.7;
-  transition: opacity 0.4s ease;
-  animation: borderGradient 3s linear infinite;
-}
-
-@keyframes borderGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.logoContainer:hover .logoBorder {
-  opacity: 1;
-}
-
-/* Pulsing Glow Effect */
-.logoGlow {
-  position: absolute;
-  inset: -15px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 204, 0, 0.3) 0%,
-    transparent 70%
-  );
-  border-radius: 25px;
-  opacity: 0;
-  filter: blur(25px);
-  transition: opacity 0.4s ease;
-  animation: logoGlowPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes logoGlowPulse {
-  0%,
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.08);
-  }
-}
-
-.logoContainer:hover + .logoGlow {
-  opacity: 1;
-}
-
-/* ========================================================================= */
-/* DESKTOP NAVIGATION */
-/* ========================================================================= */
-
+/* --- Desktop Navigation --- */
 .desktopNav {
   display: none;
-  align-items: center;
-  gap: 2rem;
-  flex: 1;
-  justify-content: center;
+  gap: 2.5rem;
 }
 
-@media (min-width: 1024px) {
-  .desktopNav {
-    display: flex;
-  }
+.desktopNav {
+  display: flex;
 }
 
 .navLink {
-  position: relative;
-  color: var(--foreground);
+  color: #0f172a;
+  /* Dark text for visibility on light bg */
   text-decoration: none;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  padding: 0.5rem 0;
-  transition: color 0.3s ease;
-  cursor: pointer;
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.navLink::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), #ffd700);
-  transition: width 0.3s ease;
+  font-weight: 600;
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+  position: relative;
 }
 
 .navLink:hover {
-  color: var(--accent);
+  color: #059669;
+}
+
+/* Green underline */
+.navLink::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #059669;
+  transform: scaleX(0);
+  /* Hidden by default */
+  transition: transform 0.3s;
+  transform-origin: right;
 }
 
 .navLink:hover::after {
-  width: 100%;
+  transform: scaleX(1);
+  /* Shown on hover */
+  transform-origin: left;
 }
 
-/* ========================================================================= */
-/* CTA BUTTONS */
-/* ========================================================================= */
-
+/* --- CTA Buttons Area --- */
 .ctaButtons {
   display: none;
   align-items: center;
@@ -305,81 +133,24 @@
   }
 }
 
-.loginButton,
-.signupButton {
-  padding: 0.625rem 1.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.loginButton {
-  background: transparent;
-  color: var(--foreground);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.loginButton:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-
-.signupButton {
-  background: linear-gradient(135deg, var(--accent) 0%, #ffd700 100%);
-  color: var(--color-navy);
-  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.signupButton::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.signupButton:hover::before {
-  left: 100%;
-}
-
-.signupButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4);
-}
-
-/* ========================================================================= */
-/* MOBILE MENU */
-/* ========================================================================= */
-
+/* --- Mobile Menu Toggle --- */
 .mobileMenuToggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: var(--foreground);
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  color: #0f172a;
   font-size: 1.25rem;
+  padding: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
+}
+
+.mobileMenuToggle:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
 }
 
 @media (min-width: 1024px) {
@@ -388,31 +159,30 @@
   }
 }
 
-.mobileMenuToggle:hover {
-  background: rgba(255, 204, 0, 0.1);
-  border-color: var(--accent);
-  transform: scale(1.05);
-}
-
+/* --- Mobile Menu --- */
 .mobileMenu {
   position: fixed;
-  top: 82px;
+  top: 5rem;
+  /* Matches header height */
   left: 0;
   right: 0;
-  background: rgba(13, 27, 62, 0.98);
-  backdrop-filter: blur(30px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2rem;
-  max-height: 0;
-  overflow: hidden;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+
+  visibility: hidden;
   opacity: 0;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 999;
 }
 
 .mobileMenuOpen {
-  max-height: 500px;
+  visibility: visible;
   opacity: 1;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: translateY(0);
 }
 
 .mobileNav {
@@ -422,85 +192,130 @@
 }
 
 .mobileNavLink {
-  color: var(--foreground);
+  color: #0f172a;
   text-decoration: none;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  padding: 1rem;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
+  padding: 10px;
+  border-radius: 8px;
+  transition: 0.2s;
 }
 
 .mobileNavLink:hover {
-  background: rgba(255, 204, 0, 0.1);
-  border-color: rgba(255, 204, 0, 0.3);
-  transform: translateX(10px);
+  background: #f0fdf4;
+  color: #059669;
 }
 
-.mobileCta {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-/* ========================================================================= */
-/* RESPONSIVE ADJUSTMENTS */
-/* ========================================================================= */
+/* --- Responsive Breakpoints --- */
 
-@media (max-width: 768px) {
+/* Max Width 1024px - Tablet Landscape / Small Desktop */
+@media (max-width: 1024px) {
   .headerContainer {
-    padding: 0.875rem 1.5rem;
+    padding: 0.25rem 1.5rem;
   }
 
   .logoContainer {
-    height: 58px;
-    padding: 0.5rem 1rem;
+    width: 190px;
+    height: 200px;
+    margin-top: .5rem;
+    /* background-color: #059669; */
   }
 
-  .logoImage {
-    height: 38px;
-    width: 38px;
+  .logo {
+    object-fit: contain;
+    width: 100% !important;
+    height: 100% !important;
   }
 
-  .brandName {
-    font-size: 1.35rem;
+  .desktopNav {
+    display: flex;
+    gap: 1.5rem;
   }
 
-  .brandTagline {
-    font-size: 0.5rem;
-    letter-spacing: 0.8px;
+  .navLink {
+    font-size: 1rem;
   }
 
-  .logoContent {
-    gap: 0.65rem;
+  .mobileMenuToggle {
+    display: none;
+    /* Force hide mobile menu button */
   }
 }
 
-@media (max-width: 480px) {
+/* Max Width 768px - Tablets Portrait / Large Phones */
+@media (max-width: 768px) {
+  .header {
+    height: 4.5rem;
+  }
+
+  .mobileMenu {
+    top: 4.5rem;
+    padding: 1.25rem;
+  }
+
+  .headerContainer {
+    padding: 0.25rem 1rem;
+  }
+
   .logoContainer {
-    padding: 0.4rem 0.75rem;
-    height: 54px;
+    width: 140px;
   }
 
-  .logoImage {
-    height: 34px;
-    width: 34px;
+  .desktopNav {
+    gap: 1rem;
   }
 
-  .brandName {
-    font-size: 1.2rem;
+  .navLink {
+    font-size: 0.8rem;
   }
 
-  .brandTagline {
-    font-size: 0.45rem;
-    letter-spacing: 0.6px;
+  .mobileMenuToggle {
+    display: none;
+  }
+}
+
+/* Max Width 480px - Mobile Phones */
+@media (max-width: 480px) {
+  .header {
+    height: 4rem;
+    overflow: visible;
+    /* Necessary for mobile menu to appear outside header bounds */
   }
 
-  .logoContent {
-    gap: 0.55rem;
+  .mobileMenu {
+    top: 4rem;
+    padding: 1rem;
+  }
+
+  .headerContainer {
+    padding: 0.25rem 1rem;
+  }
+
+  .logoContainer {
+    width: 120px;
+  }
+
+  /* Switch to Mobile Menu */
+  .desktopNav {
+    display: none;
+  }
+
+  .mobileMenuToggle {
+    display: flex;
+    font-size: 1.1rem;
+    padding: 6px;
+  }
+
+  .mobileNavLink {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 5px;
+    color: #0f172a;
+  }
+
+  .mobileNavLink:hover {
+    color: #059669;
+    cursor: pointer
   }
 }
