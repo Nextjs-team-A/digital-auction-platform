@@ -10,7 +10,6 @@ export default function RegisterClient() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("USER");
 
   const [errors, setErrors] = useState<{
     email?: string;
@@ -40,7 +39,7 @@ export default function RegisterClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -66,14 +65,13 @@ export default function RegisterClient() {
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Create Account</h2>
-        <p className={styles.subtitle}>
-          Register to create an account.
-        </p>
+        <p className={styles.subtitle}>Register to create an account.</p>
         <form onSubmit={handleSubmit} noValidate>
           {/* EMAIL */}
           <div
-            className={`${styles.field} ${errors.email ? styles.fieldError : ""
-              }`}
+            className={`${styles.field} ${
+              errors.email ? styles.fieldError : ""
+            }`}
           >
             <input
               type="email"
@@ -89,8 +87,9 @@ export default function RegisterClient() {
 
           {/* PASSWORD */}
           <div
-            className={`${styles.field} ${errors.password ? styles.fieldError : ""
-              }`}
+            className={`${styles.field} ${
+              errors.password ? styles.fieldError : ""
+            }`}
           >
             <input
               type="password"
@@ -104,24 +103,6 @@ export default function RegisterClient() {
             )}
           </div>
 
-          {/* ROLE */}
-          <div className={styles.field}>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "14px 12px",
-                borderRadius: "12px",
-                background: "rgba(5, 17, 32, 0.6)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#f5f6fa",
-              }}
-            >
-              <option value="USER">User</option>
-            </select>
-          </div>
-
           <button className={styles.button} disabled={loading}>
             {loading ? "Creating..." : "Register"}
           </button>
@@ -130,7 +111,7 @@ export default function RegisterClient() {
         <a href="/login" className={styles.link}>
           Already have an account? Login
         </a>
-      </div >
-    </AuthBackground >
+      </div>
+    </AuthBackground>
   );
 }
