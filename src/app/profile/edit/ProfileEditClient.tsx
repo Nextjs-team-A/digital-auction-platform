@@ -1,56 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuthContext } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
+import styles from "./ProfileEditStyle.module.css";
 
 export default function ProfileEditClient() {
   const router = useRouter();
   const { user, loading, isAuthenticated } = useAuthContext();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // ⛔ NO useEffect for setForm!
-  // ⛔ NO syncing inside effect!
-  // ✅ Initialize once from user safely
-  const [form, setForm] = useState(() => ({
-    firstName: user?.profile?.firstName || "",
-    lastName: user?.profile?.lastName || "",
-    phone: user?.profile?.phone || "",
-    location: user?.profile?.location || "",
-  }));
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    location: "Beirut",
+  });
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  if (loading) return <p>Loading...</p>;
-  if (!isAuthenticated || !user)
-    return <p>You must be logged in to edit your profile.</p>;
+  // Load user profile data
+  useEffect(() => {
+    if (user?.profile) {
+      setForm({
+        firstName: user.profile.firstName || "",
+        lastName: user.profile.lastName || "",
+        phone: user.profile.phone || "",
+        location: user.profile.location || "Beirut",
+      });
+    }
+  }, [user]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-    setSuccess("");
-  };
+  // Stars animation effect
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const validate = () => {
-    if (!form.firstName || form.firstName.length < 2)
-      return "First name must be at least 2 letters.";
-    if (!form.lastName || form.lastName.length < 2)
-      return "Last name must be at least 2 letters.";
-    if (!form.phone || form.phone.length < 8) return "Invalid phone number.";
-    if (!form.location) return "Location is required.";
-    return "";
-  };
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const handleSave = async () => {
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      vx: number;
+      vy: number;
+      opacity: number;
+    }> = [];
+
+    const numStars = 150;
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.5 + 0.3,
+      });
     }
 
+    function animate() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((star) => {
+        star.x += star.vx;
+        star.y += star.vy;
+
+        if (star.x < 0 || star.x > canvas.width) star.vx = -star.vx;
+        if (star.y < 0 || star.y > canvas.height) star.vy = -star.vy;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(5, 150, 105, ${star.opacity})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     setSaving(true);
     setError("");
     setSuccess("");
@@ -64,108 +115,168 @@ export default function ProfileEditClient() {
       });
 
       const data = await res.json();
-      setSaving(false);
 
       if (!res.ok) {
-        setError(data.message || "Failed to update profile");
-        return;
+        throw new Error(data.message || "Update failed");
       }
 
-      setSuccess("Profile updated successfully ✔");
-    } catch (err) {
+      setSuccess("Profile updated successfully! ✔");
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
       setSaving(false);
-      setError("Something went wrong");
     }
   };
 
+  if (loading) {
+    return (
+      <div className={styles.mainContainer}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <p style={{ textAlign: "center", color: "#059669" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className={styles.mainContainer}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <p style={{ textAlign: "center", color: "#059669" }}>
+            Please log in to edit your profile.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Edit Profile</h2>
+    <div className={styles.mainContainer}>
+      {/* Layer 0: Animated Gradient */}
+      <div className={styles.bgGradient}></div>
 
-        {error && <p style={styles.error}>{error}</p>}
-        {success && <p style={styles.success}>{success}</p>}
+      {/* Layer 1: Stars Canvas */}
+      <canvas ref={canvasRef} className={styles.starsBg}></canvas>
 
-        <input
-          name="firstName"
-          placeholder="First Name"
-          value={form.firstName}
-          onChange={handleChange}
-          style={styles.input}
-        />
+      {/* Layer 2: Content */}
+      <div className={styles.content}>
+        <form onSubmit={handleSave} className={styles.formCard}>
+          {/* Glow Effect */}
+          <div className={styles.cardGlow}></div>
 
-        <input
-          name="lastName"
-          placeholder="Last Name"
-          value={form.lastName}
-          onChange={handleChange}
-          style={styles.input}
-        />
+          {/* Header */}
+          <div className={styles.header}>
+            <span className={styles.badge}>
+              <span className={styles.badgeIcon}>✨</span>
+              Account Settings
+            </span>
+            <h1 className={styles.title}>Edit Profile</h1>
+            <p className={styles.subtitle}>
+              Update your account details below
+            </p>
+          </div>
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={form.phone}
-          onChange={handleChange}
-          style={styles.input}
-        />
+          {/* Messages */}
+          {error && (
+            <div className={`${styles.message} ${styles.errorMessage}`}>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className={`${styles.message} ${styles.successMessage}`}>
+              {success}
+            </div>
+          )}
 
-        <select
-          name="location"
-          value={form.location}
-          onChange={handleChange}
-          style={styles.input}
-        >
-          <option value="">Select Location</option>
-          <option value="Beirut">Beirut</option>
-          <option value="Outside Beirut">Outside Beirut</option>
-        </select>
+          {/* Form Fields */}
+          <div className={styles.formGroup}>
+            <label htmlFor="firstName" className={styles.label}>
+              First Name
+            </label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              className={styles.input}
+              value={form.firstName}
+              onChange={(e) =>
+                setForm({ ...form, firstName: e.target.value })
+              }
+              required
+            />
+          </div>
 
-        <button onClick={handleSave} disabled={saving} style={styles.button}>
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+          <div className={styles.formGroup}>
+            <label htmlFor="lastName" className={styles.label}>
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              className={styles.input}
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="phone" className={styles.label}>
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              className={styles.input}
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="location" className={styles.label}>
+              Location
+            </label>
+            <select
+              id="location"
+              name="location"
+              className={styles.select}
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              required
+            >
+              <option value="Beirut">Beirut</option>
+              <option value="Outside Beirut">Outside Beirut</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={saving}
+            className={styles.submitButton}
+          >
+            {saving ? (
+              <>
+                <span className={styles.buttonIcon}>⏳</span>
+                Saving...
+              </>
+            ) : (
+              <>
+                <span className={styles.buttonIcon}>💾</span>
+                Save Changes
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#f5f7fa",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "400px",
-    background: "#fff",
-    padding: "30px",
-    borderRadius: "10px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-  },
-  title: {
-    textAlign: "center" as const,
-    marginBottom: "20px",
-  },
-  input: {
-    width: "100%",
-    padding: "12px",
-    marginBottom: "12px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    width: "100%",
-    padding: "12px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "bold" as const,
-  },
-  error: { color: "red", marginBottom: "10px" },
-  success: { color: "green", marginBottom: "10px" },
-};

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/auth-context";
+import styles from "./ProfileCreateStyle.module.css";
 
 export default function ProfileCreateClient() {
   const router = useRouter();
   const { refreshSession } = useAuthContext();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -18,6 +20,73 @@ export default function ProfileCreateClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Stars animation effect
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars: Array<{
+      x: number;
+      y: number;
+      radius: number;
+      vx: number;
+      vy: number;
+      opacity: number;
+    }> = [];
+
+    const numStars = 150;
+
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.5 + 0.3,
+      });
+    }
+
+    function animate() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((star) => {
+        star.x += star.vx;
+        star.y += star.vy;
+
+        if (star.x < 0 || star.x > canvas.width) star.vx = -star.vx;
+        if (star.y < 0 || star.y > canvas.height) star.vy = -star.vy;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(5, 150, 105, ${star.opacity})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -34,7 +103,6 @@ export default function ProfileCreateClient() {
     if (form.lastName.trim().length < 2)
       return "Last name must be at least 2 characters";
 
-    // New
     const lebaneseRegex =
       /^(\+961\d{8}|03\d{6}|70\d{6}|71\d{6}|76\d{6}|78\d{6}|79\d{6}|81\d{6})$/;
     if (!lebaneseRegex.test(form.phone)) return "Invalid Lebanese phone number";
@@ -75,7 +143,6 @@ export default function ProfileCreateClient() {
 
       setSuccess("Profile created successfully");
 
-      // refresh global state
       await refreshSession();
 
       setTimeout(() => {
@@ -88,99 +155,122 @@ export default function ProfileCreateClient() {
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.card}>
-        <h2>Create Your Profile</h2>
+    <div className={styles.mainContainer}>
+      {/* Layer 0: Animated Gradient */}
+      <div className={styles.bgGradient}></div>
 
-        {error && <p style={styles.error}>{error}</p>}
-        {success && <p style={styles.success}>{success}</p>}
+      {/* Layer 1: Stars Canvas */}
+      <canvas ref={canvasRef} className={styles.starsBg}></canvas>
 
-        <input
-          name="firstName"
-          placeholder="First Name"
-          value={form.firstName}
-          onChange={handleChange}
-          style={styles.input}
-        />
+      {/* Layer 2: Content */}
+      <div className={styles.content}>
+        <form onSubmit={handleSubmit} className={styles.formCard}>
+          {/* Glow Effect */}
+          <div className={styles.cardGlow}></div>
 
-        <input
-          name="lastName"
-          placeholder="Last Name"
-          value={form.lastName}
-          onChange={handleChange}
-          style={styles.input}
-        />
+          {/* Header */}
+          <div className={styles.header}>
+            <span className={styles.badge}>
+              <span className={styles.badgeIcon}>✨</span>
+              Getting Started
+            </span>
+            <h1 className={styles.title}>Create Your Profile</h1>
+            <p className={styles.subtitle}>
+              Let's set up your account with some basic information
+            </p>
+          </div>
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={form.phone}
-          onChange={handleChange}
-          style={styles.input}
-        />
+          {/* Messages */}
+          {error && <div className={`${styles.message} ${styles.errorMessage}`}>{error}</div>}
+          {success && <div className={`${styles.message} ${styles.successMessage}`}>{success}</div>}
 
-        <select
-          name="location"
-          value={form.location}
-          onChange={handleChange}
-          style={styles.input}
-        >
-          <option value="">Select Location</option>
-          <option value="Beirut">Beirut</option>
-          <option value="Outside Beirut">Outside Beirut</option>
-        </select>
+          {/* Form Fields */}
+          <div className={styles.formGroup}>
+            <label htmlFor="firstName" className={styles.label}>
+              First Name
+            </label>
+            <input
+              id="firstName"
+              name="firstName"
+              type="text"
+              placeholder="Enter your first name"
+              value={form.firstName}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
 
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? "Saving..." : "Create Profile"}
-        </button>
-      </form>
+          <div className={styles.formGroup}>
+            <label htmlFor="lastName" className={styles.label}>
+              Last Name
+            </label>
+            <input
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Enter your last name"
+              value={form.lastName}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="phone" className={styles.label}>
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="+961 or 03/70/71/76/78/79/81"
+              value={form.phone}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="location" className={styles.label}>
+              Location
+            </label>
+            <select
+              id="location"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              className={styles.select}
+              required
+            >
+              <option value="">Select your location</option>
+              <option value="Beirut">Beirut</option>
+              <option value="Outside Beirut">Outside Beirut</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={styles.submitButton}
+          >
+            {loading ? (
+              <>
+                <span className={styles.buttonIcon}>⏳</span>
+                Creating Profile...
+              </>
+            ) : (
+              <>
+                <span className={styles.buttonIcon}>🚀</span>
+                Create Profile
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#f5f7fa",
-  },
-  card: {
-    width: "100%",
-    maxWidth: "400px",
-    background: "#fff",
-    padding: "30px",
-    borderRadius: "10px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: "20px",
-  },
-  input: {
-    width: "100%",
-    padding: "12px",
-    marginBottom: "12px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    width: "100%",
-    padding: "12px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-  error: {
-    color: "red",
-    marginBottom: "10px",
-  },
-  success: {
-    color: "green",
-    marginBottom: "10px",
-  },
-};
