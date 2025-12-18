@@ -1,9 +1,7 @@
-import ResetPasswordClient from "./ResetPasswordForm";
+import ResetPasswordForm from "./ResetPasswordForm";
 
-export const metadata = {
-  title: "Reset Password",
-};
+export const metadata = { title: "Reset Password" };
 
-export default function Page() {
-  return <ResetPasswordClient />;
+export default function ResetPasswordPage() {
+  return <ResetPasswordForm />;
 }

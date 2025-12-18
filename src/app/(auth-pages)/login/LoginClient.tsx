@@ -12,20 +12,20 @@ export default function LoginClient() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setServerError("");
 
-    const newErrors: typeof errors = {};
-    if (!email) newErrors.email = "Required";
-    if (!password) newErrors.password = "Required";
+    const errs: typeof errors = {};
+    if (!email) errs.email = "Required";
+    if (!password) errs.password = "Required";
 
-    if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
       return;
     }
 
@@ -41,15 +41,16 @@ export default function LoginClient() {
       });
 
       const data = await res.json();
+
       if (!res.ok) {
-        setErrors({ email: data.message || "Login failed" });
+        setServerError(data.message || "Invalid credentials");
         return;
       }
 
       await refreshSession();
       router.push("/profile");
     } catch {
-      setErrors({ email: "Network error" });
+      setServerError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -58,19 +59,17 @@ export default function LoginClient() {
   return (
     <AuthBackground>
       <div className={styles.card}>
-        <div className={styles.logo}>
-          <img src="/logo-auction.png" alt="Auction Logo" />
-        </div>
 
-        <h2 className={styles.title}>Welcome Back</h2>
+        <h2 className={styles.title}>Login</h2>
+        <p className={styles.subtitle}>
+          Login to your account.
+        </p>
+        {serverError && <div className={styles.errorText}>{serverError}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div
-            className={`${styles.field} ${
-              errors.email ? styles.fieldError : ""
-            }`}
-          >
+          <div className={`${styles.field} ${errors.email ? styles.fieldError : ""}`}>
             <input
+              type="email"
               placeholder=" "
               value={email}
               onChange={(e) => setEmail(e.target.value)}
