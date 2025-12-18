@@ -3,14 +3,18 @@
 // ========================================
 // src/app/products/page.tsx
 
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
 import ProductsList from "./ProductList";
 
 export const metadata = {
   title: "Browse Products",
 };
 
-export default function ProductsPage() {
-  // This is a public page - no auth required
-  // Just render the client component
-  return <ProductsList />;
+export default async function ProductsPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const isUnauthorized = !token || !verifyToken(token);
+
+  return <ProductsList unauthorized={isUnauthorized} />;
 }

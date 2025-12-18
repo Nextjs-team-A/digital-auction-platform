@@ -39,27 +39,72 @@ interface Product {
 }
 
 interface Props {
-  products: Product[];
-  loading: boolean;
-  error: string;
-  deleteLoading: string | null;
-  onDelete: (id: string) => void;
-  onEdit: (id: string) => void;
+  unauthorized?: boolean;
 }
 
-export default function MyProductsUI({
-  products,
-  loading,
-  error,
-  deleteLoading,
-  onDelete,
-  onEdit,
-}: Props) {
+export default function MyProductsUI({ unauthorized = false }: Props) {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(!unauthorized);
+  const [error, setError] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [requestingDelivery, setRequestingDelivery] = useState<string | null>(
     null
   );
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!unauthorized) {
+      fetchMyProducts();
+    }
+  }, [unauthorized]);
+
+  const fetchMyProducts = async () => {
+    try {
+      const res = await fetch("/api/products?my=true", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch products");
+      }
+
+      setProducts(data.products || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    setDeleteLoading(productId);
+    setError("");
+
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Delete failed");
+      }
+
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      alert("Product deleted successfully!");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Delete failed");
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   // Enhanced star animation
   useEffect(() => {
@@ -156,14 +201,13 @@ export default function MyProductsUI({
   const handleEditClick = (productId: string) => {
     router.push(`/products/edit/${productId}`);
   };
-
   const handleDeleteClick = (productId: string, productTitle: string) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete "${productTitle}"?\n\nThis action cannot be undone.`
     );
 
     if (confirmed) {
-      onDelete(productId);
+      handleDelete(productId);
     }
   };
 
@@ -201,6 +245,26 @@ export default function MyProductsUI({
       setRequestingDelivery(null);
     }
   };
+
+  if (unauthorized) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.bgGradient}></div>
+        <canvas ref={canvasRef} className={styles.starsBg}></canvas>
+        <div className={styles.content}>
+          <div className={styles.unauthorizedCard}>
+            <h1 className={styles.unauthorizedTitle}>Unauthorized</h1>
+            <p className={styles.unauthorizedSubtitle}>
+              You must be logged in to view your products.
+            </p>
+            <Link href="/login" className={styles.primaryButton}>
+              Go to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
