@@ -174,6 +174,24 @@ export default function ProductsList() {
       return;
     }
 
+    // Strict Validation: Bid must be > startingBid AND > currentBid
+    // Example: Start 100, Current 0 -> Min Bid > 100 (e.g. 101)
+    // Example: Start 100, Current 120 -> Min Bid > 120 (e.g. 121)
+
+    if (bid <= selectedProduct.startingBid) {
+      alert(
+        `Bid amount must be greater than the starting bid of $${selectedProduct.startingBid}.`
+      );
+      return;
+    }
+
+    if (bid <= selectedProduct.currentBid) {
+      alert(
+        `Bid amount must be higher than the current bid of $${selectedProduct.currentBid}.`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -550,11 +568,21 @@ export default function ProductsList() {
                 </label>
                 <input
                   type="number"
-                  placeholder={`Min: $${selectedProduct.currentBid + 1}`}
+                  placeholder={`Min: $${
+                    Math.max(
+                      selectedProduct.startingBid,
+                      selectedProduct.currentBid
+                    ) + 1
+                  }`}
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className={styles.formInput}
-                  min={selectedProduct.currentBid + 1}
+                  min={
+                    Math.max(
+                      selectedProduct.startingBid,
+                      selectedProduct.currentBid
+                    ) + 1
+                  }
                   step="0.01"
                 />
               </div>

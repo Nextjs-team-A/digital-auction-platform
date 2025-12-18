@@ -215,10 +215,14 @@ export async function DELETE(
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.product.delete({ where: { id } });
+    // Delete bids first, then the product (transactional)
+    await prisma.$transaction([
+      prisma.bid.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } }),
+    ]);
 
     return NextResponse.json(
-      { message: "Product deleted successfully" },
+      { message: "Product and associated bids deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
