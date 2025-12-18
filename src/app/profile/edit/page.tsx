@@ -1,14 +1,7 @@
+// src/app/profile/edit/page.tsx
+
 import ProfileEditClient from "./ProfileEditClient";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/jwt";
 
-export default async function Page() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token || !verifyToken(token)) {
-    return <ProfileEditClient unauthorized />;
-  }
-
+export default function Page() {
   return <ProfileEditClient />;
 }
