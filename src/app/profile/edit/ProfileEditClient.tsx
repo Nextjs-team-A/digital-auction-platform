@@ -264,6 +264,36 @@ export default function ProfileEditClient() {
             </p>
           </div>
 
+          {/* ✅ NEW: Account Actions (moved from Profile page) */}
+          <div className={styles.formCard} style={{ marginBottom: "1.25rem" }}>
+            <div className={styles.formWrapper}>
+              <div className={styles.formGroup} style={{ marginBottom: "0.75rem" }}>
+                <label className={styles.label}>Security & Account</label>
+                <small className={styles.inputHint}>
+                  Manage your login credentials and email from here.
+                </small>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className={styles.primaryButton}
+                  onClick={() => router.push("/change-email")}
+                >
+                  Change Email
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.primaryButton}
+                  onClick={() => router.push("/change-password")}
+                >
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Form Card */}
           <div className={styles.formCard}>
             <div className={styles.formWrapper}>
