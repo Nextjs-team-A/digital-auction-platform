@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/auth-context";
 import LogoutButton from "@/components/LogoutButton";
+
+// ✅ IMPORTANT: this path MUST match your real file name EXACTLY
+// If your file is "profileclient.module.css", keep this lowercase:
 import styles from "./ProfileClient.module.css";
 
 /** Mirrors AboutPage star animation structure (layers + pointer pull + shooters + connections) */
@@ -88,10 +92,7 @@ class Star {
   draw() {
     this.c.save();
     this.c.globalAlpha = this.a;
-
-    // ✅ Green stars (requested) while keeping About-like subtlety
     this.c.fillStyle = "rgba(16, 185, 129, 0.92)";
-
     this.c.beginPath();
     this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.c.fill();
@@ -166,9 +167,9 @@ class ShootingStar {
 }
 
 export default function ProfileClient() {
+  const router = useRouter();
   const { user, loading, isAuthenticated } = useAuthContext();
 
-  // ✅ Hydration-safe: render after mount
   const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -281,7 +282,6 @@ export default function ProfileClient() {
     };
 
     const loop = () => {
-      // trails / softness (same technique as About)
       ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(0, 0, animationState.w, animationState.h);
 
@@ -344,7 +344,6 @@ export default function ProfileClient() {
 
   if (!mounted) return null;
 
-  // LOADING
   if (loading) {
     return (
       <main className={styles.mainContainer}>
@@ -376,7 +375,6 @@ export default function ProfileClient() {
     );
   }
 
-  // SAFETY (server page redirects, but keep clean fallback)
   if (!isAuthenticated || !user) {
     return (
       <main className={styles.mainContainer}>
@@ -425,8 +423,7 @@ export default function ProfileClient() {
               <div className={styles.heroBadge}>PROFILE</div>
 
               <h1 className={styles.heroTitle}>
-                {firstName}{" "}
-                <span className={styles.gradientText}>{lastName}</span>
+                {firstName} <span className={styles.gradientText}>{lastName}</span>
               </h1>
 
               <p className={styles.heroSubtitle}>
@@ -451,10 +448,11 @@ export default function ProfileClient() {
                   </div>
                 </div>
 
+                {/* ✅ FINAL ACTIONS: ONLY 3 */}
                 <div className={styles.actionsRow}>
                   <button
                     className={styles.primaryButton}
-                    onClick={() => (window.location.href = "/profile/edit")}
+                    onClick={() => router.push("/profile/edit")}
                     type="button"
                   >
                     Edit Profile
@@ -462,39 +460,7 @@ export default function ProfileClient() {
 
                   <button
                     className={styles.secondaryButton}
-                    onClick={() => (window.location.href = "/change-email")}
-                    type="button"
-                  >
-                    Change Email
-                  </button>
-
-                  <button
-                    className={styles.secondaryButton}
-                    onClick={() => (window.location.href = "/change-password")}
-                    type="button"
-                  >
-                    Change Password
-                  </button>
-
-                  <button
-                    className={styles.primaryButton}
-                    onClick={() => (window.location.href = "/products/create")}
-                    type="button"
-                  >
-                    Upload Products
-                  </button>
-
-                  <button
-                    className={styles.secondaryButton}
-                    onClick={() => (window.location.href = "/products")}
-                    type="button"
-                  >
-                    Browse Products
-                  </button>
-
-                  <button
-                    className={styles.secondaryButton}
-                    onClick={() => (window.location.href = "/products/my-products")}
+                    onClick={() => router.push("/products/my-products")}
                     type="button"
                   >
                     My Products
