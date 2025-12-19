@@ -52,19 +52,10 @@ const phoneRegex =
 
 // Create Profile Schema
 export const CreateProfileSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, "First name must be at least 2 characters")
-    .optional(),
-  lastName: z
-    .string()
-    .min(2, "Last name must be at least 2 characters")
-    .optional(),
-  phone: z
-    .string()
-    .regex(phoneRegex, "Invalid Lebanese phone number format")
-    .optional(),
-  location: locationEnum.optional(),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  phone: z.string().regex(phoneRegex, "Invalid Lebanese phone number format"),
+  location: locationEnum,
 });
 
 // Update Profile Schema (all optional)
