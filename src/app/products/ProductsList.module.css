@@ -466,6 +466,30 @@
   opacity: 0.3;
 }
 
+.sellerDetailIcon {
+  color: var(--green-primary);
+  opacity: 0.8;
+}
+
+.guestSellerRestriction {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px dashed rgba(15, 23, 42, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.guestIcon {
+  color: #d97706; /* Darker amber for visibility */
+  font-size: 16px;
+}
+
 .statusBadgeWrapper {
   position: absolute;
   top: 16px;

@@ -180,6 +180,9 @@ export default function Header() {
           <Link href="/about" className={styles.navLink}>
             About
           </Link>
+          <Link href="/products" className={styles.navLink}>
+            Browse Products
+          </Link>
         </nav>
 
         <div>{/* dark mode theme */}</div>
@@ -231,6 +234,13 @@ export default function Header() {
             onClick={() => setMobileMenuOpen(false)}
           >
             About
+          </Link>
+          <Link
+            href="/products"
+            className={styles.mobileNavLink}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Browse Products
           </Link>
         </nav>
       </div>
