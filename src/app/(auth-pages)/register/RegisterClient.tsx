@@ -45,11 +45,30 @@ export default function RegisterClient() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrors({
-          email: data.message || "Registration failed",
-        });
+        /**
+         * Backend validation errors (Zod)
+         * Example:
+         * {
+         *   errors: {
+         *     email: ["Invalid email"],
+         *     password: ["Password must be at least 8 characters"]
+         *   }
+         * }
+         */
+        if (data?.errors) {
+          setErrors({
+            email: data.errors.email?.[0],
+            password: data.errors.password?.[0],
+          });
+        } else if (data?.message) {
+          // Non-validation error (e.g. email exists)
+          setErrors({ email: data.message });
+        } else {
+          setErrors({ email: "Something went wrong" });
+        }
         return;
       }
+
 
       router.push("/profile/create");
     } catch {
@@ -69,9 +88,8 @@ export default function RegisterClient() {
         <form onSubmit={handleSubmit} noValidate>
           {/* EMAIL */}
           <div
-            className={`${styles.field} ${
-              errors.email ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.email ? styles.fieldError : ""
+              }`}
           >
             <input
               type="email"
@@ -87,9 +105,8 @@ export default function RegisterClient() {
 
           {/* PASSWORD */}
           <div
-            className={`${styles.field} ${
-              errors.password ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.password ? styles.fieldError : ""
+              }`}
           >
             <input
               type="password"
