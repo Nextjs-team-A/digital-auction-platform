@@ -16,6 +16,7 @@ import {
   FaBolt,
 } from "react-icons/fa";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 // Animation state for stars
 const animationState = {
@@ -294,6 +295,7 @@ const TextPlaceholder: FC<{ children: ReactNode }> = ({ children }) => (
 
 // Main AboutPage Component
 const AboutPage: FC = () => {
+  const { isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [mounted] = useState(true);
@@ -690,24 +692,26 @@ const AboutPage: FC = () => {
         </AnimatedSection>
 
         {/* CTA Section */}
-        <AnimatedSection className={styles.ctaSection}>
-          <div className={styles.ctaContainer}>
-            <div className={styles.ctaContent}>
-              <h2 className={styles.ctaTitle}>
-                Ready to Experience the Future?
-              </h2>
-              <p className={styles.ctaDescription}>
-                Join thousands of satisfied users and discover a new era of
-                digital auctions
-              </p>
-              <Link href="/register" className={styles.ctaButton}>
-                Get Started Today
-                <FaBolt className={styles.buttonIcon} />
-              </Link>
+        {!isAuthenticated && (
+          <AnimatedSection className={styles.ctaSection}>
+            <div className={styles.ctaContainer}>
+              <div className={styles.ctaContent}>
+                <h2 className={styles.ctaTitle}>
+                  Ready to Experience the Future?
+                </h2>
+                <p className={styles.ctaDescription}>
+                  Join thousands of satisfied users and discover a new era of
+                  digital auctions
+                </p>
+                <Link href="/register" className={styles.ctaButton}>
+                  Get Started Today
+                  <FaBolt className={styles.buttonIcon} />
+                </Link>
+              </div>
+              <div className={styles.ctaGlow} />
             </div>
-            <div className={styles.ctaGlow} />
-          </div>
-        </AnimatedSection>
+          </AnimatedSection>
+        )}
       </div>
     </main>
   );

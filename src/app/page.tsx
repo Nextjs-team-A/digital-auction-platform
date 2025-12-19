@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useAuth } from "@/hooks/useAuth";
 import styles from "./page.module.css";
 
 import {
@@ -184,6 +185,7 @@ class ShootingStar {
 }
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [mounted] = useState(true);
@@ -456,14 +458,16 @@ export default function Home() {
               secure transactions.
             </p>
 
-            <div className={styles.heroActions}>
-              <Link href="/login" className={styles.primaryBtn}>
-                Login
-              </Link>
-              <Link href="/register" className={styles.secondaryBtn}>
-                Get Started
-              </Link>
-            </div>
+            {!isAuthenticated && (
+              <div className={styles.heroActions}>
+                <Link href="/login" className={styles.primaryBtn}>
+                  Login
+                </Link>
+                <Link href="/register" className={styles.secondaryBtn}>
+                  Get Started
+                </Link>
+              </div>
+            )}
 
             <p className={styles.hint}>
               Move your mouse to pull stars. Click to trigger a shooting star.
