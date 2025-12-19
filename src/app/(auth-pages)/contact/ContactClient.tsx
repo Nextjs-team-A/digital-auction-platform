@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import styles from "./Contact.module.css";
 import {
   FaPaperPlane,
@@ -13,6 +15,7 @@ import {
   FaInstagram,
   FaCheckCircle,
   FaExclamationCircle,
+  FaLock,
 } from "react-icons/fa";
 
 // Reuse Star and ShootingStar classes from home page
@@ -173,6 +176,7 @@ class ShootingStar {
 }
 
 export default function ContactClient() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const [subject, setSubject] = useState("");
@@ -401,6 +405,30 @@ export default function ContactClient() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Layer 2: Client-side protection (Redundancy)
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className={styles.mainContainer}>
+        <div className={styles.bgGradient} aria-hidden="true" />
+        <div className={styles.unauthorizedContainer}>
+          <div className={styles.unauthorizedCard}>
+            <FaLock className={styles.unauthorizedIcon} />
+            <h1 className={styles.unauthorizedTitle}>Access Denied</h1>
+            <p className={styles.unauthorizedText}>
+              You must be logged in to access the contact page and send messages
+              to our team.
+            </p>
+            <div style={{ marginTop: "2rem" }}>
+              <Link href="/login" className={styles.loginInviteButton}>
+                Login to Continue
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

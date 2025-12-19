@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { FaBars, FaTimes } from "react-icons/fa";
-import LogoutButton from "./LogoutButton";
+import { useAuth } from "@/hooks/useAuth";
 
 // --- STAR ANIMATION LOGIC (Adapted from page.tsx) ---
 const animationState = {
@@ -37,7 +37,8 @@ class Star {
 
     const baseR = layer === 0 ? 0.7 : layer === 1 ? 1.0 : 1.4;
     this.r = baseR + Math.random() * 0.9;
-    this.a = (layer === 0 ? 0.12 : layer === 1 ? 0.16 : 0.22) + Math.random() * 0.12;
+    this.a =
+      (layer === 0 ? 0.12 : layer === 1 ? 0.16 : 0.22) + Math.random() * 0.12;
   }
 
   step() {
@@ -65,6 +66,7 @@ class Star {
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
 
@@ -85,7 +87,8 @@ export default function Header() {
     if (!ctx) return;
 
     animationState.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    animationState.reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    animationState.reducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 
     const resize = () => {
       if (!headerRef.current) return false;
@@ -140,12 +143,18 @@ export default function Header() {
   }, []);
 
   return (
-    <header ref={headerRef} className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
+    <header
+      ref={headerRef}
+      className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}
+    >
       {/* Background Canvas */}
-      <canvas ref={canvasRef} className={styles.headerCanvas} aria-hidden="true" />
+      <canvas
+        ref={canvasRef}
+        className={styles.headerCanvas}
+        aria-hidden="true"
+      />
 
       <div className={styles.headerContainer}>
-
         <div className={styles.logoContainer}>
           <Image
             src="/images/logos/logoo1.png"
@@ -154,16 +163,17 @@ export default function Header() {
             height={100}
             className={styles.logo}
           />
-
         </div>
         {/* Desktop Navigation */}
         <nav className={styles.desktopNav}>
           <Link href="/" className={styles.navLink}>
             Home
           </Link>
-          <Link href="/contact" className={styles.navLink}>
-            Contact
-          </Link>
+          {isAuthenticated && (
+            <Link href="/contact" className={styles.navLink}>
+              Contact
+            </Link>
+          )}
           <Link href="/team" className={styles.navLink}>
             Team
           </Link>
@@ -172,12 +182,10 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div >
-          {/* dark mode theme */}
-        </div>
+        <div>{/* dark mode theme */}</div>
 
         {/* Mobile Menu Toggle */}
-        
+
         <button
           className={styles.mobileMenuToggle}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -189,8 +197,9 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ""
-          }`}
+        className={`${styles.mobileMenu} ${
+          mobileMenuOpen ? styles.mobileMenuOpen : ""
+        }`}
       >
         <nav className={styles.mobileNav}>
           <Link
@@ -200,13 +209,15 @@ export default function Header() {
           >
             Home
           </Link>
-          <Link
-            href="/contact"
-            className={styles.mobileNavLink}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Contact
-          </Link>
+          {isAuthenticated && (
+            <Link
+              href="/contact"
+              className={styles.mobileNavLink}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
+            </Link>
+          )}
           <Link
             href="/team"
             className={styles.mobileNavLink}
@@ -221,7 +232,6 @@ export default function Header() {
           >
             About
           </Link>
-
         </nav>
       </div>
     </header>
