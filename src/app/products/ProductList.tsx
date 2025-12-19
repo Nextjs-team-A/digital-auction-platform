@@ -14,11 +14,15 @@ import {
   FiPlusCircle,
   FiZap,
   FiLock,
+  FiUser,
+  FiMail,
 } from "react-icons/fi";
 import styles from "./ProductsList.module.css";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Product {
   id: string;
+  sellerId: string;
   title: string;
   description: string;
   images: string[];
@@ -28,6 +32,14 @@ interface Product {
   location: string;
   status: string;
   winnerId?: string;
+  seller?: {
+    email: string;
+    profile?: {
+      firstName: string | null;
+      lastName: string | null;
+      location: string | null;
+    };
+  };
 }
 
 export default function ProductsList({
@@ -42,6 +54,7 @@ export default function ProductsList({
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
+  const { user } = useAuth();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -425,15 +438,54 @@ export default function ProductsList({
                       </div>
                     </div>
 
+                    {/* Seller Info Section */}
+                    {p.seller && (
+                      <div className={styles.sellerSection}>
+                        <div className={styles.sellerHeader}>
+                          <FiUser className={styles.sellerIcon} />
+                          <span className={styles.sellerName}>
+                            {p.seller.profile?.firstName}{" "}
+                            {p.seller.profile?.lastName}
+                          </span>
+                        </div>
+                        <div className={styles.sellerDetails}>
+                          <div className={styles.sellerDetailItem}>
+                            <FiMail className={styles.sellerDetailIcon} />
+                            <span>{p.seller.email}</span>
+                          </div>
+                          {p.seller.profile?.location && (
+                            <div className={styles.sellerDetailItem}>
+                              <FiMapPin className={styles.sellerDetailIcon} />
+                              <span>{p.seller.profile.location}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     <button
                       onClick={() => {
                         setSelectedProduct(p);
                         setBidAmount("");
                       }}
-                      className={styles.bidBtn}
+                      className={
+                        p.sellerId === user?.id
+                          ? styles.sellerSelfBidBtn
+                          : styles.bidBtn
+                      }
+                      disabled={p.sellerId === user?.id}
                     >
-                      <FiDollarSign className={styles.btnIcon} />
-                      Place Bid
+                      {p.sellerId === user?.id ? (
+                        <>
+                          <FiLock className={styles.sellerSelfBidIcon} />
+                          This is Your Product
+                        </>
+                      ) : (
+                        <>
+                          <FiDollarSign className={styles.btnIcon} />
+                          Place Bid
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

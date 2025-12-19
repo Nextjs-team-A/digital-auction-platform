@@ -364,6 +364,7 @@
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), transparent);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0;
   transition: opacity var(--transition-base);
@@ -693,6 +694,37 @@
   display: none;
 }
 
+.sellerSelfBidBtn {
+  width: 100%;
+  padding: 16px 32px;
+  border-radius: 14px;
+  background: rgba(245, 158, 11, 0.08);
+  color: #b45309;
+  font-weight: 800;
+  font-size: 15px;
+  border: 1.5px solid rgba(245, 158, 11, 0.3);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.05);
+}
+
+.sellerSelfBidBtn:hover {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.45);
+  transform: translateY(-2px);
+}
+
+.sellerSelfBidIcon {
+  font-size: 18px;
+  color: #d97706;
+  opacity: 0.85;
+}
+
 /* ========================================================================= */
 /* EMPTY STATE */
 /* ========================================================================= */
@@ -791,11 +823,75 @@
   letter-spacing: -0.03em;
 }
 
-.errorContainer p {
-  margin: 0 0 32px;
-  font-size: 17px;
+/* ========================================================================= */
+/* SELLER INFORMATION SECTION */
+/* ========================================================================= */
+
+.sellerSection {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(15, 23, 42, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sellerHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sellerIcon {
+  font-size: 18px;
+  color: var(--green-primary);
+  background: var(--green-light);
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.sellerName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sellerDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 4px;
+}
+
+.sellerDetailItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
   color: var(--muted);
-  line-height: 1.7;
+}
+
+.sellerDetailIcon {
+  font-size: 14px;
+  color: var(--muted-light);
+}
+
+.retryBtn {
+  margin-top: 10px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: var(--green-primary);
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.retryBtn:hover {
+  transform: translateY(-2px);
+  background: var(--green-secondary);
 }
 
 .retryBtn {

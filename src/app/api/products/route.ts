@@ -55,6 +55,20 @@ export async function GET(request: Request) {
     } else {
       // Fetch all products (public)
       products = await prisma.product.findMany({
+        include: {
+          seller: {
+            select: {
+              email: true,
+              profile: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  location: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { auctionStart: "desc" },
       });
     }
