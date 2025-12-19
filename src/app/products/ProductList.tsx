@@ -16,6 +16,8 @@ import {
   FiLock,
   FiUser,
   FiMail,
+  FiImage,
+  FiX,
 } from "react-icons/fi";
 import styles from "./ProductsList.module.css";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +53,8 @@ export default function ProductsList({
   const [loading, setLoading] = useState(!unauthorized); // Don't load if unauthorized
   const [error, setError] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedGalleryProduct, setSelectedGalleryProduct] =
+    useState<Product | null>(null);
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
@@ -394,6 +398,18 @@ export default function ProductsList({
                       {getStatusBadge(p, false)}
                     </div>
                     <div className={styles.imageOverlay}></div>
+                    {p.images && p.images.length > 1 && (
+                      <button
+                        className={styles.viewGalleryBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedGalleryProduct(p);
+                        }}
+                      >
+                        <FiImage className={styles.galleryIcon} />
+                        View {p.images.length} Images
+                      </button>
+                    )}
                   </div>
 
                   <div className={styles.productContent}>
@@ -690,6 +706,38 @@ export default function ProductsList({
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Modal */}
+      {selectedGalleryProduct && (
+        <div className={styles.galleryOverlay}>
+          <div className={styles.galleryContainer}>
+            <div className={styles.galleryHeader}>
+              <h2 className={styles.galleryTitle}>
+                <FiImage className={styles.galleryTitleIcon} />
+                {selectedGalleryProduct.title} - Gallery
+              </h2>
+              <button
+                className={styles.galleryClose}
+                onClick={() => setSelectedGalleryProduct(null)}
+              >
+                <FiX />
+              </button>
+            </div>
+            <div className={styles.galleryBody}>
+              <div className={styles.galleryGrid}>
+                {selectedGalleryProduct.images.map((img, idx) => (
+                  <div key={idx} className={styles.galleryItem}>
+                    <img
+                      src={img}
+                      alt={`${selectedGalleryProduct.title} - ${idx + 1}`}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
