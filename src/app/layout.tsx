@@ -30,11 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Header />
-        {/* Main content wrapper with top padding to account for fixed header */}
-        <main style={{ paddingTop: "90px" }}>
-          <AuthProvider>{children}</AuthProvider>
-        </main>
+        <AuthProvider>
+          <Header />
+          {/* Main content wrapper with top padding to account for fixed header */}
+          <main style={{ paddingTop: "90px" }}>{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

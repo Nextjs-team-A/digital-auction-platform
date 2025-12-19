@@ -12,6 +12,7 @@ const protectedPaths = [
   "/products/create",
   "/products/my-products",
   "/products/edit",
+  "/contact",
 ];
 
 export function middleware(req: NextRequest) {
@@ -50,5 +51,6 @@ export const config = {
     "/products/create/:path*",
     "/products/my-products/:path*",
     "/products/edit/:path*",
+    "/contact/:path*",
   ],
 };
