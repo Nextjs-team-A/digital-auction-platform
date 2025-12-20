@@ -158,7 +158,7 @@ class ShootingStar {
     this.c.stroke();
 
     this.c.globalAlpha = 0.7 * t;
-    this.c.fillStyle = "rgba(16,185,129,1)";
+    this.c.fillStyle = "rgba(16, 185, 129, 1)";
     this.c.beginPath();
     this.c.arc(this.x, this.y, 1.7, 0, Math.PI * 2);
     this.c.fill();
@@ -348,14 +348,18 @@ export default function ProfileClient() {
 
   if (!mounted) return null;
 
-  if (loading) {
-    return (
-      <main className={styles.mainContainer}>
-        <div className={styles.bgGradient} aria-hidden="true" />
-        <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
-        <div className={styles.content}>
-          <section className={styles.sectionContainer}>
-            <div className={styles.contentContainer}>
+  // Unified return structure with conditional content
+  // This ensures the canvas remains persistent during loading -> authorized state changes
+  return (
+    <main className={styles.mainContainer}>
+      <div className={styles.bgGradient} aria-hidden="true" />
+      <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
+
+      <div className={styles.content}>
+        <section className={styles.sectionContainer}>
+          <div className={styles.contentContainer}>
+            {loading ? (
+              // 1. Loading State
               <div className={styles.heroSection}>
                 <div className={styles.heroContent}>
                   <div className={styles.heroBadge}>PROFILE</div>
@@ -372,21 +376,8 @@ export default function ProfileClient() {
                   <div className={styles.skeletonRow} />
                 </div>
               </div>
-            </div>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  if (!isAuthenticated || !user) {
-    return (
-      <main className={styles.mainContainer}>
-        <div className={styles.bgGradient} aria-hidden="true" />
-        <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
-        <div className={styles.content}>
-          <section className={styles.sectionContainer}>
-            <div className={styles.contentContainer}>
+            ) : !isAuthenticated || !user ? (
+              // 2. Unauthorized State
               <div className={styles.heroSection}>
                 <div className={styles.heroContent}>
                   <div className={styles.heroBadge}>PROFILE</div>
@@ -401,83 +392,78 @@ export default function ProfileClient() {
                   <p className={styles.noticeText}>
                     You are not signed in or your session expired.
                   </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  const firstName = user.profile?.firstName || "—";
-  const lastName = user.profile?.lastName || "";
-  const phone = user.profile?.phone || "Not set";
-  const location = user.profile?.location || "Not set";
-
-  return (
-    <main className={styles.mainContainer}>
-      <div className={styles.bgGradient} aria-hidden="true" />
-      <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
-
-      <div className={styles.content}>
-        <section className={`${styles.sectionContainer} ${styles.heroSection}`}>
-          <div className={styles.contentContainer}>
-            <div className={styles.heroContent}>
-              <div className={styles.heroBadge}>PROFILE</div>
-
-              <h1 className={styles.heroTitle}>
-                {firstName}{" "}
-                <span className={styles.gradientText}>{lastName}</span>
-              </h1>
-
-              <p className={styles.heroSubtitle}>
-                Manage your account details and quick actions in the same
-                platform style.
-              </p>
-
-              <div className={styles.profileCard}>
-                <div className={styles.profileGrid}>
-                  <div className={styles.profileField}>
-                    <div className={styles.fieldLabel}>Email</div>
-                    <div className={styles.fieldValue}>{user.email}</div>
-                  </div>
-
-                  <div className={styles.profileField}>
-                    <div className={styles.fieldLabel}>Phone</div>
-                    <div className={styles.fieldValue}>{phone}</div>
-                  </div>
-
-                  <div className={styles.profileField}>
-                    <div className={styles.fieldLabel}>Location</div>
-                    <div className={styles.fieldValue}>{location}</div>
-                  </div>
-                </div>
-
-                {/* ✅ FINAL ACTIONS: ONLY 3 */}
-                <div className={styles.actionsRow}>
-                  <button
-                    className={styles.primaryButton}
-                    onClick={() => router.push("/profile/edit")}
-                    type="button"
-                  >
-                    Edit Profile
-                  </button>
-
-                  <button
-                    className={styles.secondaryButton}
-                    onClick={() => router.push("/products/my-products")}
-                    type="button"
-                  >
-                    My Products
-                  </button>
-
-                  <div className={styles.logoutWrap}>
-                    <LogoutButton />
+                  <div style={{ marginTop: "2rem", textAlign: "center" }}>
+                    <Link href="/login" className={styles.primaryButton}>
+                      Login to Continue
+                    </Link>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              // 3. Authorized State
+              <div className={styles.heroSection}>
+                <div className={styles.heroContent}>
+                  <div className={styles.heroBadge}>PROFILE</div>
+
+                  <h1 className={styles.heroTitle}>
+                    {user.profile?.firstName || "—"}{" "}
+                    <span className={styles.gradientText}>
+                      {user.profile?.lastName || ""}
+                    </span>
+                  </h1>
+
+                  <p className={styles.heroSubtitle}>
+                    Manage your account details and quick actions in the same
+                    platform style.
+                  </p>
+
+                  <div className={styles.profileCard}>
+                    <div className={styles.profileGrid}>
+                      <div className={styles.profileField}>
+                        <div className={styles.fieldLabel}>Email</div>
+                        <div className={styles.fieldValue}>{user.email}</div>
+                      </div>
+
+                      <div className={styles.profileField}>
+                        <div className={styles.fieldLabel}>Phone</div>
+                        <div className={styles.fieldValue}>
+                          {user.profile?.phone || "Not set"}
+                        </div>
+                      </div>
+
+                      <div className={styles.profileField}>
+                        <div className={styles.fieldLabel}>Location</div>
+                        <div className={styles.fieldValue}>
+                          {user.profile?.location || "Not set"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.actionsRow}>
+                      <button
+                        className={styles.primaryButton}
+                        onClick={() => router.push("/profile/edit")}
+                        type="button"
+                      >
+                        Edit Profile
+                      </button>
+
+                      <button
+                        className={styles.secondaryButton}
+                        onClick={() => router.push("/products/my-products")}
+                        type="button"
+                      >
+                        My Products
+                      </button>
+
+                      <div className={styles.logoutWrap}>
+                        <LogoutButton />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>

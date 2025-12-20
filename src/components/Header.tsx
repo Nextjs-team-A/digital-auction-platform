@@ -170,9 +170,14 @@ export default function Header() {
             Home
           </Link>
           {isAuthenticated && (
-            <Link href="/contact" className={styles.navLink}>
-              Contact
-            </Link>
+            <>
+              <Link href="/profile" className={styles.navLink}>
+                Profile
+              </Link>
+              <Link href="/contact" className={styles.navLink}>
+                Contact
+              </Link>
+            </>
           )}
           <Link href="/team" className={styles.navLink}>
             Team
@@ -213,13 +218,22 @@ export default function Header() {
             Home
           </Link>
           {isAuthenticated && (
-            <Link
-              href="/contact"
-              className={styles.mobileNavLink}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
+            <>
+              <Link
+                href="/profile"
+                className={styles.mobileNavLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                href="/contact"
+                className={styles.mobileNavLink}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+            </>
           )}
           <Link
             href="/team"
