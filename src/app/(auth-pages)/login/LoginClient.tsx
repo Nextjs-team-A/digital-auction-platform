@@ -64,7 +64,6 @@ export default function LoginClient() {
         <p className={styles.subtitle}>
           Login to your account.
         </p>
-        {serverError && <div className={styles.errorText}>{serverError}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={`${styles.field} ${errors.email ? styles.fieldError : ""}`}>
@@ -81,9 +80,8 @@ export default function LoginClient() {
           </div>
 
           <div
-            className={`${styles.field} ${
-              errors.password ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.password ? styles.fieldError : ""
+              }`}
           >
             <input
               type="password"
@@ -96,7 +94,9 @@ export default function LoginClient() {
               <div className={styles.errorText}>{errors.password}</div>
             )}
           </div>
-
+          {serverError && (
+            <div className={styles.errorText}>{serverError}</div>
+          )}
           <button className={styles.button} disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>

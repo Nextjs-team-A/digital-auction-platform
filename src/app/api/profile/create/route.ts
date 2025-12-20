@@ -32,7 +32,10 @@ export async function POST(request: NextRequest) {
 
     const { firstName, lastName, phone, location } = parsed.data;
 
-    // 3. Prevent duplicate profile creation
+    // Normalize phone number (prevents format bypass)
+    const normalizedPhone = phone ? phone.replace(/\D/g, "") : null;
+
+    // 3. Prevent duplicate profile creation per user
     const existingProfile = await prisma.profile.findUnique({
       where: { userId },
     });
@@ -44,18 +47,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Create profile
+    // 4. Prevent duplicate phone numbers across users
+    if (normalizedPhone) {
+      const existingPhone = await prisma.profile.findFirst({
+        where: { phone: normalizedPhone },
+      });
+
+      if (existingPhone) {
+        return NextResponse.json(
+          { message: "Phone number already in use" },
+          { status: 409 }
+        );
+      }
+    }
+
+    // 5. Create profile
     const profile = await prisma.profile.create({
       data: {
         userId,
         firstName: firstName ?? null,
         lastName: lastName ?? null,
-        phone: phone ?? null,
+        phone: normalizedPhone,
         location: location ?? null,
       },
     });
 
-    // 5. Fetch user email for sending welcome message
+    // 6. Fetch user email for sending welcome message
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { email: true },
@@ -65,10 +82,12 @@ export async function POST(request: NextRequest) {
       // Send welcome email (non-blocking)
       sendEmail(
         EmailTemplates.profileCompleted(user.email, firstName ?? null)
-      ).catch((err) => console.error("Failed to send welcome email:", err));
+      ).catch((err) =>
+        console.error("Failed to send welcome email:", err)
+      );
     }
 
-    // 6. Return success response
+    // 7. Return success response
     return NextResponse.json(
       {
         message: "Profile created successfully",
@@ -76,8 +95,17 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Create profile error:", error);
+
+    // 🔒 DB-level uniqueness safety (race conditions)
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { message: "Phone number already in use" },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

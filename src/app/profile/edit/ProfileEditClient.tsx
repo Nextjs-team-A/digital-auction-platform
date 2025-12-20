@@ -358,15 +358,13 @@ export default function ProfileEditClient() {
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="+961 or 03/70/71/76/78/79/81"
+                    placeholder="Enter your phone number"
                     value={form.phone}
                     onChange={handleChange}
                     className={styles.input}
                   />
                 </div>
-                <small className={styles.inputHint}>
-                  Lebanese phone number format (e.g., +96170123456 or 03123456)
-                </small>
+
               </div>
 
               {/* Location */}
