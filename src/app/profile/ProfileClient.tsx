@@ -413,8 +413,7 @@ export default function ProfileClient() {
                   </h1>
 
                   <p className={styles.heroSubtitle}>
-                    Manage your account details and quick actions in the same
-                    platform style.
+                    Control your profile, settings, and preferences effortlessly all in one place.
                   </p>
 
                   <div className={styles.profileCard}>
