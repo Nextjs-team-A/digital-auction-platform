@@ -522,8 +522,8 @@ const AboutPage: FC = () => {
                 <div className={styles.heroImageGlow} />
                 <div className={styles.heroImagePlaceholder}>
                   <Image
-                    src="/images/hero/hero.png"
-                    alt="Gainvestor Platform"
+                    src="/images/hero/hero6.jpeg"
+                    alt="Digital Auction Platform"
                     fill
                     style={{ objectFit: "cover" }}
                     priority
