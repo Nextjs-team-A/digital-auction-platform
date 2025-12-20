@@ -5,6 +5,9 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import styles from "./page.module.css";
+/* --- CHRISTMAS FEATURE (DELETE AFTER HOLIDAYS) --- */
+import { ChristmasSnow, ChristmasBanner } from "../components/ChristmasVibes";
+/* ----------------------------------------------- */
 
 import {
   FaBolt,
@@ -432,8 +435,10 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.bgGradient} aria-hidden="true" />
+      {/* CHRISTMAS SNOW (DELETE AFTER HOLIDAYS) */}
+      <ChristmasSnow />
 
+      <div className={styles.bgGradient} aria-hidden="true" />
       {/* Render canvas only after mount to avoid hydration mismatch */}
       {mounted && (
         <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
@@ -442,6 +447,9 @@ export default function Home() {
       <div className={styles.content} suppressHydrationWarning>
         {/* Render Header only after mount to avoid hydration mismatch */}
         {mounted && <Header />}
+
+        {/* CHRISTMAS BANNER (DELETE AFTER HOLIDAYS) */}
+        {mounted && <ChristmasBanner />}
 
         <section className={styles.hero} suppressHydrationWarning>
           <div className={styles.heroInner}>
