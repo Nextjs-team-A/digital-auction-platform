@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/auth-context";
 import LogoutButton from "@/components/LogoutButton";
+import Link from "next/link";
 
 // ✅ IMPORTANT: this path MUST match your real file name EXACTLY
 // If your file is "profileclient.module.css", keep this lowercase:
@@ -173,7 +174,10 @@ export default function ProfileClient() {
   const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
@@ -423,11 +427,13 @@ export default function ProfileClient() {
               <div className={styles.heroBadge}>PROFILE</div>
 
               <h1 className={styles.heroTitle}>
-                {firstName} <span className={styles.gradientText}>{lastName}</span>
+                {firstName}{" "}
+                <span className={styles.gradientText}>{lastName}</span>
               </h1>
 
               <p className={styles.heroSubtitle}>
-                Manage your account details and quick actions in the same platform style.
+                Manage your account details and quick actions in the same
+                platform style.
               </p>
 
               <div className={styles.profileCard}>
