@@ -41,7 +41,7 @@ export const ChristmasBanner = () => {
       </div>
 
       <div className={styles.festiveBanner}>
-        Merry Christmas & Happy New Year ❄️
+        Merry Christmas & Happy New Year From BidZone ❄️
       </div>
     </div>
   );
