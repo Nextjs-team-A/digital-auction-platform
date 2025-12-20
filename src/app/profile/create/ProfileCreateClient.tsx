@@ -145,7 +145,7 @@ export default function ProfileCreateClient({
 
     const lebaneseRegex =
       /^(\+961\d{8}|03\d{6}|70\d{6}|71\d{6}|76\d{6}|78\d{6}|79\d{6}|81\d{6})$/;
-    if (!lebaneseRegex.test(form.phone)) return "Invalid Lebanese phone number";
+    if (!lebaneseRegex.test(form.phone)) return "Invalid Lebanese Phone Number";
 
     if (!form.location) return "Location is required";
 
@@ -305,15 +305,12 @@ export default function ProfileCreateClient({
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="+961 or 03/70/71/76/78/79/81"
+                    placeholder="Enter your phone number"
                     value={form.phone}
                     onChange={handleChange}
                     className={styles.input}
                   />
                 </div>
-                <small className={styles.inputHint}>
-                  Lebanese phone number format (e.g., +96170123456 or 03123456)
-                </small>
               </div>
 
               {/* Location */}

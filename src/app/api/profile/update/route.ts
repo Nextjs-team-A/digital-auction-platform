@@ -9,14 +9,24 @@ import { sendEmail, EmailTemplates } from "@/lib/mail";
  * PATCH /api/profile/update
  * Authenticated user only
  * Partial updates allowed: firstName, lastName, phone, location
+ * 
+ * CHANGES ADDED:
+ * 1️⃣ Phone normalization to digits only
+ * 2️⃣ Phone uniqueness check across other users
+ * 3️⃣ Prisma P2002 error handling for race conditions
+ * 4️⃣ Debug logging (optional)
  */
 export async function PATCH(request: NextRequest) {
   try {
     // 1️⃣ Check authentication
     const authUser = getAuthUser(request);
+    // Optional debug to check logged in user
+    console.log("authUser (update):", authUser);
+
     if (!authUser) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
     const userId = authUser.userId;
 
     // 2️⃣ Parse request body
@@ -32,7 +42,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 4️⃣ Check if profile exists
-    const existingProfile = await prisma.profile.findUnique({
+    const existingProfile = await prisma.profile.findFirst({
       where: { userId },
     });
     if (!existingProfile) {
@@ -42,18 +52,40 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 5️⃣ Apply updates (partial updates)
+    // 5️⃣ Normalize phone number (prevents format bypass)
+    const normalizedPhone = parsed.data.phone
+      ? parsed.data.phone.replace(/\D/g, "")
+      : existingProfile.phone;
+
+    // 6️⃣ Prevent duplicate phone numbers across other users
+    if (normalizedPhone) {
+      const existingPhone = await prisma.profile.findFirst({
+        where: {
+          phone: normalizedPhone,
+          NOT: { userId }, // ignore current user's own profile
+        },
+      });
+
+      if (existingPhone) {
+        return NextResponse.json(
+          { message: "Phone number already in use" },
+          { status: 409 }
+        );
+      }
+    }
+
+    // 7️⃣ Apply updates (partial updates)
     const updatedProfile = await prisma.profile.update({
       where: { userId },
       data: {
         firstName: parsed.data.firstName ?? existingProfile.firstName,
         lastName: parsed.data.lastName ?? existingProfile.lastName,
-        phone: parsed.data.phone ?? existingProfile.phone,
+        phone: normalizedPhone, // use normalized phone
         location: parsed.data.location ?? existingProfile.location,
       },
     });
 
-    // 6️⃣ Optional: send confirmation email if needed
+    // 8️⃣ Optional: send confirmation email
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { email: true },
@@ -69,13 +101,22 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 7️⃣ Return updated profile
+    // 9️⃣ Return updated profile
     return NextResponse.json(
       { message: "Profile updated successfully", profile: updatedProfile },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Update profile error:", error);
+
+    // 🔒 DB-level uniqueness safety (race conditions)
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { message: "Phone number already in use" },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
