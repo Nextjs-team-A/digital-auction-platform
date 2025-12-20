@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import styles from "./page.module.css";
 /* --- CHRISTMAS FEATURE (DELETE AFTER HOLIDAYS) --- */
@@ -439,6 +440,7 @@ export default function Home() {
       <ChristmasSnow />
 
       <div className={styles.bgGradient} aria-hidden="true" />
+
       {/* Render canvas only after mount to avoid hydration mismatch */}
       {mounted && (
         <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
@@ -451,7 +453,13 @@ export default function Home() {
         {/* CHRISTMAS BANNER (DELETE AFTER HOLIDAYS) */}
         {mounted && <ChristmasBanner />}
 
-        <section className={styles.hero} suppressHydrationWarning>
+        <motion.section
+          className={styles.hero}
+          suppressHydrationWarning
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           <div className={styles.heroInner}>
             <div className={styles.badge}>
               BidZone • Digital Auction Platform
@@ -481,9 +489,15 @@ export default function Home() {
               Move your mouse to pull stars. Click to trigger a shooting star.
             </p>
           </div>
-        </section>
+        </motion.section>
 
-        <section className={styles.section}>
+        <motion.section
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Why Choose BidZone</h2>
             <p className={styles.sectionDesc}>
@@ -492,17 +506,30 @@ export default function Home() {
           </div>
 
           <div className={styles.cards6}>
-            {whyChoose.map((f) => (
-              <div key={f.title} className={styles.card}>
+            {whyChoose.map((f, i) => (
+              <motion.div
+                key={f.title}
+                className={styles.card}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
                 <div className={styles.cardIcon}>{f.icon}</div>
                 <h3 className={styles.cardTitle}>{f.title}</h3>
                 <p className={styles.cardText}>{f.text}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className={`${styles.section} ${styles.altSection}`}>
+        <motion.section
+          className={`${styles.section} ${styles.altSection}`}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>How It Works</h2>
             <p className={styles.sectionDesc}>
@@ -512,7 +539,14 @@ export default function Home() {
 
           <div className={styles.stepsGrid}>
             {howItWorks.map((s, idx) => (
-              <div key={s.title} className={styles.stepCard}>
+              <motion.div
+                key={s.title}
+                className={styles.stepCard}
+                initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
                 <div className={styles.stepLeft}>
                   <div className={styles.stepNum}>{idx + 1}</div>
                   <div className={styles.stepIcon}>{s.icon}</div>
@@ -521,12 +555,18 @@ export default function Home() {
                   <h3 className={styles.stepTitle}>{s.title}</h3>
                   <p className={styles.stepText}>{s.text}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className={styles.section}>
+        <motion.section
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Security & Trust</h2>
             <p className={styles.sectionDesc}>
@@ -535,39 +575,46 @@ export default function Home() {
           </div>
 
           <div className={styles.cards3}>
-            <div className={styles.trustCard}>
-              <div className={styles.trustIcon}>
-                <FaLock />
-              </div>
-              <h3 className={styles.trustTitle}>Secure Payments</h3>
-              <p className={styles.trustText}>
-                Smooth checkout experience with a security-first mindset.
-              </p>
-            </div>
-
-            <div className={styles.trustCard}>
-              <div className={styles.trustIcon}>
-                <FaUserCheck />
-              </div>
-              <h3 className={styles.trustTitle}>Verified Users</h3>
-              <p className={styles.trustText}>
-                A marketplace that prioritizes credibility and trust.
-              </p>
-            </div>
-
-            <div className={styles.trustCard}>
-              <div className={styles.trustIcon}>
-                <FaChartLine />
-              </div>
-              <h3 className={styles.trustTitle}>Transparent Bidding</h3>
-              <p className={styles.trustText}>
-                Clear bidding flow that keeps the experience honest and fair.
-              </p>
-            </div>
+            {[
+              {
+                icon: <FaLock />,
+                title: "Secure Payments",
+                text: "Smooth checkout experience with a security-first mindset.",
+              },
+              {
+                icon: <FaUserCheck />,
+                title: "Verified Users",
+                text: "A marketplace that prioritizes credibility and trust.",
+              },
+              {
+                icon: <FaChartLine />,
+                title: "Transparent Bidding",
+                text: "Clear bidding flow that keeps the experience honest and fair.",
+              },
+            ].map((trust, i) => (
+              <motion.div
+                key={trust.title}
+                className={styles.trustCard}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className={styles.trustIcon}>{trust.icon}</div>
+                <h3 className={styles.trustTitle}>{trust.title}</h3>
+                <p className={styles.trustText}>{trust.text}</p>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className={`${styles.section} ${styles.deliverySection}`}>
+        <motion.section
+          className={`${styles.section} ${styles.deliverySection}`}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Delivery Pricing</h2>
             <p className={styles.sectionDesc}>
@@ -576,29 +623,43 @@ export default function Home() {
           </div>
 
           <div className={styles.deliveryGrid}>
-            <div className={styles.deliveryCard}>
-              <div className={styles.deliveryTop}>
-                <span className={styles.deliveryTitle}>Beirut</span>
-                <span className={styles.deliveryPrice}>$3</span>
-              </div>
-              <p className={styles.deliveryText}>
-                Fast local delivery inside Beirut.
-              </p>
-            </div>
-
-            <div className={styles.deliveryCard}>
-              <div className={styles.deliveryTop}>
-                <span className={styles.deliveryTitle}>Outside Beirut</span>
-                <span className={styles.deliveryPrice}>$5</span>
-              </div>
-              <p className={styles.deliveryText}>
-                Reliable delivery across other areas.
-              </p>
-            </div>
+            {[
+              {
+                title: "Beirut",
+                price: "$3",
+                text: "Fast local delivery inside Beirut.",
+              },
+              {
+                title: "Outside Beirut",
+                price: "$5",
+                text: "Reliable delivery across other areas.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                className={styles.deliveryCard}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className={styles.deliveryTop}>
+                  <span className={styles.deliveryTitle}>{item.title}</span>
+                  <span className={styles.deliveryPrice}>{item.price}</span>
+                </div>
+                <p className={styles.deliveryText}>{item.text}</p>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className={styles.section}>
+        <motion.section
+          className={styles.section}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>For Buyers & Sellers</h2>
             <p className={styles.sectionDesc}>
@@ -607,25 +668,37 @@ export default function Home() {
           </div>
 
           <div className={styles.twoCol}>
-            <div className={styles.colCard}>
+            <motion.div
+              className={styles.colCard}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <h3 className={styles.colTitle}>For Buyers</h3>
               <ul className={styles.list}>
                 <li>Browse items with clear details</li>
                 <li>Bid and track updates in real time</li>
                 <li>Win, checkout, and receive delivery</li>
               </ul>
-            </div>
+            </motion.div>
 
-            <div className={styles.colCard}>
+            <motion.div
+              className={styles.colCard}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <h3 className={styles.colTitle}>For Sellers</h3>
               <ul className={styles.list}>
                 <li>List products with strong presentation</li>
                 <li>Manage bids and update listings</li>
                 <li>Sell through a clear and trusted flow</li>
               </ul>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         <button
           className={`${styles.scrollTop} ${
