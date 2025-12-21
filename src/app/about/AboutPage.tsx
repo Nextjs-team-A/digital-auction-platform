@@ -481,7 +481,7 @@ const AboutPage: FC = () => {
       {/* Content Wrapper */}
       <div className={styles.content}>
         {/* Hero Section */}
-        <div>
+        <div className={`${styles.animatedSection} ${styles.isVisible}`}>
           <section
             id="hero"
             className={`${styles.sectionContainer} ${styles.heroSection}`}
