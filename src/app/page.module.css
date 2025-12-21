@@ -235,7 +235,7 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
 
@@ -285,7 +285,7 @@
   max-width: 980px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 14px;
 }
 
@@ -570,6 +570,12 @@
 /* =======================================================
    Responsive
    ======================================================= */
+@media (max-width: 1024px) {
+  .cards6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     height: 86vh;
@@ -594,5 +600,15 @@
     font-size: 32px;
     line-height: 40px;
     letter-spacing: -1.92px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards6 {
+    grid-template-columns: 1fr;
   }
 }
