@@ -87,7 +87,7 @@
 .hero {
   position: relative;
   height: 92vh;
-  padding: 92px 24px 90px;
+  padding: 48px 24px 90px;
   overflow: hidden;
   display: grid;
   place-items: center;
