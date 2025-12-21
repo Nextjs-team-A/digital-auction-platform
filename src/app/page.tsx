@@ -256,9 +256,9 @@ export default function Home() {
         text: "If you win, confirm and complete the checkout securely.",
       },
       {
-        icon: <FaMapMarkerAlt />,
-        title: "Delivery",
-        text: "Choose delivery: $3 Beirut, $5 outside Beirut.",
+        icon: <FaChartLine />,
+        title: "Platform fee (6%)",
+        text: "A standard 6% platform fee applies only on successful auctions to support secure payments and fair bidding.",
       },
     ],
     []
