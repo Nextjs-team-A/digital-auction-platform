@@ -481,72 +481,70 @@ const AboutPage: FC = () => {
       {/* Content Wrapper */}
       <div className={styles.content}>
         {/* Hero Section */}
-        <div className={`${styles.animatedSection} ${styles.isVisible}`}>
-          <section
-            id="hero"
-            className={`${styles.sectionContainer} ${styles.heroSection}`}
-          >
-            <div className={styles.contentContainer}>
-              <div className={styles.heroContent}>
-                <div className={styles.heroBadge}>
-                  <FaRocket className={styles.badgeIcon} />
-                  <span>Pioneering Digital Auctions</span>
-                </div>
-
-                <h1 className={styles.heroTitle}>
-                  The Future of
-                  <span className={styles.gradientText}>
-                    {" "}
-                    Premium Digital Commerce
-                  </span>
-                </h1>
-
-                <p className={styles.heroSubtitle}>
-                  Redefining premium auction experiences with unwavering trust,
-                  transparency, and next-generation technology that empowers
-                  every transaction.
-                </p>
-
-                <div className={styles.heroButtons}>
-                  <button className={styles.primaryButton}>
-                    Explore The digital world
-                    <FaBolt className={styles.buttonIcon} />
-                  </button>
-                  <button className={styles.secondaryButton}>
-                    Unlimited Auctions
-                  </button>
-                </div>
+        <section
+          id="hero"
+          className={`${styles.sectionContainer} ${styles.heroSection}`}
+        >
+          <div className={styles.contentContainer}>
+            <div className={styles.heroContent}>
+              <div className={styles.heroBadge}>
+                <FaRocket className={styles.badgeIcon} />
+                <span>Pioneering Digital Auctions</span>
               </div>
 
-              <div className={styles.heroImageWrapper}>
-                <div className={styles.heroImageGlow} />
-                <div className={styles.heroImagePlaceholder}>
-                  <Image
-                    src="/images/hero/hero6.jpeg"
-                    alt="Digital Auction Platform"
-                    fill
-                    style={{ objectFit: "cover" }}
-                    priority
-                  />
-                </div>
-                <div
-                  className={styles.floatingCard}
-                  style={{ top: "10%", left: "5%" }}
-                >
-                  <FaGavel />
-                  <span>Live Auction</span>
-                </div>
-                <div
-                  className={styles.floatingCard}
-                  style={{ bottom: "15%", right: "8%" }}
-                >
-                  <FaShieldAlt />
-                  <span>Secure</span>
-                </div>
+              <h1 className={styles.heroTitle}>
+                The Future of
+                <span className={styles.gradientText}>
+                  {" "}
+                  Premium Digital Commerce
+                </span>
+              </h1>
+
+              <p className={styles.heroSubtitle}>
+                Redefining premium auction experiences with unwavering trust,
+                transparency, and next-generation technology that empowers every
+                transaction.
+              </p>
+
+              <div className={styles.heroButtons}>
+                <button className={styles.primaryButton}>
+                  Explore The digital world
+                  <FaBolt className={styles.buttonIcon} />
+                </button>
+                <button className={styles.secondaryButton}>
+                  Unlimited Auctions
+                </button>
               </div>
             </div>
-          </section>
-        </div>
+
+            <div className={styles.heroImageWrapper}>
+              <div className={styles.heroImageGlow} />
+              <div className={styles.heroImagePlaceholder}>
+                <Image
+                  src="/images/hero/hero6.jpeg"
+                  alt="Digital Auction Platform"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  priority
+                />
+              </div>
+              <div
+                className={styles.floatingCard}
+                style={{ top: "10%", left: "5%" }}
+              >
+                <FaGavel />
+                <span>Live Auction</span>
+              </div>
+              <div
+                className={styles.floatingCard}
+                style={{ bottom: "15%", right: "8%" }}
+              >
+                <FaShieldAlt />
+                <span>Secure</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Stats Section */}
         <AnimatedSection className={styles.statsSection} delay={100}>
