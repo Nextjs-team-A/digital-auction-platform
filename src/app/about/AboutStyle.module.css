@@ -94,14 +94,12 @@
 
 .animatedSection {
   opacity: 0;
-  transform: translateY(4rem);
   transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
     transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animatedSection.isVisible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ========================================================================= */
@@ -177,11 +175,9 @@
 @keyframes titleFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -205,11 +201,9 @@
 @keyframes subtitleFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 0.78;
-    transform: translateY(0);
   }
 }
 
@@ -346,11 +340,9 @@
 @keyframes imageFloat {
   from {
     opacity: 0;
-    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -651,11 +643,9 @@
 @keyframes cardFadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -781,11 +771,9 @@
 @keyframes teamFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
