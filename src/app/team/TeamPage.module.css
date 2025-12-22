@@ -134,35 +134,39 @@
 /* ---- Grid Container ---- */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    grid-template-columns: repeat(3, 380px);
     gap: 1.2rem;
+    justify-content: center;
     padding: 4rem 0rem;
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
     z-index: 2;
+
 }
+
 
 /* ---- Card ---- */
 .card {
     background: var(--panel-bg);
-    /* Use panel bg */
     border: 1px solid var(--panel-border);
     border-radius: 10px;
     padding: 0;
     text-align: left;
     box-shadow: var(--panel-shadow);
     backdrop-filter: blur(14px);
-
     opacity: 0;
     transform: translateY(40px);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
 
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
 }
+
+
 
 /* Top bar color */
 .card::before {
@@ -197,7 +201,9 @@
 /* ---- Avatar ---- */
 .avatar {
     width: 100%;
-    height: 400px;
+    aspect-ratio: 4 / 5;
+    /* 👈 consistent card image ratio */
+    height: auto;
     margin: 0;
     padding: 0;
     border-radius: 0;
@@ -207,6 +213,7 @@
     transition: all 0.3s ease;
     position: relative;
     display: block;
+
 }
 
 .avatar::after {
