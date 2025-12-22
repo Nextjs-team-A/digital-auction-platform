@@ -1,4 +1,3 @@
-import React from "react";
 import Image from "next/image";
 import styles from "./Footer.module.css";
 
@@ -13,7 +12,7 @@ export default function Footer() {
           <Image
             src="/images/logos/logo2.png"
             alt="BidZone"
-            width={190}
+            width={200}
             height={52}
             className={styles.logo}
           />

@@ -1,15 +1,18 @@
 .footer {
   position: relative;
   z-index: 5;
-  border-top: 1px solid rgba(16, 185, 129, 0.2);
-  background: linear-gradient(to bottom, #10b981 0%, #f8fafc 100%);
+  height: 80px;
+  border-top: 1px solid #42f5b9;
+  background: linear-gradient(to bottom, #42f5b9 0%, #f8fafc 100%);
   backdrop-filter: blur(8px);
+
 }
 
 .inner {
   max-width: 1300px;
+  height: 100%;
   margin: 0 auto;
-  padding: 2rem 2rem;
+  padding: 0rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,16 +21,18 @@
 }
 
 .logoWrap {
-  display: flex;
-  align-items: center;
+  position: relative;
+  width: 90px;
+  /* control logo width here */
+  height: 80px;
+  /* control logo height here */
   flex-shrink: 0;
 }
 
 .logo {
-  object-fit: contain;
-  height: 40px !important;
-  width: auto !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
 }
 
 .contact {
@@ -86,15 +91,20 @@
 /* Tablet */
 @media (max-width: 968px) {
   .inner {
-    padding: 1.75rem 1.5rem;
+    padding: 0rem 1.5rem;
     gap: 1.5rem;
+  }
+
+  .logoWrap {
+    height: 80px;
+    width: 60px;
   }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
   .inner {
-    padding: 1.5rem 1.25rem;
+    padding: 1rem 1.25rem;
     flex-direction: column;
     text-align: center;
     gap: 1rem;
@@ -105,7 +115,33 @@
     gap: 0.25rem;
   }
 
+  .logoWrap {
+    height: 70px;
+    width: 50px;
+  }
+
   .logo {
-    height: 36px !important;
+    object-fit: cover;
+  }
+}
+
+@media(max-width:565px) {
+  .logoWrap {
+    height: 60px;
+    width: 40px;
+
+  }
+
+  .contact {
+    font-size: 0.7rem;
+  }
+
+  .copy {
+    font-size: 0.7rem;
+  }
+
+  .footer {
+    justify-content: center;
+    align-items: center;
   }
 }

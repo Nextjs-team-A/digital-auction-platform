@@ -324,19 +324,30 @@
   .logoContainer {
     width: 140px;
   }
-
-  /* SWITCH TO MOBILE MENU */
+  
+  /* Switch to Mobile Menu */
   .desktopNav {
-    display: none !important;
+    display: none;
   }
 
   .mobileMenuToggle {
-    display: flex !important;
+    display: flex;
+    font-size: 1.1rem;
+    padding: 6px;
   }
 
-  .navLink {
-    font-size: 0.8rem;
+  .mobileNavLink {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 5px;
+    color: #0f172a;
   }
+
+  .mobileNavLink:hover {
+    color: #059669;
+    cursor: pointer;
+  }
+
 }
 
 /* Max Width 480px - Mobile Phones */
