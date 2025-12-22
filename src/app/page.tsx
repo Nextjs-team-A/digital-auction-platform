@@ -25,6 +25,7 @@ import {
   FaUserCheck,
   FaChartLine,
 } from "react-icons/fa";
+import Script from "next/script";
 
 // Keep ssr:false, but render it only after mount to avoid hydration mismatch
 const Header = dynamic(() => import("../components/Header"), { ssr: false });
@@ -701,9 +702,8 @@ export default function Home() {
         </motion.section>
 
         <button
-          className={`${styles.scrollTop} ${
-            showTop ? styles.scrollTopVisible : ""
-          }`}
+          className={`${styles.scrollTop} ${showTop ? styles.scrollTopVisible : ""
+            }`}
           onClick={scrollToTop}
           aria-label="Scroll to top"
           type="button"
@@ -711,6 +711,13 @@ export default function Home() {
           ↑
         </button>
       </div>
+      {/* Chatbase Widget Script */}
+      <Script id="chatbase-widget" strategy="afterInteractive">
+        {`
+          (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="VbNhP0pRqieM5UP2h8cKU";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+        `}
+      </Script>
     </div>
   );
+
 }
