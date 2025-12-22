@@ -342,8 +342,8 @@
 }
 
 .productCardEnded {
-  opacity: 0.75;
-  filter: grayscale(0.2);
+  opacity: 0.6;
+  filter: grayscale(0.9);
 }
 
 .productCardEnded:hover {
