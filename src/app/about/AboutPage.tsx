@@ -508,7 +508,7 @@ const AboutPage: FC = () => {
 
               <div className={styles.heroButtons}>
                 <button className={styles.primaryButton}>
-                  Explore The digital world
+                  Unlimited tenders
                   <FaBolt className={styles.buttonIcon} />
                 </button>
                 <button className={styles.secondaryButton}>
