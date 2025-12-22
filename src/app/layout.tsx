@@ -6,6 +6,7 @@ import "@/app/api/init/route";
 
 import { AuthProvider } from "@/context/auth-context";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer"; // ✅ ADD THIS
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
           <Header />
           {/* Main content wrapper with top padding to account for fixed header */}
           <main style={{ paddingTop: "90px" }}>{children}</main>
+          <Footer /> {/* ✅ FOOTER NOW RENDERS GLOBALLY */}
         </AuthProvider>
       </body>
     </html>

@@ -1,0 +1,111 @@
+.footer {
+  position: relative;
+  z-index: 5;
+  border-top: 1px solid rgba(16, 185, 129, 0.2);
+  background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+  backdrop-filter: blur(8px);
+}
+
+.inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.logoWrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo {
+  object-fit: contain;
+  height: 40px !important;
+  width: auto !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.contact {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.contactLabel {
+  color: #334155;
+  font-weight: 600;
+}
+
+.email {
+  color: #10b981;
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.email::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, #10b981, #059669);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.email:hover {
+  color: #059669;
+}
+
+.email:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.copy {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Tablet */
+@media (max-width: 968px) {
+  .inner {
+    padding: 1.75rem 1.5rem;
+    gap: 1.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .inner {
+    padding: 1.5rem 1.25rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .contact {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .logo {
+    height: 36px !important;
+  }
+}
