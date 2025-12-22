@@ -524,8 +524,8 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                           </button>
                         )}
 
-                        {isActive && (
-                          <div className={styles.actionGroup}>
+                        <div className={styles.actionGroup}>
+                          {isActive && (
                             <button
                               onClick={() => handleEditClick(p.id)}
                               className={styles.editBtn}
@@ -533,18 +533,16 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                               <FiEdit3 className={styles.btnIcon} />
                               Edit
                             </button>
-                            <button
-                              onClick={() => handleDeleteClick(p.id, p.title)}
-                              disabled={deleteLoading === p.id}
-                              className={styles.deleteBtn}
-                            >
-                              <FiTrash2 className={styles.btnIcon} />
-                              {deleteLoading === p.id
-                                ? "Deleting..."
-                                : "Delete"}
-                            </button>
-                          </div>
-                        )}
+                          )}
+                          <button
+                            onClick={() => handleDeleteClick(p.id, p.title)}
+                            disabled={deleteLoading === p.id}
+                            className={styles.deleteBtn}
+                          >
+                            <FiTrash2 className={styles.btnIcon} />
+                            {deleteLoading === p.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

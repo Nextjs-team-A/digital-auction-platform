@@ -361,7 +361,7 @@ export default function ProductsList({
                       {getStatusBadge(p, false)}
                     </div>
                     <div className={styles.imageOverlay}></div>
-                    {p.images && p.images.length > 1 && (
+                    {p.images && p.images.length > 0 && (
                       <button
                         className={styles.viewGalleryBtn}
                         onClick={(e) => {
@@ -370,7 +370,7 @@ export default function ProductsList({
                         }}
                       >
                         <FiImage className={styles.galleryIcon} />
-                        View {p.images.length} Images
+                        Show All
                       </button>
                     )}
                   </div>
