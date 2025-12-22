@@ -20,6 +20,7 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 import styles from "./MyProductsUI.module.css";
+import SearchBar from "@/components/SearchBar";
 
 interface Product {
   id: string;
@@ -317,6 +318,7 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
               Manage your auction listings, track sales, and handle deliveries
               all in one place.
             </p>
+            <SearchBar />
           </div>
         </section>
 

@@ -1,0 +1,82 @@
+/* SearchBar.module.css */
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 30px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 99px;
+  padding: 8px 8px 8px 24px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.searchForm:focus-within {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.12);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0f172a;
+  outline: none;
+  padding: 8px 0;
+}
+
+.searchInput::placeholder {
+  color: rgba(15, 23, 42, 0.4);
+}
+
+.searchBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.searchBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.searchBtn:active {
+  transform: scale(0.95);
+}
+
+.icon {
+  font-size: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -53,8 +53,24 @@ export async function GET(request: Request) {
         orderBy: { auctionStart: "desc" },
       });
     } else {
-      // Fetch all products (public)
+      // Fetch all products (public) with optional search
+      const query = searchParams.get("q");
+
+      const whereClause = query
+        ? {
+            OR: [
+              {
+                title: { contains: query, mode: "insensitive" as const },
+              },
+              {
+                description: { contains: query, mode: "insensitive" as const },
+              },
+            ],
+          }
+        : {};
+
       products = await prisma.product.findMany({
+        where: whereClause,
         include: {
           seller: {
             select: {

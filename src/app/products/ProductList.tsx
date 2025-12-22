@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   FiClock,
   FiMapPin,
@@ -22,6 +22,7 @@ import {
 } from "react-icons/fi";
 import styles from "./ProductsList.module.css";
 import { useAuth } from "@/hooks/useAuth";
+import SearchBar from "@/components/SearchBar";
 
 interface Product {
   id: string;
@@ -64,6 +65,7 @@ export default function ProductsList({
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -171,14 +173,21 @@ export default function ProductsList({
   }, []);
 
   useEffect(() => {
+    // Fetch products whenever the URL search params change (or on mount)
     // Guests can now fetch products too!
-    fetchProducts();
-  }, []);
+    const query = searchParams.get("q");
+    fetchProducts(query);
+  }, [searchParams]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (searchQuery: string | null = null) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/products");
+
+      const url = searchQuery
+        ? `/api/products?q=${encodeURIComponent(searchQuery)}`
+        : "/api/products";
+
+      const res = await fetch(url);
       const data = await res.json();
 
       if (res.ok) {
@@ -245,7 +254,10 @@ export default function ProductsList({
       alert("Bid placed successfully!");
       setSelectedProduct(null);
       setBidAmount("");
-      fetchProducts();
+      setBidAmount("");
+      // Refresh list, keeping current search if any
+      const query = searchParams.get("q");
+      fetchProducts(query);
     } catch (err) {
       alert("Bid failed.");
     } finally {
@@ -311,6 +323,7 @@ export default function ProductsList({
               Browse our curated selection of premium items. Place your bids and
               win incredible deals on products you love.
             </p>
+            <SearchBar />
           </div>
         </section>
 
@@ -328,6 +341,18 @@ export default function ProductsList({
                     {liveProducts.length} active{" "}
                     {liveProducts.length === 1 ? "auction" : "auctions"}
                   </p>
+
+                  {searchParams.get("q") && (
+                    <button
+                      onClick={() => {
+                        router.push("/products");
+                      }}
+                      className={styles.clearSearchBtn}
+                    >
+                      <FiXCircle className={styles.btnIcon} />
+                      Clear Search
+                    </button>
+                  )}
                 </div>
                 {/* Only show create button for authorized users */}
                 {!unauthorized && (
@@ -507,6 +532,18 @@ export default function ProductsList({
                     {endedProducts.length} completed{" "}
                     {endedProducts.length === 1 ? "auction" : "auctions"}
                   </p>
+
+                  {searchParams.get("q") && (
+                    <button
+                      onClick={() => {
+                        router.push("/products");
+                      }}
+                      className={styles.clearSearchBtn}
+                    >
+                      <FiXCircle className={styles.btnIcon} />
+                      Clear Search
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
