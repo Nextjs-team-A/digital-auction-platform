@@ -56,6 +56,9 @@ export default function ProductsList({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedGalleryProduct, setSelectedGalleryProduct] =
     useState<Product | null>(null);
+  const [selectedDetailImage, setSelectedDetailImage] = useState<string | null>(
+    null
+  );
   const [bidAmount, setBidAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
@@ -711,7 +714,11 @@ export default function ProductsList({
             <div className={styles.galleryBody}>
               <div className={styles.galleryGrid}>
                 {selectedGalleryProduct.images.map((img, idx) => (
-                  <div key={idx} className={styles.galleryItem}>
+                  <div
+                    key={idx}
+                    className={styles.galleryItem}
+                    onClick={() => setSelectedDetailImage(img)}
+                  >
                     <img
                       src={img}
                       alt={`${selectedGalleryProduct.title} - ${idx + 1}`}
@@ -720,6 +727,31 @@ export default function ProductsList({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail View Overlay */}
+      {selectedDetailImage && (
+        <div
+          className={styles.detailOverlay}
+          onClick={() => setSelectedDetailImage(null)}
+        >
+          <button
+            className={styles.detailCloseBtn}
+            onClick={() => setSelectedDetailImage(null)}
+          >
+            <FiX />
+          </button>
+          <div
+            className={styles.detailImageContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={selectedDetailImage}
+              alt="Detail View"
+              className={styles.detailImage}
+            />
           </div>
         </div>
       )}
