@@ -34,7 +34,7 @@ export default function RootLayout({
         <AuthProvider>
           <Header />
           {/* Main content wrapper with top padding to account for fixed header */}
-          <main style={{ paddingTop: "90px" }}>{children}</main>
+          <main style={{ paddingTop: "90px", flex: 1 }}>{children}</main>
           <Footer /> {/* ✅ FOOTER NOW RENDERS GLOBALLY */}
         </AuthProvider>
       </body>
