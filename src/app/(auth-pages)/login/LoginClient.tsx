@@ -12,7 +12,9 @@ export default function LoginClient() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -59,14 +61,14 @@ export default function LoginClient() {
   return (
     <AuthBackground>
       <div className={styles.card}>
-
         <h2 className={styles.title}>Login</h2>
-        <p className={styles.subtitle}>
-          Login to your account.
-        </p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className={`${styles.field} ${errors.email ? styles.fieldError : ""}`}>
+          <div
+            className={`${styles.field} ${
+              errors.email ? styles.fieldError : ""
+            }`}
+          >
             <input
               type="email"
               placeholder=" "
@@ -80,8 +82,9 @@ export default function LoginClient() {
           </div>
 
           <div
-            className={`${styles.field} ${errors.password ? styles.fieldError : ""
-              }`}
+            className={`${styles.field} ${
+              errors.password ? styles.fieldError : ""
+            }`}
           >
             <input
               type="password"
@@ -94,9 +97,7 @@ export default function LoginClient() {
               <div className={styles.errorText}>{errors.password}</div>
             )}
           </div>
-          {serverError && (
-            <div className={styles.errorText}>{serverError}</div>
-          )}
+          {serverError && <div className={styles.errorText}>{serverError}</div>}
           <button className={styles.button} disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>

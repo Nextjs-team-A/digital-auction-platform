@@ -82,7 +82,6 @@ export default function ForgotPasswordClient() {
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Forgot Password</h2>
-        <p className={styles.subtitle}>Forgot your password?</p>
         {serverError && (
           <div
             style={{
