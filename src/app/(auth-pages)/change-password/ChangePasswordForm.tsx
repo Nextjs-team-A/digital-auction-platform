@@ -151,7 +151,11 @@ export default function ChangePasswordForm({
       const data = await res.json();
 
       if (!res.ok) {
-        setServerError(data.message || "Failed to change password");
+        if (data.message === "Incorrect current password") {
+          setErrors({ oldPassword: data.message });
+        } else {
+          setServerError(data.message || "Failed to change password");
+        }
         return;
       }
 
@@ -197,7 +201,7 @@ export default function ChangePasswordForm({
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Change Password</h2>
-        <p className={styles.subtitle}>Change your password.</p>
+        {/* <p className={styles.subtitle}>Change your password.</p> */}
 
         {serverError && <div className={styles.errorText}>{serverError}</div>}
 

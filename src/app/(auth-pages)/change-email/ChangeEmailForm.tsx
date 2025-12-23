@@ -197,7 +197,7 @@ export default function ChangeEmailClient({
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Change Email</h2>
-        <p className={styles.subtitle}>Change your email.</p>
+        {/* <p className={styles.subtitle}>Change your email.</p> */}
 
         {serverError && (
           <div
