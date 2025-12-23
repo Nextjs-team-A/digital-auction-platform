@@ -46,20 +46,40 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // 4️⃣ Update email in DB
+    // 4️⃣ Send notification to OLD email (Security Alert)
+    // We do this BEFORE updating the DB, but even if it fails, we proceed (or maybe we shouldn't? For now, we proceed but log)
+    try {
+      await sendEmail(EmailTemplates.emailChanged(authUser.email, newEmail)); // Send to OLD email, notifying about NEW email
+    } catch (err) {
+      console.warn("⚠️ Failed to notify old email:", err);
+      // We continue because the user requested the change
+    }
+
+    // 5️⃣ Update email in DB
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { email: newEmail },
       select: { id: true, email: true, role: true },
     });
 
-    // 5️⃣ Send confirmation email
-    await sendEmail(EmailTemplates.emailChanged(newEmail));
+    // 6️⃣ Send confirmation to NEW email
+    let emailStatus = "sent";
+    try {
+      await sendEmail(EmailTemplates.emailChanged(newEmail, newEmail));
+    } catch (err) {
+      console.error("❌ Failed to send confirmation to new email:", err);
+      emailStatus = "failed";
+      // We do NOT return 500 here, because the DB update SUCCEEDED.
+      // Returning 500 would confuse the user into thinking the change didn't happen.
+    }
 
-    // 6️⃣ Return updated user info
+    // 7️⃣ Return updated user info
     return NextResponse.json(
       {
-        message: "Email updated successfully",
+        message:
+          emailStatus === "sent"
+            ? "Email updated successfully"
+            : "Email updated, but confirmation email failed to send.",
         user: updatedUser,
       },
       { status: 200 }

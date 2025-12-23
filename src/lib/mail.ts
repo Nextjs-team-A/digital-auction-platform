@@ -38,13 +38,20 @@ export async function sendEmail(options: {
 }) {
   const { to, subject, html, text } = options;
 
-  return transporter.sendMail({
-    from: process.env.EMAIL_FROM!,
-    to,
-    subject,
-    html,
-    text: text || "Your email client does not support HTML.",
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM!,
+      to,
+      subject,
+      html,
+      text: text || "Your email client does not support HTML.",
+    });
+    console.log(`✅ Email sent to ${to}: ${info.messageId}`);
+    return info;
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${to}:`, error);
+    throw error;
+  }
 }
 
 /**
@@ -115,13 +122,13 @@ export const EmailTemplates = {
     `,
   }),
 
-  emailChanged: (email: string) => ({
-    to: email,
-    subject: "Email Changed Successfully",
+  emailChanged: (toEmail: string, newEmailValue: string) => ({
+    to: toEmail,
+    subject: "Security Alert: Email Changed",
     html: `
       <h2>Email Updated</h2>
       <p>Hello,</p>
-      <p>Your account email has been changed successfully to <strong>${email}</strong>.</p>
+      <p>The email address for your account has been updated to <strong>${newEmailValue}</strong>.</p>
       <p>If you did not request this change, please secure your account immediately.</p>
       <br/>
       <small>Digital Auction Platform</small>
