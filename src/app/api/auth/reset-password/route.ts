@@ -7,7 +7,7 @@ import { verifyToken, JwtPayload } from "@/lib/jwt";
 import { hashPassword } from "@/lib/password-Hash";
 
 import { ResetPasswordSchema } from "@/utils/validationSchema";
-import type { ResetPasswordDTO } from "@/utils/dto";
+// import type { ResetPasswordDTO } from "@/utils/dto";
 
 import { sendEmail, EmailTemplates } from "@/lib/mail";
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, newPassword } = parseResult.data as ResetPasswordDTO;
+    const { token, email: inputEmail, newPassword } = parseResult.data;
 
     // 2) Validate JWT reset token
     const decoded = verifyToken(token);
@@ -39,14 +39,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId, email } = decoded as JwtPayload;
+    const { userId, email: tokenEmail } = decoded as JwtPayload;
+
+    // 2.5) Security Check: Ensure input email matches token email
+    if (inputEmail !== tokenEmail) {
+      return NextResponse.json(
+        { error: "Incorrect email address" },
+        { status: 400 }
+      );
+    }
 
     // 3) Find user in DB
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
-    if (!user || user.email !== email) {
+    if (!user || user.email !== tokenEmail) {
       return NextResponse.json(
         { error: "User not found for this token" },
         { status: 404 }
