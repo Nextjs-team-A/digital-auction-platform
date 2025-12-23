@@ -8,6 +8,7 @@ import { sendEmail, EmailTemplates } from "@/lib/mail";
 
 // DTO + Validation Schema (inline for simplicity)
 const ChangeEmailSchema = z.object({
+  currentEmail: z.string().email(),
   newEmail: z.string().email(),
 });
 
@@ -32,7 +33,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { newEmail } = parsed.data;
+    const { currentEmail, newEmail } = parsed.data;
+
+    // 3️⃣ Verify "Current Email" matches the logged-in user
+    if (currentEmail !== authUser.email) {
+      return NextResponse.json(
+        { message: "Incorrect current email" },
+        { status: 400 }
+      );
+    }
 
     // 3️⃣ Check if email already exists
     const existingUser = await prisma.user.findUnique({
