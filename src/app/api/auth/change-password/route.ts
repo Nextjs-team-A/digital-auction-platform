@@ -69,7 +69,12 @@ export async function POST(request: NextRequest) {
     });
 
     // 7. Send notification email
-    await sendEmail(EmailTemplates.passwordChanged(user.email));
+    try {
+      await sendEmail(EmailTemplates.passwordChanged(user.email));
+    } catch (err) {
+      console.error("❌ Failed to send password change notification:", err);
+      // We continue to return success because the password WAS changed.
+    }
 
     // 8. Respond success
     return NextResponse.json(
