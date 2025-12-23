@@ -150,7 +150,11 @@ export default function ChangeEmailClient({
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setServerError(data?.message || "Failed to update email");
+        if (data?.message === "Incorrect current email") {
+          setErrors({ currentEmail: data.message });
+        } else {
+          setServerError(data?.message || "Failed to update email");
+        }
         return;
       }
 
