@@ -41,9 +41,16 @@ export default function ForgotPasswordClient() {
         body: JSON.stringify({ email }),
       });
 
-      await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
-      // Always move forward (security best practice)
+      if (!res.ok) {
+        setServerError(
+          data.error || "Failed to send reset email. Please try again."
+        );
+        return;
+      }
+
+      // Only move forward if successful
       setStep(2);
       setSuccess("We sent a verification code to your email.");
     } catch {
@@ -75,9 +82,7 @@ export default function ForgotPasswordClient() {
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Forgot Password</h2>
-        <p className={styles.subtitle}>
-          Forgot your password?
-        </p>
+        <p className={styles.subtitle}>Forgot your password?</p>
         {serverError && (
           <div
             style={{
@@ -110,8 +115,9 @@ export default function ForgotPasswordClient() {
         {step === 1 && (
           <form onSubmit={handleSendEmail} noValidate>
             <div
-              className={`${styles.field} ${errors.email ? styles.fieldError : ""
-                }`}
+              className={`${styles.field} ${
+                errors.email ? styles.fieldError : ""
+              }`}
             >
               <input
                 type="email"
@@ -135,8 +141,9 @@ export default function ForgotPasswordClient() {
         {step === 2 && (
           <form onSubmit={handleVerifyCode} noValidate>
             <div
-              className={`${styles.field} ${errors.code ? styles.fieldError : ""
-                }`}
+              className={`${styles.field} ${
+                errors.code ? styles.fieldError : ""
+              }`}
             >
               <input
                 type="text"
@@ -150,9 +157,7 @@ export default function ForgotPasswordClient() {
               )}
             </div>
 
-            <button className={styles.button}>
-              Verify code
-            </button>
+            <button className={styles.button}>Verify code</button>
           </form>
         )}
 

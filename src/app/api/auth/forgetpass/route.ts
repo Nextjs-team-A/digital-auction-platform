@@ -49,10 +49,11 @@ export async function POST(req: Request) {
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${resetToken}`;
 
     // 6. Send email
-    await sendEmail({
-      to: email,
-      subject: "Reset Your Password",
-      html: `
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Reset Your Password",
+        html: `
         <h2>Password Reset Request</h2>
         <p>You requested to reset your password.</p>
         <p>To confirm this request, please click the link below to verify your email first:</p>
@@ -62,7 +63,12 @@ export async function POST(req: Request) {
         <p>Or verify using this link: <a href="${resetUrl}">${resetUrl}</a></p>
         <p>This link will expire in 24 hours.</p>
       `,
-    });
+      });
+      console.log(`✅ Password reset email sent to ${email}`);
+    } catch (emailError) {
+      console.error("❌ Failed to send password reset email:", emailError);
+      throw emailError; // Re-throw to be caught by main handler and return 500
+    }
 
     // 7. Response
     return NextResponse.json(
