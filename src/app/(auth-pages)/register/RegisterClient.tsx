@@ -69,7 +69,6 @@ export default function RegisterClient() {
         return;
       }
 
-
       router.push("/profile/create");
     } catch {
       setErrors({
@@ -84,12 +83,12 @@ export default function RegisterClient() {
     <AuthBackground>
       <div className={styles.card}>
         <h2 className={styles.title}>Create Account</h2>
-        <p className={styles.subtitle}>Register to create an account.</p>
         <form onSubmit={handleSubmit} noValidate>
           {/* EMAIL */}
           <div
-            className={`${styles.field} ${errors.email ? styles.fieldError : ""
-              }`}
+            className={`${styles.field} ${
+              errors.email ? styles.fieldError : ""
+            }`}
           >
             <input
               type="email"
@@ -105,8 +104,9 @@ export default function RegisterClient() {
 
           {/* PASSWORD */}
           <div
-            className={`${styles.field} ${errors.password ? styles.fieldError : ""
-              }`}
+            className={`${styles.field} ${
+              errors.password ? styles.fieldError : ""
+            }`}
           >
             <input
               type="password"

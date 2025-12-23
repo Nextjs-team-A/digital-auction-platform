@@ -50,7 +50,9 @@ export default function ResetPasswordClient() {
     }
 
     if (!token) {
-      setServerError("Missing reset token. Please use the link from your email.");
+      setServerError(
+        "Missing reset token. Please use the link from your email."
+      );
       return;
     }
 
@@ -90,9 +92,6 @@ export default function ResetPasswordClient() {
       <div className={styles.centerWrapper}>
         <div className={styles.card}>
           <h2 className={styles.title}>Reset Password</h2>
-          <p className={styles.subtitle}>
-            Confirm your account and set a new password.
-          </p>
 
           {serverError && (
             <div
@@ -123,8 +122,9 @@ export default function ResetPasswordClient() {
           <form onSubmit={handleSubmit} noValidate>
             {/* Email or Phone (UI confirm only) */}
             <div
-              className={`${styles.field} ${errors.identifier ? styles.fieldError : ""
-                }`}
+              className={`${styles.field} ${
+                errors.identifier ? styles.fieldError : ""
+              }`}
             >
               <input
                 type="text"
@@ -140,8 +140,9 @@ export default function ResetPasswordClient() {
 
             {/* New Password */}
             <div
-              className={`${styles.field} ${errors.newPassword ? styles.fieldError : ""
-                }`}
+              className={`${styles.field} ${
+                errors.newPassword ? styles.fieldError : ""
+              }`}
             >
               <input
                 type="password"
@@ -157,8 +158,9 @@ export default function ResetPasswordClient() {
 
             {/* Confirm Password */}
             <div
-              className={`${styles.field} ${errors.confirmPassword ? styles.fieldError : ""
-                }`}
+              className={`${styles.field} ${
+                errors.confirmPassword ? styles.fieldError : ""
+              }`}
             >
               <input
                 type="password"
