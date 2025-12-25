@@ -372,3 +372,115 @@
   color: rgba(15, 23, 42, 0.78);
   text-align: center;
 }
+
+/* =======================================================
+   DARK MODE OVERRIDES
+   - Light mode: black & green (kept above)
+   - Dark mode: white & green (overrides below)
+   ======================================================= */
+
+/* Use :global(.dark) so this works with next-themes when attribute="class" */
+:global(.dark) .mainContainer {
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Dark gradient background (layer 0) */
+:global(.dark) .bgGradient {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+}
+
+/* Badge adjustments for dark */
+:global(.dark) .heroBadge {
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  box-shadow: none;
+}
+
+/* Hero titles/subtitles become white in dark */
+:global(.dark) .heroTitle,
+:global(.dark) .heroSubtitle {
+  color: var(--foreground, #ffffff);
+}
+
+/* Keep the gradient accent green in dark mode */
+:global(.dark) .gradientText {
+  color: #10b981;
+  text-shadow: 0 18px 42px rgba(16, 185, 129, 0.12);
+}
+
+/* Profile card: use darker panel look, keep green accents */
+:global(.dark) .profileCard {
+  background: radial-gradient(
+      900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%
+    ),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  color: var(--foreground, #ffffff);
+}
+
+/* Make profile field panels darker and text readable */
+:global(.dark) .profileField {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 17, 21, 0.86),
+    rgba(12, 14, 16, 0.78)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+  color: var(--foreground, #ffffff);
+}
+
+/* Field labels and values for dark mode */
+:global(.dark) .fieldLabel {
+  color: rgba(246, 247, 249, 0.85);
+}
+
+:global(.dark) .fieldValue {
+  color: var(--foreground, #ffffff);
+}
+
+/* Notice text in dark */
+:global(.dark) .noticeText {
+  color: var(--foreground, #ffffff);
+}
+
+/* Buttons */
+/* primaryButton keep green gradient; add stronger shadow on dark */
+:global(.dark) .primaryButton {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+}
+
+/* secondaryButton becomes translucent dark panel with light text */
+:global(.dark) .secondaryButton {
+  background: rgba(15, 17, 21, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  color: var(--foreground, #f6f7f9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Skeleton shimmer for dark mode (subtle bright shimmer on dark bg) */
+:global(.dark) .skeletonRow {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03)
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* Ensure any hard-coded small-color rules inherit on dark */
+:global(.dark) h1,
+:global(.dark) h2,
+:global(.dark) h3,
+:global(.dark) h4,
+:global(.dark) p,
+:global(.dark) span {
+  color: inherit;
+}

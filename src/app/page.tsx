@@ -1,3 +1,4 @@
+//page.tsx
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -5,6 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "next-themes";
 import styles from "./page.module.css";
 /* --- CHRISTMAS FEATURE (DELETE AFTER HOLIDAYS) --- */
 import { ChristmasSnow, ChristmasBanner } from "../components/ChristmasVibes";
@@ -59,10 +61,17 @@ class Star {
   vy: number;
   r: number;
   a: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D, layer: number) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    layer: number,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
     this.layer = layer;
+    this.isDarkRef = isDarkRef;
+
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
 
@@ -113,9 +122,15 @@ class Star {
   }
 
   draw() {
+    const isDark = this.isDarkRef.current;
     this.c.save();
     this.c.globalAlpha = this.a;
-    this.c.fillStyle = "rgba(15, 23, 42, 0.90)";
+
+    // Theme-aware star color
+    this.c.fillStyle = isDark
+      ? "rgba(16, 185, 129, 0.85)"
+      : "rgba(15, 23, 42, 0.90)";
+
     this.c.beginPath();
     this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.c.fill();
@@ -132,9 +147,14 @@ class ShootingStar {
   life: number;
   maxLife: number;
   len: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
+    this.isDarkRef = isDarkRef;
     const fromLeft = Math.random() < 0.5;
     this.x = fromLeft ? -80 : Math.random() * animationState.w;
     this.y = fromLeft ? Math.random() * (animationState.h * 0.55) : -80;
@@ -164,13 +184,24 @@ class ShootingStar {
     const x2 = this.x - (this.vx / 12) * this.len;
     const y2 = this.y - (this.vy / 12) * this.len;
 
+    const isDark = this.isDarkRef.current;
+
     this.c.save();
     this.c.globalAlpha = 0.55 * t;
 
     const grad = this.c.createLinearGradient(this.x, this.y, x2, y2);
-    grad.addColorStop(0, "rgba(16,185,129,0.0)");
-    grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
-    grad.addColorStop(1, "rgba(15,23,42,0.55)");
+
+    if (isDark) {
+      // Dark theme: greener / brighter trail
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.45)");
+      grad.addColorStop(1, "rgba(246,247,249,0.9)");
+    } else {
+      // Light theme: darker trail with green accents
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
+      grad.addColorStop(1, "rgba(15,23,42,0.55)");
+    }
 
     this.c.strokeStyle = grad;
     this.c.lineWidth = 2;
@@ -180,7 +211,7 @@ class ShootingStar {
     this.c.stroke();
 
     this.c.globalAlpha = 0.7 * t;
-    this.c.fillStyle = "rgba(15,23,42,1)";
+    this.c.fillStyle = isDark ? "rgba(246,247,249,1)" : "rgba(15,23,42,1)";
     this.c.beginPath();
     this.c.arc(this.x, this.y, 1.7, 0, Math.PI * 2);
     this.c.fill();
@@ -192,9 +223,16 @@ class ShootingStar {
 export default function Home() {
   const { isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDarkRef = useRef(false);
+  const { resolvedTheme } = useTheme();
 
   const [mounted] = useState(true);
   const [showTop, setShowTop] = useState(false);
+
+  // Keep ref up-to-date with theme
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
@@ -307,9 +345,9 @@ export default function Home() {
       const mid = Math.floor(base * 0.36);
       const near = base - far - mid;
 
-      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0));
-      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1));
-      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2));
+      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0, isDarkRef));
+      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1, isDarkRef));
+      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2, isDarkRef));
     };
 
     const drawConnections = () => {
@@ -358,7 +396,7 @@ export default function Home() {
       animationState.pointer.active = true;
 
       if (!animationState.reducedMotion) {
-        shooters.push(new ShootingStar(ctx));
+        shooters.push(new ShootingStar(ctx, isDarkRef));
         if (shooters.length > 7) shooters.shift();
       }
     };
@@ -373,7 +411,9 @@ export default function Home() {
     };
 
     const loop = () => {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.fillStyle = isDarkRef.current
+        ? "rgba(7, 8, 10, 0.18)"
+        : "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(0, 0, animationState.w, animationState.h);
 
       for (const s of stars) {
@@ -385,7 +425,7 @@ export default function Home() {
         shootCooldown -= 1;
         if (shootCooldown <= 0) {
           if (Math.random() < 0.45) {
-            shooters.push(new ShootingStar(ctx));
+            shooters.push(new ShootingStar(ctx, isDarkRef));
             if (shooters.length > 7) shooters.shift();
           }
           shootCooldown = 50 + Math.floor(Math.random() * 70);
@@ -719,5 +759,4 @@ export default function Home() {
       </Script>
     </div>
   );
-
 }

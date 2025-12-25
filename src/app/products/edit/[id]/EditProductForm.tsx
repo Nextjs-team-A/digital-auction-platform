@@ -16,6 +16,7 @@ import {
   FiMoreHorizontal,
 } from "react-icons/fi";
 import styles from "./ProductEditStyle.module.css";
+import { useTheme } from "next-themes";
 
 // --- STAR ANIMATION STATE ---
 const animationState = {
@@ -32,9 +33,11 @@ class Star {
   vy: number;
   r: number;
   a: number;
+  private isDarkRef?: { current: boolean };
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, isDarkRef?: { current: boolean }) {
     this.ctx = ctx;
+    this.isDarkRef = isDarkRef;
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
     this.vx = (Math.random() - 0.5) * 0.12;
@@ -56,10 +59,54 @@ class Star {
   draw() {
     this.ctx.save();
     this.ctx.globalAlpha = this.a;
-    this.ctx.fillStyle = "rgba(15,23,42,0.9)";
-    this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    this.ctx.fill();
+
+    const isDark = this.isDarkRef?.current ?? false;
+
+    // Theme-aware drawing: keep green halo, core adjusts for contrast
+    if (isDark) {
+      const grad = this.ctx.createRadialGradient(
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        Math.max(6, this.r * 4)
+      );
+      grad.addColorStop(0, `rgba(16,185,129,${Math.min(0.9, this.a * 2)})`);
+      grad.addColorStop(0.6, `rgba(16,185,129,${Math.min(0.45, this.a)})`);
+      grad.addColorStop(1, "rgba(16,185,129,0)");
+      this.ctx.beginPath();
+      this.ctx.fillStyle = grad;
+      this.ctx.arc(this.x, this.y, Math.max(6, this.r * 4), 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.fillStyle = `rgba(246,247,249,${Math.min(1, this.a + 0.15)})`;
+      this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    } else {
+      const grad = this.ctx.createRadialGradient(
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        Math.max(5, this.r * 3)
+      );
+      grad.addColorStop(0, `rgba(16,185,129,${Math.min(0.8, this.a * 1.6)})`);
+      grad.addColorStop(0.6, `rgba(16,185,129,${Math.min(0.35, this.a)})`);
+      grad.addColorStop(1, "rgba(16,185,129,0)");
+      this.ctx.beginPath();
+      this.ctx.fillStyle = grad;
+      this.ctx.arc(this.x, this.y, Math.max(5, this.r * 3), 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.fillStyle = `rgba(15,23,42,${Math.min(1, this.a + 0.05)})`;
+      this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
     this.ctx.restore();
   }
 }
@@ -84,6 +131,8 @@ interface EditProductFormProps {
 export default function EditProductForm({ productId }: EditProductFormProps) {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef(false);
 
   // Loading and error states
   const [loading, setLoading] = useState(true);
@@ -105,6 +154,10 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [keepExistingImages, setKeepExistingImages] = useState(true);
 
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
+
   // --- STAR CANVAS EFFECT ---
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -118,17 +171,27 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
     const resize = () => {
       animationState.w = window.innerWidth;
       animationState.h = window.innerHeight;
-      canvas.width = animationState.w * animationState.dpr;
-      canvas.height = animationState.h * animationState.dpr;
+      canvas.style.width = `${animationState.w}px`;
+      canvas.style.height = `${animationState.h}px`;
+      canvas.width = Math.floor(animationState.w * animationState.dpr);
+      canvas.height = Math.floor(animationState.h * animationState.dpr);
       ctx.setTransform(animationState.dpr, 0, 0, animationState.dpr, 0, 0);
     };
 
     resize();
-    const stars = Array.from({ length: 220 }, () => new Star(ctx));
+    const stars = Array.from({ length: 220 }, () => new Star(ctx, isDarkRef));
 
     let raf = 0;
     const loop = () => {
-      ctx.clearRect(0, 0, animationState.w, animationState.h);
+      // In dark mode we tint background slightly to preserve trails,
+      // in light mode we clear for crisp small dots.
+      if (isDarkRef.current) {
+        ctx.fillStyle = "rgba(7, 8, 10, 0.12)";
+        ctx.fillRect(0, 0, animationState.w, animationState.h);
+      } else {
+        ctx.clearRect(0, 0, animationState.w, animationState.h);
+      }
+
       stars.forEach((s) => {
         s.step();
         s.draw();
@@ -143,7 +206,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, []);
+  }, [resolvedTheme]);
 
   useEffect(() => {
     fetchProductData();

@@ -23,6 +23,7 @@ import {
 import styles from "./ProductsList.module.css";
 import { useAuth } from "@/hooks/useAuth";
 import SearchBar from "@/components/SearchBar";
+import { useTheme } from "next-themes";
 
 interface Product {
   id: string;
@@ -68,6 +69,13 @@ export default function ProductsList({
   const searchParams = useSearchParams();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef(false);
+
+  // Keep theme ref updated so animation loop can read it without re-creating heavy state
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
   // Enhanced star animation with glow effects
   useEffect(() => {
@@ -77,8 +85,18 @@ export default function ProductsList({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // Use DPR for crisper canvas
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      canvas.width = Math.floor(window.innerWidth * DPR);
+      canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    };
+
+    resize();
 
     const stars: Array<{
       x: number;
@@ -93,8 +111,8 @@ export default function ProductsList({
 
     for (let i = 0; i < 200; i++) {
       stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
         radius: Math.random() * 2,
         vx: (Math.random() - 0.5) * 0.4,
         vy: (Math.random() - 0.5) * 0.4,
@@ -105,19 +123,26 @@ export default function ProductsList({
     }
 
     let animationFrame = 0;
+    let rafId = 0;
 
     function animate() {
       if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       animationFrame++;
+
+      // In dark mode draw a subtle dark overlay to create trailing, otherwise clear
+      if (isDarkRef.current) {
+        ctx.fillStyle = "rgba(7, 8, 10, 0.12)";
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      } else {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
 
       stars.forEach((star) => {
         star.x += star.vx;
         star.y += star.vy;
 
-        if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
-        if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+        if (star.x < 0 || star.x > window.innerWidth) star.vx *= -1;
+        if (star.y < 0 || star.y > window.innerHeight) star.vy *= -1;
 
         const pulse =
           Math.sin(animationFrame * star.pulseSpeed + star.pulsePhase) * 0.3 +
@@ -133,8 +158,22 @@ export default function ProductsList({
           star.y,
           star.radius * 3
         );
-        gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
-        gradient.addColorStop(0.5, `rgba(16, 185, 129, ${currentAlpha * 0.3})`);
+
+        if (isDarkRef.current) {
+          // Dark theme: stronger green halo
+          gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.9})`);
+          gradient.addColorStop(
+            0.5,
+            `rgba(16, 185, 129, ${currentAlpha * 0.35})`
+          );
+        } else {
+          // Light theme: softer halo
+          gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
+          gradient.addColorStop(
+            0.5,
+            `rgba(16, 185, 129, ${currentAlpha * 0.3})`
+          );
+        }
         gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
 
         ctx.beginPath();
@@ -142,26 +181,46 @@ export default function ProductsList({
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Core star
+        // Core star color: whiteish in dark mode, green in light
+        const coreColor = isDarkRef.current
+          ? `rgba(246,247,249,${Math.min(1, currentAlpha + 0.08)})`
+          : `rgba(16, 185, 129, ${currentAlpha})`;
+
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(16, 185, 129, ${currentAlpha})`;
+        ctx.fillStyle = coreColor;
         ctx.fill();
       });
 
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     }
 
     animate();
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      resize();
+      // rebuild stars positions to fill new viewport adequately
+      stars.length = 0;
+      for (let i = 0; i < 200; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          radius: Math.random() * 2,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          alpha: Math.random() * 0.6 + 0.4,
+          pulseSpeed: Math.random() * 0.02 + 0.01,
+          pulsePhase: Math.random() * Math.PI * 2,
+        });
+      }
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -682,12 +741,11 @@ export default function ProductsList({
                 </label>
                 <input
                   type="number"
-                  placeholder={`Min: $${
-                    Math.max(
-                      selectedProduct.startingBid,
-                      selectedProduct.currentBid
-                    ) + 1
-                  }`}
+                  placeholder={`Min: ${Math.max(
+                    selectedProduct.startingBid,
+                    selectedProduct.currentBid
+                  ) + 1
+                    }`}
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className={styles.formInput}
@@ -796,9 +854,8 @@ export default function ProductsList({
       {/* Scroll to Top */}
       <button
         onClick={scrollToTop}
-        className={`${styles.scrollTop} ${
-          scrollTopVisible ? styles.scrollTopVisible : ""
-        }`}
+        className={`${styles.scrollTop} ${scrollTopVisible ? styles.scrollTopVisible : ""
+          }`}
       >
         <FiArrowUp />
       </button>

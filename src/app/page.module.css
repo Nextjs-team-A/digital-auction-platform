@@ -1,19 +1,22 @@
 /* page.module.css */
 
+
 /* --- NEW CSS ANIMATION KEYFRAMES (Moving Gradient) --- */
 @keyframes move-background {
   0% {
     background-position: 0% 0%;
   }
+
   50% {
     background-position: 100% 100%;
   }
+
   100% {
     background-position: 0% 0%;
   }
 }
 
-/* Don’t force html/body transparent — it can cause weird stacking issues */
+/* Don't force html/body transparent — it can cause weird stacking issues */
 :global(html),
 :global(body) {
   background: #ffffff;
@@ -26,21 +29,20 @@
   --ink: #0f172a;
   --muted: rgba(15, 23, 42, 0.72);
 
-  /* This is the “soft green premium box” look */
-  --panel-bg: radial-gradient(
-      900px 400px at 20% 30%,
-      rgba(16, 185, 129, 0.16),
-      transparent 65%
-    ),
-    linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.03));
-  --panel-border: rgba(15, 23, 42, 0.08);
-  --panel-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
-  --panel-hover-border: rgba(16, 185, 129, 0.3);
-  --panel-hover-shadow: 0 24px 64px rgba(16, 185, 129, 0.14);
+  /* This is the "soft green premium box" look */
+  /* This is the "soft green premium box" look */
+  --panel-bg: radial-gradient(900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.18),
+      transparent 65%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(240, 253, 244, 0.6));
+  --panel-border: rgba(16, 185, 129, 0.1);
+  --panel-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  --panel-hover-border: rgba(16, 185, 129, 0.4);
+  --panel-hover-shadow: 0 28px 70px rgba(16, 185, 129, 0.18);
 }
 
 /* =======================================================
-   LAYERING (THIS is what fixes “animation in front”)
+   LAYERING (THIS is what fixes "animation in front")
    Layer 0: bgGradient
    Layer 1: starsBg (canvas)
    Layer 2: content
@@ -199,11 +201,9 @@
 }
 
 .altSection {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.88),
-    rgba(248, 250, 252, 0.88)
-  );
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(248, 250, 252, 0.88));
 }
 
 .sectionHeader {
@@ -253,7 +253,7 @@
 }
 
 .card:hover {
-  transform: translateY(-7px);
+  transform: translateY(-7px) scale(1.05);
   border-color: var(--panel-hover-border);
   box-shadow: var(--panel-hover-shadow);
 }
@@ -297,14 +297,14 @@
 
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--panel-shadow);
   backdrop-filter: blur(14px);
 
   transition: transform 220ms ease, border-color 220ms ease;
 }
 
 .stepCard:hover {
-  transform: translateY(-5px);
+  transform: translateY(-5px) scale(1.5);
   border-color: rgba(16, 185, 129, 0.28);
 }
 
@@ -372,7 +372,7 @@
 }
 
 .trustCard:hover {
-  transform: translateY(-7px);
+  transform: translateY(-7px) scale(1.05);
   border-color: var(--panel-hover-border);
   box-shadow: var(--panel-hover-shadow);
 }
@@ -401,11 +401,9 @@
    DELIVERY
    ======================================================= */
 .deliverySection {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.88),
-    rgba(248, 250, 252, 0.88)
-  );
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(248, 250, 252, 0.88));
 }
 
 .deliveryGrid {
@@ -429,7 +427,7 @@
 }
 
 .deliveryCard:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.05);
   border-color: var(--panel-hover-border);
 }
 
@@ -478,6 +476,15 @@
   border: 1px solid var(--panel-border);
   box-shadow: var(--panel-shadow);
   backdrop-filter: blur(14px);
+
+  transition: transform 220ms ease, border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.colCard:hover {
+  transform: translateY(-7px) scale(1.05);
+  border-color: var(--panel-hover-border);
+  box-shadow: var(--panel-hover-shadow);
 }
 
 .colTitle {
@@ -499,7 +506,7 @@
 }
 
 /* =======================================================
-   (Kept for safety; if you removed the CTA section, this won’t render)
+   (Kept for safety; if you removed the CTA section, this won't render)
    ======================================================= */
 .finalCta {
   max-width: 980px;
@@ -565,6 +572,124 @@
 .scrollTop:hover {
   border-color: rgba(5, 150, 105, 0.55);
   transform: translateY(-2px);
+}
+
+/* =======================================================
+   DARK MODE OVERRIDES
+   KEY UPDATE: Text colors changed to white (#ffffff) for proper contrast
+   ======================================================= */
+
+:global(.dark) .page {
+  color: #ffffff;
+}
+
+:global(.dark) .bgGradient {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+}
+
+:global(.dark) .badge {
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  box-shadow: none;
+}
+
+:global(.dark) .title,
+:global(.dark) .sectionTitle,
+:global(.dark) .cardTitle,
+:global(.dark) .stepTitle,
+:global(.dark) .trustTitle,
+:global(.dark) .deliveryTitle,
+:global(.dark) .colTitle,
+:global(.dark) .finalTitle {
+  color: #ffffff;
+}
+
+:global(.dark) .title span {
+  color: #10b981;
+  text-shadow: 0 18px 42px rgba(16, 185, 129, 0.12);
+}
+
+:global(.dark) .subtitle,
+:global(.dark) .hint,
+:global(.dark) .sectionDesc,
+:global(.dark) .cardText,
+:global(.dark) .stepText,
+:global(.dark) .trustText,
+:global(.dark) .deliveryText,
+:global(.dark) .list,
+:global(.dark) .finalText {
+  color: rgba(255, 255, 255, 0.85);
+  opacity: 1;
+}
+
+:global(.dark) .section,
+:global(.dark) .altSection,
+:global(.dark) .deliverySection {
+  background: transparent;
+}
+
+:global(.dark) .card,
+:global(.dark) .stepCard,
+:global(.dark) .trustCard,
+:global(.dark) .deliveryCard,
+:global(.dark) .colCard,
+:global(.dark) .finalCta {
+  background: radial-gradient(900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+:global(.dark) .card:hover,
+:global(.dark) .stepCard:hover,
+:global(.dark) .trustCard:hover,
+:global(.dark) .deliveryCard:hover,
+:global(.dark) .colCard:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 24px 64px rgba(16, 185, 129, 0.14);
+}
+
+:global(.dark) .cardIcon,
+:global(.dark) .trustIcon {
+  color: #10b981;
+}
+
+:global(.dark) .stepIcon {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+:global(.dark) .deliveryPrice {
+  color: #10b981;
+}
+
+:global(.dark) .primaryBtn {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+}
+
+:global(.dark) .secondaryBtn {
+  background: rgba(15, 17, 21, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  color: #d1fae5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+:global(.dark) .secondaryBtn:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(15, 17, 21, 0.9);
+}
+
+:global(.dark) .scrollTop {
+  background: rgba(15, 17, 21, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d1fae5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+:global(.dark) .scrollTop:hover {
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 /* =======================================================

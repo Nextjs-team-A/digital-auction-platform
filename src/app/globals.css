@@ -21,6 +21,7 @@
   --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Base Reset & Layout */
 html,
 body {
   width: 100%;
@@ -80,4 +81,28 @@ a:hover {
 ::selection {
   background: rgba(16, 185, 129, 0.2);
   color: var(--green-primary);
+}
+
+/* Dark theme overrides (next-themes adds .dark on <html> when attribute="class") */
+.dark {
+  /* Core colors */
+  --background: #07080a;
+  --foreground: #f6f7f9;
+
+  /* Keep your brand green EXACTLY the same */
+  --accent: var(--green-primary);
+
+  /* Panels / cards */
+  --panel-bg: rgba(15, 17, 21, 0.82);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --panel-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+
+  /* Optional: if you use --muted anywhere, make it readable in dark */
+  --muted: rgba(246, 247, 249, 0.72);
+}
+
+/* Optional: make selection look good in dark too */
+.dark ::selection {
+  background: rgba(16, 185, 129, 0.22);
+  color: #d1fae5;
 }

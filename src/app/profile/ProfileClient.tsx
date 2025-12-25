@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/auth-context";
 import LogoutButton from "@/components/LogoutButton";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 // ✅ IMPORTANT: this path MUST match your real file name EXACTLY
 // If your file is "profileclient.module.css", keep this lowercase:
@@ -37,10 +38,16 @@ class Star {
   vy: number;
   r: number;
   a: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D, layer: number) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    layer: number,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
     this.layer = layer;
+    this.isDarkRef = isDarkRef;
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
 
@@ -91,9 +98,15 @@ class Star {
   }
 
   draw() {
+    const isDark = this.isDarkRef.current;
     this.c.save();
     this.c.globalAlpha = this.a;
-    this.c.fillStyle = "rgba(16, 185, 129, 0.92)";
+
+    // Theme-aware star color: greenish in dark, ink in light
+    this.c.fillStyle = isDark
+      ? "rgba(16, 185, 129, 0.92)"
+      : "rgba(15, 23, 42, 0.90)";
+
     this.c.beginPath();
     this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.c.fill();
@@ -110,9 +123,14 @@ class ShootingStar {
   life: number;
   maxLife: number;
   len: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
+    this.isDarkRef = isDarkRef;
     const fromLeft = Math.random() < 0.5;
     this.x = fromLeft ? -80 : Math.random() * animationState.w;
     this.y = fromLeft ? Math.random() * (animationState.h * 0.55) : -80;
@@ -142,13 +160,24 @@ class ShootingStar {
     const x2 = this.x - (this.vx / 12) * this.len;
     const y2 = this.y - (this.vy / 12) * this.len;
 
+    const isDark = this.isDarkRef.current;
+
     this.c.save();
     this.c.globalAlpha = 0.55 * t;
 
     const grad = this.c.createLinearGradient(this.x, this.y, x2, y2);
-    grad.addColorStop(0, "rgba(16,185,129,0.0)");
-    grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
-    grad.addColorStop(1, "rgba(15,23,42,0.55)");
+
+    if (isDark) {
+      // Dark theme: greener / brighter trail -> white head
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.45)");
+      grad.addColorStop(1, "rgba(246,247,249,0.9)");
+    } else {
+      // Light theme: darker trail with green accents
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
+      grad.addColorStop(1, "rgba(15,23,42,0.55)");
+    }
 
     this.c.strokeStyle = grad;
     this.c.lineWidth = 2;
@@ -158,7 +187,7 @@ class ShootingStar {
     this.c.stroke();
 
     this.c.globalAlpha = 0.7 * t;
-    this.c.fillStyle = "rgba(16, 185, 129, 1)";
+    this.c.fillStyle = isDark ? "rgba(246,247,249,1)" : "rgba(15,23,42,1)";
     this.c.beginPath();
     this.c.arc(this.x, this.y, 1.7, 0, Math.PI * 2);
     this.c.fill();
@@ -173,6 +202,13 @@ export default function ProfileClient() {
 
   const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Theme awareness for canvas drawing
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef<boolean>(false);
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -220,9 +256,9 @@ export default function ProfileClient() {
       const mid = Math.floor(base * 0.36);
       const near = base - far - mid;
 
-      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0));
-      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1));
-      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2));
+      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0, isDarkRef));
+      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1, isDarkRef));
+      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2, isDarkRef));
     };
 
     const drawConnections = () => {
@@ -271,7 +307,7 @@ export default function ProfileClient() {
       animationState.pointer.active = true;
 
       if (!animationState.reducedMotion) {
-        shooters.push(new ShootingStar(ctx));
+        shooters.push(new ShootingStar(ctx, isDarkRef));
         if (shooters.length > 7) shooters.shift();
       }
     };
@@ -286,7 +322,9 @@ export default function ProfileClient() {
     };
 
     const loop = () => {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.fillStyle = isDarkRef.current
+        ? "rgba(7, 8, 10, 0.18)"
+        : "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(0, 0, animationState.w, animationState.h);
 
       for (const s of stars) {
@@ -298,7 +336,7 @@ export default function ProfileClient() {
         shootCooldown -= 1;
         if (shootCooldown <= 0) {
           if (Math.random() < 0.45) {
-            shooters.push(new ShootingStar(ctx));
+            shooters.push(new ShootingStar(ctx, isDarkRef));
             if (shooters.length > 7) shooters.shift();
           }
           shootCooldown = 50 + Math.floor(Math.random() * 70);
@@ -344,7 +382,7 @@ export default function ProfileClient() {
       window.removeEventListener("pointerleave", onPointerLeave);
       cancelAnimationFrame(raf);
     };
-  }, [mounted]);
+  }, [mounted, resolvedTheme]); // include resolvedTheme so star colors update when theme changes
 
   if (!mounted) return null;
 
@@ -413,7 +451,8 @@ export default function ProfileClient() {
                   </h1>
 
                   <p className={styles.heroSubtitle}>
-                    Control your profile, settings, and preferences effortlessly all in one place.
+                    Control your profile, settings, and preferences effortlessly
+                    all in one place.
                   </p>
 
                   <div className={styles.profileCard}>

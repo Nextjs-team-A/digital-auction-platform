@@ -21,6 +21,7 @@ import {
 } from "react-icons/fi";
 import styles from "./MyProductsUI.module.css";
 import SearchBar from "@/components/SearchBar";
+import { useTheme } from "next-themes";
 
 interface Product {
   id: string;
@@ -54,6 +55,12 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
   );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef(false);
+
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
   useEffect(() => {
     if (!unauthorized) {
@@ -107,7 +114,7 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
     }
   };
 
-  // Enhanced star animation
+  // Enhanced star animation (theme-aware)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -115,8 +122,18 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // Use DPR for crisper canvas
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      canvas.width = Math.floor(window.innerWidth * DPR);
+      canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    };
+
+    resize();
 
     const stars: Array<{
       x: number;
@@ -129,39 +146,56 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
       pulsePhase: number;
     }> = [];
 
-    for (let i = 0; i < 180; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        alpha: Math.random() * 0.6 + 0.4,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
-        pulsePhase: Math.random() * Math.PI * 2,
-      });
-    }
+    const buildStars = () => {
+      stars.length = 0;
+      const count = Math.max(
+        120,
+        Math.floor((window.innerWidth * window.innerHeight) / 14000)
+      );
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          radius: Math.random() * 2,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          alpha: Math.random() * 0.6 + 0.4,
+          pulseSpeed: Math.random() * 0.02 + 0.01,
+          pulsePhase: Math.random() * Math.PI * 2,
+        });
+      }
+    };
+
+    buildStars();
 
     let animationFrame = 0;
+    let rafId = 0;
 
     function animate() {
       if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       animationFrame++;
 
-      stars.forEach((star) => {
+      // theme-aware background overlay/trail
+      if (isDarkRef.current) {
+        ctx.fillStyle = "rgba(7, 8, 10, 0.12)";
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      } else {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+
+      for (const star of stars) {
         star.x += star.vx;
         star.y += star.vy;
 
-        if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
-        if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+        if (star.x < 0 || star.x > window.innerWidth) star.vx *= -1;
+        if (star.y < 0 || star.y > window.innerHeight) star.vy *= -1;
 
         const pulse =
           Math.sin(animationFrame * star.pulseSpeed + star.pulsePhase) * 0.3 +
           0.7;
         const currentAlpha = star.alpha * pulse;
 
+        // Glow effect (green halo)
         const gradient = ctx.createRadialGradient(
           star.x,
           star.y,
@@ -170,8 +204,16 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
           star.y,
           star.radius * 3
         );
-        gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
-        gradient.addColorStop(0.5, `rgba(16, 185, 129, ${currentAlpha * 0.3})`);
+        gradient.addColorStop(
+          0,
+          `rgba(16, 185, 129, ${currentAlpha * (isDarkRef.current ? 0.9 : 0.8)
+          })`
+        );
+        gradient.addColorStop(
+          0.5,
+          `rgba(16, 185, 129, ${currentAlpha * (isDarkRef.current ? 0.35 : 0.3)
+          })`
+        );
         gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
 
         ctx.beginPath();
@@ -179,25 +221,34 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
         ctx.fillStyle = gradient;
         ctx.fill();
 
+        // Core star color: whiteish in dark mode, green in light
+        const coreColor = isDarkRef.current
+          ? `rgba(246,247,249,${Math.min(1, currentAlpha + 0.08)})`
+          : `rgba(16, 185, 129, ${currentAlpha})`;
+
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(16, 185, 129, ${currentAlpha})`;
+        ctx.fillStyle = coreColor;
         ctx.fill();
-      });
+      }
 
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     }
 
     animate();
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      resize();
+      buildStars();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+    // re-run if theme changes so isDarkRef is respected in animation loop
+  }, [resolvedTheme]);
 
   const handleEditClick = (productId: string) => {
     router.push(`/products/edit/${productId}`);
@@ -392,9 +443,8 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                 return (
                   <div
                     key={p.id}
-                    className={`${styles.productCard} ${
-                      !isActive ? styles.productCardEnded : ""
-                    }`}
+                    className={`${styles.productCard} ${!isActive ? styles.productCardEnded : ""
+                      }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     {/* Image */}

@@ -1,10 +1,12 @@
 // src/app/team/TeamPage.tsx
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { teamMembers } from "@/utils/data";
 import styles from "./TeamPage.module.css";
 import { FaLinkedin } from "react-icons/fa";
+import { useTheme } from "next-themes";
 
 const animationState = {
     w: 0,
@@ -32,10 +34,17 @@ class Star {
     vy: number;
     r: number;
     a: number;
+    private isDarkRef: React.MutableRefObject<boolean>;
 
-    constructor(ctx: CanvasRenderingContext2D, layer: number) {
+    constructor(
+        ctx: CanvasRenderingContext2D,
+        layer: number,
+        isDarkRef: React.MutableRefObject<boolean>
+    ) {
         this.c = ctx;
         this.layer = layer;
+        this.isDarkRef = isDarkRef;
+
         this.x = Math.random() * animationState.w;
         this.y = Math.random() * animationState.h;
 
@@ -65,8 +74,7 @@ class Star {
             if (dist < pullRadius) {
                 const closeness = 1 - dist / pullRadius;
                 const pull = (animationState.pointer.down ? 0.18 : 0.08) * closeness;
-                const layerBoost =
-                    this.layer === 2 ? 1.25 : this.layer === 1 ? 1.0 : 0.75;
+                const layerBoost = this.layer === 2 ? 1.25 : this.layer === 1 ? 1.0 : 0.75;
 
                 this.vx += (dx / dist) * pull * layerBoost;
                 this.vy += (dy / dist) * pull * layerBoost;
@@ -86,9 +94,16 @@ class Star {
     }
 
     draw() {
+        const isDark = this.isDarkRef.current;
+
         this.c.save();
         this.c.globalAlpha = this.a;
-        this.c.fillStyle = "rgba(15, 23, 42, 0.90)";
+
+        // Light: ink stars. Dark: green glow stars.
+        this.c.fillStyle = isDark
+            ? "rgba(16, 185, 129, 0.85)"
+            : "rgba(15, 23, 42, 0.90)";
+
         this.c.beginPath();
         this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
         this.c.fill();
@@ -105,9 +120,12 @@ class ShootingStar {
     life: number;
     maxLife: number;
     len: number;
+    private isDarkRef: React.MutableRefObject<boolean>;
 
-    constructor(ctx: CanvasRenderingContext2D) {
+    constructor(ctx: CanvasRenderingContext2D, isDarkRef: React.MutableRefObject<boolean>) {
         this.c = ctx;
+        this.isDarkRef = isDarkRef;
+
         const fromLeft = Math.random() < 0.5;
         this.x = fromLeft ? -80 : Math.random() * animationState.w;
         this.y = fromLeft ? Math.random() * (animationState.h * 0.55) : -80;
@@ -134,16 +152,25 @@ class ShootingStar {
         const t = this.life / this.maxLife;
         if (t <= 0) return;
 
+        const isDark = this.isDarkRef.current;
+
         const x2 = this.x - (this.vx / 12) * this.len;
         const y2 = this.y - (this.vy / 12) * this.len;
 
         this.c.save();
-        this.c.globalAlpha = 0.55 * t;
+        this.c.globalAlpha = (isDark ? 0.7 : 0.55) * t;
 
         const grad = this.c.createLinearGradient(this.x, this.y, x2, y2);
-        grad.addColorStop(0, "rgba(16,185,129,0.0)");
-        grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
-        grad.addColorStop(1, "rgba(15,23,42,0.55)");
+
+        if (isDark) {
+            grad.addColorStop(0, "rgba(16,185,129,0.0)");
+            grad.addColorStop(0.45, "rgba(16,185,129,0.55)");
+            grad.addColorStop(1, "rgba(16,185,129,0.10)");
+        } else {
+            grad.addColorStop(0, "rgba(16,185,129,0.0)");
+            grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
+            grad.addColorStop(1, "rgba(15,23,42,0.55)");
+        }
 
         this.c.strokeStyle = grad;
         this.c.lineWidth = 2;
@@ -152,8 +179,9 @@ class ShootingStar {
         this.c.lineTo(x2, y2);
         this.c.stroke();
 
-        this.c.globalAlpha = 0.7 * t;
-        this.c.fillStyle = "rgba(15,23,42,1)";
+        // Head dot
+        this.c.globalAlpha = (isDark ? 0.9 : 0.7) * t;
+        this.c.fillStyle = isDark ? "rgba(16,185,129,1)" : "rgba(15,23,42,1)";
         this.c.beginPath();
         this.c.arc(this.x, this.y, 1.7, 0, Math.PI * 2);
         this.c.fill();
@@ -164,9 +192,23 @@ class ShootingStar {
 
 const TeamPage: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    // Keep your current behavior:
+    // visible[] stores card indexes + also uses idx+1000 for "expanded"
     const [visible, setVisible] = useState<number[]>([]);
 
-    /* Scroll reveal logic */
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    const isDarkRef = useRef(false);
+
+    useEffect(() => setMounted(true), []);
+
+    useEffect(() => {
+        if (!mounted) return;
+        isDarkRef.current = resolvedTheme === "dark";
+    }, [resolvedTheme, mounted]);
+
+    // Scroll reveal logic
     useEffect(() => {
         const handleScroll = () => {
             const cards = document.querySelectorAll(`.${styles.card}`);
@@ -177,12 +219,13 @@ const TeamPage: React.FC = () => {
             });
             setVisible(newVisible);
         };
-        window.addEventListener("scroll", handleScroll);
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
         handleScroll();
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    /* Background Animation Logic */
+    // Background Animation Logic
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -222,9 +265,9 @@ const TeamPage: React.FC = () => {
             const mid = Math.floor(base * 0.36);
             const near = base - far - mid;
 
-            for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0));
-            for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1));
-            for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2));
+            for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0, isDarkRef));
+            for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1, isDarkRef));
+            for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2, isDarkRef));
         };
 
         const drawConnections = () => {
@@ -273,7 +316,7 @@ const TeamPage: React.FC = () => {
             animationState.pointer.active = true;
 
             if (!animationState.reducedMotion) {
-                shooters.push(new ShootingStar(ctx));
+                shooters.push(new ShootingStar(ctx, isDarkRef));
                 if (shooters.length > 7) shooters.shift();
             }
         };
@@ -288,7 +331,10 @@ const TeamPage: React.FC = () => {
         };
 
         const loop = () => {
-            ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+            // Theme-aware trail
+            ctx.fillStyle = isDarkRef.current
+                ? "rgba(7, 8, 10, 0.18)"
+                : "rgba(255, 255, 255, 0.06)";
             ctx.fillRect(0, 0, animationState.w, animationState.h);
 
             for (const s of stars) {
@@ -300,7 +346,7 @@ const TeamPage: React.FC = () => {
                 shootCooldown -= 1;
                 if (shootCooldown <= 0) {
                     if (Math.random() < 0.45) {
-                        shooters.push(new ShootingStar(ctx));
+                        shooters.push(new ShootingStar(ctx, isDarkRef));
                         if (shooters.length > 7) shooters.shift();
                     }
                     shootCooldown = 50 + Math.floor(Math.random() * 70);
@@ -366,6 +412,7 @@ const TeamPage: React.FC = () => {
                     <h1 className={styles.title}>
                         Meet Our <span>Team</span>
                     </h1>
+
                     <Image
                         src="/images/logos/logo2.png"
                         alt="Logo Right"
@@ -383,7 +430,6 @@ const TeamPage: React.FC = () => {
             <div className={styles.grid}>
                 {teamMembers.map((member, idx) => {
                     const isExpanded = visible.includes(idx + 1000);
-                    const shouldTruncate = member.desc && member.desc.length > 150;
 
                     return (
                         <div
@@ -400,25 +446,35 @@ const TeamPage: React.FC = () => {
                                     className={styles.image}
                                 />
                             </div>
+
                             <div className={styles.cardContent}>
                                 <h2 className={styles.name}>{member.name}</h2>
                                 <h3 className={styles.role}>{member.role}</h3>
+
                                 <div className={styles.descriptionWrapper}>
                                     <p
-                                        className={`${styles.desc} ${!isExpanded ? styles.descTruncated : styles.descExpanded}`}
-                                        onClick={() => !isExpanded && setVisible([...visible, idx + 1000])}
+                                        className={`${styles.desc} ${!isExpanded ? styles.descTruncated : styles.descExpanded
+                                            }`}
+                                        onClick={() =>
+                                            !isExpanded && setVisible([...visible, idx + 1000])
+                                        }
                                     >
                                         {member.desc}
                                     </p>
+
                                     {isExpanded && (
                                         <button
                                             className={styles.showMore}
-                                            onClick={() => setVisible(visible.filter(i => i !== idx + 1000))}
+                                            onClick={() =>
+                                                setVisible(visible.filter((i) => i !== idx + 1000))
+                                            }
+                                            type="button"
                                         >
                                             Show less
                                         </button>
                                     )}
                                 </div>
+
                                 {member.skills && (
                                     <div className={styles.skillsWrapper}>
                                         {member.skills.map((skill, i) => (
@@ -428,6 +484,7 @@ const TeamPage: React.FC = () => {
                                         ))}
                                     </div>
                                 )}
+
                                 <a
                                     href={member.linkedin}
                                     target="_blank"

@@ -11,9 +11,11 @@
   0% {
     background-position: 0% 0%;
   }
+
   50% {
     background-position: 100% 100%;
   }
+
   100% {
     background-position: 0% 0%;
   }
@@ -29,6 +31,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -38,27 +41,32 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
 }
 
 @keyframes glow {
+
   0%,
   100% {
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.3),
       0 0 40px rgba(16, 185, 129, 0.2);
   }
+
   50% {
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.5),
       0 0 60px rgba(16, 185, 129, 0.3);
@@ -69,16 +77,19 @@
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -89,6 +100,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -108,11 +120,9 @@
   --green-secondary: #10b981;
   --green-light: rgba(16, 185, 129, 0.12);
   --green-glow: rgba(16, 185, 129, 0.3);
-  --panel-bg: radial-gradient(
-      900px 400px at 20% 30%,
+  --panel-bg: radial-gradient(900px 400px at 20% 30%,
       rgba(16, 185, 129, 0.18),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(15, 23, 42, 0.03));
   --panel-border: rgba(15, 23, 42, 0.08);
   --panel-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
@@ -238,6 +248,7 @@
   padding: 80px 24px 100px;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
+  margin-bottom: 0;
 }
 
 .sectionHeader {
@@ -304,12 +315,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(135deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transform: translateX(-100%);
   transition: transform 0.6s;
 }
@@ -413,12 +422,10 @@
 .imageOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    transparent 50%,
-    rgba(15, 23, 42, 0.05) 100%
-  );
+  background: linear-gradient(to bottom,
+      transparent 0%,
+      transparent 50%,
+      rgba(15, 23, 42, 0.05) 100%);
   pointer-events: none;
 }
 
@@ -449,11 +456,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.1),
-    rgba(15, 23, 42, 0.03)
-  );
+  background: linear-gradient(135deg,
+      rgba(16, 185, 129, 0.1),
+      rgba(15, 23, 42, 0.03));
 }
 
 .placeholderIcon {
@@ -482,7 +487,8 @@
 }
 
 .guestIcon {
-  color: #d97706; /* Darker amber for visibility */
+  color: #d97706;
+  /* Darker amber for visibility */
   font-size: 16px;
 }
 
@@ -496,12 +502,15 @@
 .viewGalleryBtn {
   position: absolute;
   bottom: 16px;
-  right: 16px; /* Moved to right for better ergonomics */
+  right: 16px;
+  /* Moved to right for better ergonomics */
   left: auto;
   z-index: 20;
   padding: 10px 18px;
-  border-radius: 99px; /* Pill shape */
-  background: rgba(255, 255, 255, 0.15); /* Lower opacity for glass effect */
+  border-radius: 99px;
+  /* Pill shape */
+  background: rgba(255, 255, 255, 0.15);
+  /* Lower opacity for glass effect */
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -598,7 +607,7 @@
 }
 
 .productCard:hover .productInfo {
-  background: rgba(255, 255, 255, 0.9);
+  /* background: rgba(255, 255, 255, 0.9); */
   border-color: rgba(16, 185, 129, 0.15);
 }
 
@@ -715,12 +724,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    transparent,
-    rgba(255, 255, 255, 0.25),
-    transparent
-  );
+  background: linear-gradient(135deg,
+      transparent,
+      rgba(255, 255, 255, 0.25),
+      transparent);
   transform: translateX(-100%);
   transition: transform 0.6s;
 }
@@ -802,6 +809,44 @@
   color: var(--green-primary);
   opacity: 0.4;
   margin-bottom: 24px;
+}
+
+/* ========================================================================= */
+/* SCROLL TO TOP */
+/* ========================================================================= */
+
+.scrollTop {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 16px 42px rgba(16, 185, 129, 0.35);
+  transition: all var(--transition-base);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.scrollTopVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.scrollTop:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 60px rgba(16, 185, 129, 0.45);
 }
 
 .emptyState h3 {
@@ -1179,12 +1224,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    transparent,
-    rgba(255, 255, 255, 0.25),
-    transparent
-  );
+  background: linear-gradient(135deg,
+      transparent,
+      rgba(255, 255, 255, 0.25),
+      transparent);
   transform: translateX(-100%);
   transition: transform 0.6s;
 }
@@ -1237,11 +1280,9 @@
   margin: 100px auto;
   text-align: center;
 
-  background: radial-gradient(
-      900px 400px at 20% 30%,
+  background: radial-gradient(900px 400px at 20% 30%,
       rgba(16, 185, 129, 0.485),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.323), rgba(15, 23, 42, 0.252));
 
   backdrop-filter: blur(20px);
@@ -1456,4 +1497,147 @@
   background: rgba(239, 68, 68, 0.8);
   border-color: rgba(239, 68, 68, 0.8);
   transform: rotate(90deg) scale(1.1);
+}
+
+/* =======================================================
+   DARK MODE OVERRIDES
+   - Light mode: black + green (default above)
+   - Dark mode: white + green (overrides below)
+   - Uses :global(.dark) (works with next-themes attribute="class")
+   ======================================================= */
+
+/* Make page text white in dark mode */
+:global(.dark) .page {
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Dark animated gradient background */
+:global(.dark) .bgGradient {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+}
+
+/* Ensure badges stay readable */
+:global(.dark) .badge {
+  color: #d1fae5;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  box-shadow: none;
+}
+
+/* Headings and primary text to white */
+:global(.dark) .title,
+:global(.dark) .titleAccent,
+:global(.dark) .sectionTitle,
+:global(.dark) .productTitle,
+:global(.dark) .unauthorizedTitle,
+:global(.dark) .emptyState h3 {
+  color: var(--foreground, #ffffff);
+}
+
+/* Muted text become light */
+:global(.dark) .subtitle,
+:global(.dark) .sectionDesc,
+:global(.dark) .productDesc,
+:global(.dark) .statLabel,
+:global(.dark) .metaItem,
+:global(.dark) .emptyState p,
+:global(.dark) .loadingContainer p,
+:global(.dark) .errorContainer p {
+  color: rgba(246, 247, 249, 0.85);
+}
+
+/* Panels: darker panels, white text */
+:global(.dark) .actionsInner,
+:global(.dark) .productCard,
+:global(.dark) .emptyState,
+:global(.dark) .unauthorizedCard,
+:global(.dark) .section {
+  background: radial-gradient(900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  color: var(--foreground, #ffffff);
+}
+
+/* Product info adjustments for dark */
+:global(.dark) .productInfo,
+:global(.dark) .payoutInfo,
+:global(.dark) .deliveryStatus,
+:global(.dark) .modalProduct {
+  background: rgba(10, 12, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Keep green accents strong in dark mode */
+:global(.dark) .sectionTitleIcon,
+:global(.dark) .metaIcon,
+:global(.dark) .badgeLive,
+:global(.dark) .payoutValue,
+:global(.dark) .bidCurrent,
+:global(.dark) .emptyIcon {
+  color: #10b981 !important;
+}
+
+/* badgeLive background slightly adjusted for contrast */
+:global(.dark) .badgeLive {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #ffffff;
+}
+
+/* Buttons: keep green gradient but adjust shadows */
+:global(.dark) .createBtn,
+:global(.dark) .primaryButton,
+:global(.dark) .submitBtn,
+:global(.dark) .deliveryBtn {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+}
+
+/* Secondary buttons and translucent elements */
+:global(.dark) .secondaryBtn,
+:global(.dark) .viewGalleryBtn,
+:global(.dark) .imageCount,
+:global(.dark) .galleryContainer {
+  background: rgba(15, 17, 21, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Placeholder images and icons */
+:global(.dark) .placeholderIcon {
+  color: #10b981;
+  opacity: 0.28;
+}
+
+/* Adjust spinner for dark */
+:global(.dark) .spinner {
+  border: 5px solid rgba(255, 255, 255, 0.03);
+  border-top-color: #10b981;
+}
+
+/* Ensure text inside product content inherits color */
+:global(.dark) .productContent * {
+  color: inherit;
+}
+
+/* Final safety - headings/paragraphs inherit color in dark */
+:global(.dark) h1,
+:global(.dark) h2,
+:global(.dark) h3,
+:global(.dark) h4,
+:global(.dark) p,
+:global(.dark) span,
+:global(.dark) label {
+  color: inherit;
+}
+
+:global(.dark) .scrollTop {
+  background: linear-gradient(135deg, #059669, #10b981);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+}
+
+:global(.dark) .scrollTop:hover {
+  box-shadow: 0 24px 64px rgba(16, 185, 129, 0.4);
 }
