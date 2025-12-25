@@ -105,6 +105,7 @@
 }
 
 @keyframes badgePulse {
+
   0%,
   100% {
     transform: scale(1);
@@ -194,11 +195,9 @@
   margin: 0 auto;
   max-width: 980px;
   padding: 2.25rem 1.5rem;
-  background: radial-gradient(
-      900px 400px at 20% 30%,
+  background: radial-gradient(900px 400px at 20% 30%,
       rgba(16, 185, 129, 0.16),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.03));
   backdrop-filter: blur(16px);
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -303,12 +302,10 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -345,12 +342,10 @@
   height: 14px;
   border-radius: 999px;
   margin: 12px 0;
-  background: linear-gradient(
-    90deg,
-    rgba(15, 23, 42, 0.06),
-    rgba(15, 23, 42, 0.12),
-    rgba(15, 23, 42, 0.06)
-  );
+  background: linear-gradient(90deg,
+      rgba(15, 23, 42, 0.06),
+      rgba(15, 23, 42, 0.12),
+      rgba(15, 23, 42, 0.06));
   background-size: 220% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
 }
@@ -411,11 +406,9 @@
 
 /* Profile card: use darker panel look, keep green accents */
 :global(.dark) .profileCard {
-  background: radial-gradient(
-      900px 400px at 20% 30%,
+  background: radial-gradient(900px 400px at 20% 30%,
       rgba(16, 185, 129, 0.06),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
@@ -424,11 +417,9 @@
 
 /* Make profile field panels darker and text readable */
 :global(.dark) .profileField {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 17, 21, 0.86),
-    rgba(12, 14, 16, 0.78)
-  );
+  background: linear-gradient(135deg,
+      rgba(15, 17, 21, 0.86),
+      rgba(12, 14, 16, 0.78));
   border: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
   color: var(--foreground, #ffffff);
@@ -465,14 +456,18 @@
 
 /* Skeleton shimmer for dark mode (subtle bright shimmer on dark bg) */
 :global(.dark) .skeletonRow {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.06),
-    rgba(255, 255, 255, 0.03)
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.03));
   background-size: 220% 100%;
   animation: shimmer 1.2s ease-in-out infinite;
+}
+
+:global(.dark) .heroBadge {
+  color: #ffffff !important;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.12);
 }
 
 /* Ensure any hard-coded small-color rules inherit on dark */
