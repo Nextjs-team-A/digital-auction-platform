@@ -1,8 +1,10 @@
+//CreateProductForm.tsx:
 "use client";
 
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./ProductCreateStyle.module.css";
+import { useTheme } from "next-themes";
 
 /* =========================
    STAR ANIMATION STATE
@@ -21,9 +23,14 @@ class Star {
   vy: number;
   r: number;
   a: number;
+  isDarkRef: { current: boolean } | null;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    isDarkRef: { current: boolean } | null
+  ) {
     this.ctx = ctx;
+    this.isDarkRef = isDarkRef;
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
     this.vx = (Math.random() - 0.5) * 0.12;
@@ -45,10 +52,56 @@ class Star {
   draw() {
     this.ctx.save();
     this.ctx.globalAlpha = this.a;
-    this.ctx.fillStyle = "rgba(15,23,42,0.9)";
-    this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    this.ctx.fill();
+
+    const isDark = this.isDarkRef?.current ?? false;
+
+    // draw a subtle halo + core depending on theme to keep visibility in both modes
+    if (isDark) {
+      // dark: green halo + bright core
+      const grad = this.ctx.createRadialGradient(
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        Math.max(6, this.r * 4)
+      );
+      grad.addColorStop(0, `rgba(16,185,129,${Math.min(0.9, this.a * 2)})`);
+      grad.addColorStop(0.6, `rgba(16,185,129,${Math.min(0.45, this.a)})`);
+      grad.addColorStop(1, "rgba(16,185,129,0)");
+      this.ctx.beginPath();
+      this.ctx.fillStyle = grad;
+      this.ctx.arc(this.x, this.y, Math.max(6, this.r * 4), 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.fillStyle = `rgba(246,247,249,${Math.min(1, this.a + 0.15)})`;
+      this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    } else {
+      // light: subtle green core (matches light mode look)
+      const grad = this.ctx.createRadialGradient(
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        Math.max(5, this.r * 3)
+      );
+      grad.addColorStop(0, `rgba(16,185,129,${Math.min(0.8, this.a * 1.6)})`);
+      grad.addColorStop(0.6, `rgba(16,185,129,${Math.min(0.35, this.a)})`);
+      grad.addColorStop(1, "rgba(16,185,129,0)");
+      this.ctx.beginPath();
+      this.ctx.fillStyle = grad;
+      this.ctx.arc(this.x, this.y, Math.max(5, this.r * 3), 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.beginPath();
+      this.ctx.fillStyle = `rgba(15,23,42,${Math.min(1, this.a + 0.05)})`;
+      this.ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
     this.ctx.restore();
   }
 }
@@ -60,6 +113,12 @@ export default function CreateProductForm({
 }) {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef(false);
+
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
   /* =========================
      STAR CANVAS EFFECT
@@ -76,17 +135,28 @@ export default function CreateProductForm({
     const resize = () => {
       animationState.w = window.innerWidth;
       animationState.h = window.innerHeight;
-      canvas.width = animationState.w * animationState.dpr;
-      canvas.height = animationState.h * animationState.dpr;
+      canvas.width = Math.floor(animationState.w * animationState.dpr);
+      canvas.height = Math.floor(animationState.h * animationState.dpr);
+      canvas.style.width = `${animationState.w}px`;
+      canvas.style.height = `${animationState.h}px`;
       ctx.setTransform(animationState.dpr, 0, 0, animationState.dpr, 0, 0);
     };
 
     resize();
-    const stars = Array.from({ length: 220 }, () => new Star(ctx));
+    const stars = Array.from({ length: 220 }, () => new Star(ctx, isDarkRef));
 
     let raf = 0;
     const loop = () => {
-      ctx.clearRect(0, 0, animationState.w, animationState.h);
+      // subtle overlay depending on theme so stars look correct
+      if (isDarkRef.current) {
+        // dark: slight tint to preserve trailing and contrast
+        ctx.fillStyle = "rgba(7,8,10,0.12)";
+        ctx.fillRect(0, 0, animationState.w, animationState.h);
+      } else {
+        // light: keep very subtle
+        ctx.clearRect(0, 0, animationState.w, animationState.h);
+      }
+
       stars.forEach((s) => {
         s.step();
         s.draw();
@@ -97,11 +167,24 @@ export default function CreateProductForm({
     loop();
     window.addEventListener("resize", resize);
 
+    // update stars' isDarkRef when theme changes (reactive)
+    const themeObserver = new MutationObserver(() => {
+      // no-op here; isDarkRef is updated by useEffect on resolvedTheme
+    });
+
+    if (document.documentElement) {
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
+
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      themeObserver.disconnect();
     };
-  }, []);
+  }, [resolvedTheme]);
 
   /* =========================
      FORM LOGIC (UNCHANGED)
@@ -186,12 +269,60 @@ export default function CreateProductForm({
               {success && <div className={styles.success}>{success}</div>}
 
               <form className={styles.form} onSubmit={handleSubmit}>
-                <label>Title<input value={title} onChange={(e) => setTitle(e.target.value)} required /></label>
-                <label>Description<textarea value={description} onChange={(e) => setDescription(e.target.value)} required /></label>
-                <label>Starting Bid<input type="number" value={startingBid} onChange={(e) => setStartingBid(e.target.value)} required /></label>
-                <label>Auction End<input type="datetime-local" value={auctionEnd} onChange={(e) => setAuctionEnd(e.target.value)} required /></label>
-                <label>Location<select value={location} onChange={(e) => setLocation(e.target.value as any)}><option>Beirut</option><option>Outside Beirut</option></select></label>
-                <label>Images<input type="file" multiple onChange={(e) => setImages(Array.from(e.target.files || []))} /></label>
+                <label>
+                  Title
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  Description
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  Starting Bid
+                  <input
+                    type="number"
+                    value={startingBid}
+                    onChange={(e) => setStartingBid(e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  Auction End
+                  <input
+                    type="datetime-local"
+                    value={auctionEnd}
+                    onChange={(e) => setAuctionEnd(e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  Location
+                  <select
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value as any)}
+                  >
+                    <option>Beirut</option>
+                    <option>Outside Beirut</option>
+                  </select>
+                </label>
+                <label>
+                  Images
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) =>
+                      setImages(Array.from(e.target.files || []))
+                    }
+                  />
+                </label>
 
                 <button className={styles.primaryButton} disabled={loading}>
                   {loading ? "Creating..." : "Create Product"}

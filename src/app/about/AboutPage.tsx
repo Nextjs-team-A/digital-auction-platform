@@ -1,7 +1,14 @@
 // src/app/about/AboutPage.tsx
 "use client";
 
-import { useEffect, useState, useRef, RefObject, FC, ReactNode } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  FC,
+  ReactNode,
+  RefObject,
+} from "react";
 import styles from "./AboutStyle.module.css";
 import Image from "next/image";
 import {
@@ -17,8 +24,9 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "next-themes";
 
-// Animation state for stars
+/* Animation state (same as before) */
 const animationState = {
   w: 0,
   h: 0,
@@ -36,6 +44,7 @@ const animationState = {
   },
 };
 
+/* Star and ShootingStar classes (theme-aware via isDarkRef) */
 class Star {
   private c: CanvasRenderingContext2D;
   layer: number;
@@ -45,10 +54,17 @@ class Star {
   vy: number;
   r: number;
   a: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D, layer: number) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    layer: number,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
     this.layer = layer;
+    this.isDarkRef = isDarkRef;
+
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
 
@@ -99,9 +115,15 @@ class Star {
   }
 
   draw() {
+    const isDark = this.isDarkRef.current;
     this.c.save();
     this.c.globalAlpha = this.a;
-    this.c.fillStyle = "rgba(15, 23, 42, 0.90)";
+
+    // Theme-aware star color (keeps brand green on dark)
+    this.c.fillStyle = isDark
+      ? "rgba(16, 185, 129, 0.85)"
+      : "rgba(15, 23, 42, 0.90)";
+
     this.c.beginPath();
     this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.c.fill();
@@ -118,9 +140,14 @@ class ShootingStar {
   life: number;
   maxLife: number;
   len: number;
+  private isDarkRef: React.MutableRefObject<boolean>;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
+    this.isDarkRef = isDarkRef;
     const fromLeft = Math.random() < 0.5;
     this.x = fromLeft ? -80 : Math.random() * animationState.w;
     this.y = fromLeft ? Math.random() * (animationState.h * 0.55) : -80;
@@ -150,13 +177,24 @@ class ShootingStar {
     const x2 = this.x - (this.vx / 12) * this.len;
     const y2 = this.y - (this.vy / 12) * this.len;
 
+    const isDark = this.isDarkRef.current;
+
     this.c.save();
     this.c.globalAlpha = 0.55 * t;
 
     const grad = this.c.createLinearGradient(this.x, this.y, x2, y2);
-    grad.addColorStop(0, "rgba(16,185,129,0.0)");
-    grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
-    grad.addColorStop(1, "rgba(15,23,42,0.55)");
+
+    if (isDark) {
+      // Dark theme: greener / brighter trail
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.45)");
+      grad.addColorStop(1, "rgba(246,247,249,0.9)");
+    } else {
+      // Light theme: darker trail with green accents
+      grad.addColorStop(0, "rgba(16,185,129,0.0)");
+      grad.addColorStop(0.45, "rgba(16,185,129,0.35)");
+      grad.addColorStop(1, "rgba(15,23,42,0.55)");
+    }
 
     this.c.strokeStyle = grad;
     this.c.lineWidth = 2;
@@ -166,7 +204,7 @@ class ShootingStar {
     this.c.stroke();
 
     this.c.globalAlpha = 0.7 * t;
-    this.c.fillStyle = "rgba(15,23,42,1)";
+    this.c.fillStyle = isDark ? "rgba(246,247,249,1)" : "rgba(15,23,42,1)";
     this.c.beginPath();
     this.c.arc(this.x, this.y, 1.7, 0, Math.PI * 2);
     this.c.fill();
@@ -175,7 +213,7 @@ class ShootingStar {
   }
 }
 
-// Team Members Data
+/* Data lists (unchanged) */
 const teamMembers = [
   {
     name: "Roya",
@@ -204,7 +242,6 @@ const teamMembers = [
   },
 ];
 
-// Stats Data
 const stats = [
   { icon: FaChartLine, value: "99.9%", label: "Uptime Guarantee" },
   { icon: FaUsers, value: "50K+", label: "Active Users" },
@@ -212,7 +249,6 @@ const stats = [
   { icon: FaGem, value: "$10M+", label: "Transaction Volume" },
 ];
 
-// Enhanced Value Cards Data
 const valueCards = [
   {
     icon: FaGavel,
@@ -237,76 +273,73 @@ const valueCards = [
   },
 ];
 
-// Custom Hook: Intersection Observer
+/* Intersection hook & helper components (unchanged behaviour) */
 const useIntersectionObserver = (
   ref: RefObject<HTMLDivElement | null>,
   options: IntersectionObserverInit = { threshold: 0.1 }
 ) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
-
   useEffect(() => {
+    if (!ref.current) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setIsIntersecting(true);
         observer.unobserve(entry.target);
       }
     }, options);
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
+    observer.observe(ref.current);
+    return () => observer.disconnect();
   }, [ref, options]);
-
   return isIntersecting;
 };
 
-// Animated Section Component
 const AnimatedSection: FC<{
   children: ReactNode;
   className?: string;
   delay?: number;
 }> = ({ children, className = "", delay = 0 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const isVisible = useIntersectionObserver(ref);
-
   return (
     <div
       ref={ref}
-      className={`${styles.animatedSection} ${
-        isVisible ? styles.isVisible : ""
-      } ${className}`}
+      className={`${styles.animatedSection} ${isVisible ? styles.isVisible : ""
+        } ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
-    </div>
+    </div >
   );
 };
 
-// Text Placeholder Component
 const TextPlaceholder: FC<{ children: ReactNode }> = ({ children }) => (
   <div className={styles.textPlaceholder}>{children}</div>
 );
 
-// Main AboutPage Component
+/* Main AboutPage (client-side) */
 const AboutPage: FC = () => {
   const { isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDarkRef = useRef(false);
+  const { resolvedTheme } = useTheme();
+  const [showTop, setShowTop] = useState(false);
 
-  const [mounted] = useState(true);
-
-  // Canvas animation (same as home page)
+  // keep ref up-to-date with theme (no setState)
   useEffect(() => {
-    if (!mounted) return;
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
 
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 500);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Canvas animation - runs once on client; uses isDarkRef to adjust drawing
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -317,13 +350,10 @@ const AboutPage: FC = () => {
     const resize = () => {
       animationState.w = window.innerWidth;
       animationState.h = window.innerHeight;
-
       if (!animationState.w || !animationState.h) return false;
-
       canvas.width = Math.floor(animationState.w * animationState.dpr);
       canvas.height = Math.floor(animationState.h * animationState.dpr);
       ctx.setTransform(animationState.dpr, 0, 0, animationState.dpr, 0, 0);
-
       ctx.clearRect(0, 0, animationState.w, animationState.h);
       return true;
     };
@@ -337,14 +367,12 @@ const AboutPage: FC = () => {
       stars.length = 0;
       const area = animationState.w * animationState.h;
       const base = Math.max(120, Math.min(280, Math.floor(area / 14000)));
-
       const far = Math.floor(base * 0.42);
       const mid = Math.floor(base * 0.36);
       const near = base - far - mid;
-
-      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0));
-      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1));
-      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2));
+      for (let i = 0; i < far; i++) stars.push(new Star(ctx, 0, isDarkRef));
+      for (let i = 0; i < mid; i++) stars.push(new Star(ctx, 1, isDarkRef));
+      for (let i = 0; i < near; i++) stars.push(new Star(ctx, 2, isDarkRef));
     };
 
     const drawConnections = () => {
@@ -356,7 +384,6 @@ const AboutPage: FC = () => {
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const d = Math.sqrt(dx * dx + dy * dy);
-
           const max = 170;
           if (d < max) {
             const alpha = 0.1 * (1 - d / max);
@@ -374,15 +401,12 @@ const AboutPage: FC = () => {
     const onPointerMove = (e: PointerEvent) => {
       const x = e.clientX;
       const y = e.clientY;
-
       const dx = x - animationState.pointer.lastX;
       const dy = y - animationState.pointer.lastY;
-
       animationState.pointer.vx = dx;
       animationState.pointer.vy = dy;
       animationState.pointer.lastX = x;
       animationState.pointer.lastY = y;
-
       animationState.pointer.x = x;
       animationState.pointer.y = y;
       animationState.pointer.active = true;
@@ -391,9 +415,8 @@ const AboutPage: FC = () => {
     const onPointerDown = () => {
       animationState.pointer.down = true;
       animationState.pointer.active = true;
-
       if (!animationState.reducedMotion) {
-        shooters.push(new ShootingStar(ctx));
+        shooters.push(new ShootingStar(ctx, isDarkRef));
         if (shooters.length > 7) shooters.shift();
       }
     };
@@ -408,7 +431,9 @@ const AboutPage: FC = () => {
     };
 
     const loop = () => {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.fillStyle = isDarkRef.current
+        ? "rgba(7, 8, 10, 0.18)"
+        : "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(0, 0, animationState.w, animationState.h);
 
       for (const s of stars) {
@@ -420,12 +445,11 @@ const AboutPage: FC = () => {
         shootCooldown -= 1;
         if (shootCooldown <= 0) {
           if (Math.random() < 0.45) {
-            shooters.push(new ShootingStar(ctx));
+            shooters.push(new ShootingStar(ctx, isDarkRef));
             if (shooters.length > 7) shooters.shift();
           }
           shootCooldown = 50 + Math.floor(Math.random() * 70);
         }
-
         shooters.forEach((sh) => sh.step());
         shooters = shooters.filter((sh) => sh.life > 0);
         shooters.forEach((sh) => sh.draw());
@@ -466,21 +490,16 @@ const AboutPage: FC = () => {
       window.removeEventListener("pointerleave", onPointerLeave);
       cancelAnimationFrame(raf);
     };
-  }, [mounted]);
+  }, []); // no setState or setMounted; everything via refs
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <main className={styles.mainContainer}>
-      {/* Animated Background Gradient */}
       <div className={styles.bgGradient} aria-hidden="true" />
+      <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
 
-      {/* Animated Stars Canvas */}
-      {mounted && (
-        <canvas ref={canvasRef} className={styles.starsBg} aria-hidden="true" />
-      )}
-
-      {/* Content Wrapper */}
       <div className={styles.content}>
-        {/* Hero Section */}
         <section
           id="hero"
           className={`${styles.sectionContainer} ${styles.heroSection}`}
@@ -546,7 +565,6 @@ const AboutPage: FC = () => {
           </div>
         </section>
 
-        {/* Stats Section */}
         <AnimatedSection className={styles.statsSection} delay={100}>
           <div className={styles.statsContainer}>
             {stats.map((stat, index) => (
@@ -559,7 +577,7 @@ const AboutPage: FC = () => {
           </div>
         </AnimatedSection>
 
-        {/* Mission Section */}
+        {/* Mission section: unified background with page + revised colors */}
         <AnimatedSection className={styles.secondarySection}>
           <section id="mission" className={styles.sectionContainer}>
             <div className={styles.contentContainer}>
@@ -579,7 +597,6 @@ const AboutPage: FC = () => {
           </section>
         </AnimatedSection>
 
-        {/* Vision Section */}
         <AnimatedSection>
           <section id="vision" className={styles.sectionContainer}>
             <div className={styles.contentContainer}>
@@ -599,7 +616,6 @@ const AboutPage: FC = () => {
           </section>
         </AnimatedSection>
 
-        {/* Platform Value Section */}
         <AnimatedSection className={styles.secondarySection}>
           <section id="value" className={styles.sectionContainer}>
             <div className={styles.contentContainer}>
@@ -633,7 +649,6 @@ const AboutPage: FC = () => {
           </section>
         </AnimatedSection>
 
-        {/* Team Section */}
         <AnimatedSection>
           <section id="team" className={styles.sectionContainer}>
             <div className={styles.contentContainer}>
@@ -664,9 +679,6 @@ const AboutPage: FC = () => {
                           height: "100%",
                         }}
                       />
-                      <div className={styles.teamImageOverlay}>
-                        <FaUsers className={styles.teamIcon} />
-                      </div>
                     </div>
                     <h3 className={styles.teamName}>{member.name}</h3>
                     <p className={styles.teamRole}>{member.role}</p>
@@ -687,9 +699,8 @@ const AboutPage: FC = () => {
               </div>
             </div>
           </section>
-        </AnimatedSection>
+        </AnimatedSection >
 
-        {/* CTA Section */}
         {!isAuthenticated && (
           <AnimatedSection className={styles.ctaSection}>
             <div className={styles.ctaContainer}>
@@ -710,8 +721,8 @@ const AboutPage: FC = () => {
             </div>
           </AnimatedSection>
         )}
-      </div>
-    </main>
+      </div >
+    </main >
   );
 };
 

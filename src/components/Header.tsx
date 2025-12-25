@@ -1,11 +1,13 @@
 // src/components/Header.tsx
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Header.module.css";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "next-themes";
 
 // --- STAR ANIMATION LOGIC (Adapted from page.tsx) ---
 const animationState = {
@@ -25,9 +27,17 @@ class Star {
   r: number;
   a: number;
 
-  constructor(ctx: CanvasRenderingContext2D, layer: number) {
+  private isDarkRef: React.MutableRefObject<boolean>;
+
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    layer: number,
+    isDarkRef: React.MutableRefObject<boolean>
+  ) {
     this.c = ctx;
     this.layer = layer;
+    this.isDarkRef = isDarkRef;
+
     this.x = Math.random() * animationState.w;
     this.y = Math.random() * animationState.h;
 
@@ -53,9 +63,16 @@ class Star {
   }
 
   draw() {
+    const isDark = this.isDarkRef.current;
+
     this.c.save();
     this.c.globalAlpha = this.a;
-    this.c.fillStyle = "rgba(15, 23, 42, 0.90)"; // Dark stars
+
+    // Light: dark stars. Dark: green glow stars.
+    this.c.fillStyle = isDark
+      ? "rgba(16, 185, 129, 0.85)"
+      : "rgba(15, 23, 42, 0.90)";
+
     this.c.beginPath();
     this.c.arc(this.x, this.y, this.r, 0, Math.PI * 2);
     this.c.fill();
@@ -67,14 +84,24 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  const isDarkRef = useRef(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -83,6 +110,7 @@ export default function Header() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !headerRef.current) return;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -108,15 +136,20 @@ export default function Header() {
     const buildStars = () => {
       stars.length = 0;
       // Fewer stars for header area
-      const count = Math.floor(animationState.w / 60);
+      const count = Math.max(10, Math.floor(animationState.w / 60));
       for (let i = 0; i < count; i++) {
-        stars.push(new Star(ctx, i % 3));
+        stars.push(new Star(ctx, i % 3, isDarkRef));
       }
     };
 
     let raf = 0;
     const loop = () => {
-      ctx.clearRect(0, 0, animationState.w, animationState.h);
+      // Soft trail; theme-aware
+      ctx.fillStyle = isDarkRef.current
+        ? "rgba(7, 8, 10, 0.18)"
+        : "rgba(255, 255, 255, 0.14)";
+      ctx.fillRect(0, 0, animationState.w, animationState.h);
+
       for (const s of stars) {
         s.step();
         s.draw();
@@ -142,6 +175,11 @@ export default function Header() {
     };
   }, []);
 
+  const toggleTheme = () => {
+    const next = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(next);
+  };
+
   return (
     <header
       ref={headerRef}
@@ -164,11 +202,13 @@ export default function Header() {
             className={styles.logo}
           />
         </div>
+
         {/* Desktop Navigation */}
         <nav className={styles.desktopNav}>
           <Link href="/" className={styles.navLink}>
             Home
           </Link>
+
           {isAuthenticated && (
             <>
               <Link href="/profile" className={styles.navLink}>
@@ -179,6 +219,7 @@ export default function Header() {
               </Link>
             </>
           )}
+
           <Link href="/team" className={styles.navLink}>
             Team
           </Link>
@@ -190,24 +231,46 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div>{/* dark mode theme */}</div>
+        {/* Theme Toggle (avoid hydration mismatch by rendering after mount) */}
+        <div className={styles.rightControls}>
+          {mounted && (
+            <button
+              type="button"
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+              aria-label={
+                resolvedTheme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
+              title={
+                resolvedTheme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
+            >
+              <span className={styles.themeIcon} aria-hidden="true">
+                {resolvedTheme === "dark" ? "☀️" : "🌙"}
+              </span>
+            </button>
+          )}
 
-        {/* Mobile Menu Toggle */}
-
-        <button
-          className={styles.mobileMenuToggle}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <FaTimes /> : <FaBars />}
-        </button>
+          {/* Mobile Menu Toggle */}
+          <button
+            className={styles.mobileMenuToggle}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            type="button"
+          >
+            {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       <div
-        className={`${styles.mobileMenu} ${
-          mobileMenuOpen ? styles.mobileMenuOpen : ""
-        }`}
+        className={`${styles.mobileMenu} ${mobileMenuOpen ? styles.mobileMenuOpen : ""
+          }`}
       >
         <nav className={styles.mobileNav}>
           <Link
@@ -217,6 +280,7 @@ export default function Header() {
           >
             Home
           </Link>
+
           {isAuthenticated && (
             <>
               <Link
@@ -235,6 +299,7 @@ export default function Header() {
               </Link>
             </>
           )}
+
           <Link
             href="/team"
             className={styles.mobileNavLink}
@@ -242,6 +307,7 @@ export default function Header() {
           >
             Team
           </Link>
+
           <Link
             href="/about"
             className={styles.mobileNavLink}
@@ -249,6 +315,7 @@ export default function Header() {
           >
             About
           </Link>
+
           <Link
             href="/products"
             className={styles.mobileNavLink}

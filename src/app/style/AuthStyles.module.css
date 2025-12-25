@@ -49,11 +49,9 @@
   max-width: 420px;
   padding: 2.75rem;
   border-radius: 20px;
-  background: radial-gradient(
-      800px 400px at 20% 30%,
+  background: radial-gradient(800px 400px at 20% 30%,
       rgba(16, 185, 129, 0.16),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.03));
   border: 1px solid rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
@@ -92,6 +90,7 @@
   position: relative;
   margin-bottom: 1.25rem;
 }
+
 .field input {
   width: 100%;
   padding: 1rem 1.25rem;
@@ -121,8 +120,8 @@
   background: transparent;
 }
 
-.field input:focus + label,
-.field input:not(:placeholder-shown) + label {
+.field input:focus+label,
+.field input:not(:placeholder-shown)+label {
   top: -0.55rem;
   font-size: 0.75rem;
   background: transparent;
@@ -175,4 +174,97 @@
   justify-content: center;
   position: relative;
   z-index: 2;
+}
+
+/* ============================
+   DARK MODE OVERRIDES
+   (next-themes uses .dark on <html> when attribute="class")
+   Light mode: black + green (kept above)
+   Dark mode: white + green (overrides below)
+   ============================ */
+
+/* Ensure the main container text color is white in dark mode */
+:global(.dark) .main {
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Dark gradient background behind everything (layer 0) */
+:global(.dark) .bgGradient {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+}
+
+/* Card: use darker panel and white text */
+:global(.dark) .card {
+  background: radial-gradient(800px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Titles: white in dark mode; keep gradientText green */
+:global(.dark) .title,
+:global(.dark) .subtitle {
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Inputs: dark background, white text and lighter placeholder */
+:global(.dark) .field input {
+  background: rgba(15, 17, 21, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--foreground, #f6f7f9);
+}
+
+:global(.dark) .field input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+/* Floating label in dark: make it readable and keep focus green */
+:global(.dark) .field label {
+  color: rgba(246, 247, 249, 0.75);
+}
+
+:global(.dark) .field input:focus+label,
+:global(.dark) .field input:not(:placeholder-shown)+label {
+  color: #10b981;
+}
+
+/* Error text: keep visible on dark background */
+:global(.dark) .errorText {
+  color: #fca5a5;
+  /* lighter red for dark bg */
+}
+
+/* Button: keep green gradient, slightly stronger shadow for dark */
+:global(.dark) .button {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+}
+
+/* Links: ensure link color is visible on dark */
+:global(.dark) .link {
+  color: #10b981;
+}
+
+/* center wrapper: keep content readable */
+:global(.dark) .centerWrapper {
+  color: var(--foreground, #f6f7f9);
+}
+
+/* Ensure interactive focus states remain accessible in dark mode */
+:global(.dark) .field input::placeholder {
+  color: rgba(246, 247, 249, 0.3);
+}
+
+/* Misc: make any hard-coded darker text inherit to avoid contrast mistakes */
+:global(.dark) h1,
+:global(.dark) h2,
+:global(.dark) h3,
+:global(.dark) h4,
+:global(.dark) p,
+:global(.dark) span,
+:global(.dark) label {
+  color: inherit;
 }

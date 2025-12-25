@@ -65,11 +65,9 @@
   padding: 3rem 2rem;
   margin: 0 1rem;
 
-  background: radial-gradient(
-      900px 400px at 20% 30%,
+  background: radial-gradient(900px 400px at 20% 30%,
       rgba(16, 185, 129, 0.485),
-      transparent 65%
-    ),
+      transparent 65%),
     linear-gradient(135deg, rgba(16, 185, 129, 0.323), rgba(15, 23, 42, 0.252));
 
   backdrop-filter: blur(20px);
@@ -155,4 +153,85 @@
 .success {
   color: #065f46;
   margin-bottom: 1rem;
+}
+
+/* =======================================================
+   DARK MODE OVERRIDES
+   Light: black + green (default above)
+   Dark: white + green (overrides below)
+   Uses next-themes (adds .dark to <html> when attribute="class")
+   ======================================================= */
+
+/* Make main container text white in dark mode */
+:global(.dark) .mainContainer {
+  color: #ffffff;
+}
+
+/* Dark animated gradient background */
+:global(.dark) .bgGradient {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+}
+
+/* Form card: darker panel but keep green halo */
+:global(.dark) .formCard {
+  background: radial-gradient(900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+}
+
+/* Title / subtitle adjustments */
+:global(.dark) .title,
+:global(.dark) .subtitle {
+  color: #ffffff;
+}
+
+/* Inputs: dark background and white text */
+:global(.dark) .form input,
+:global(.dark) .form textarea,
+:global(.dark) .form select {
+  background: rgba(15, 17, 21, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #f6f7f9;
+}
+
+/* Placeholders */
+:global(.dark) .form input::placeholder,
+:global(.dark) .form textarea::placeholder {
+  color: rgba(246, 247, 249, 0.35);
+}
+
+/* Labels and small text */
+:global(.dark) .form label {
+  color: rgba(246, 247, 249, 0.9);
+}
+
+/* Primary button shadow tweak for dark */
+:global(.dark) .primaryButton {
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.6);
+}
+
+/* Error / success colors in dark */
+:global(.dark) .error {
+  color: #fecaca;
+}
+
+:global(.dark) .success {
+  color: #bbf7d0;
+}
+
+/* Make sure stars canvas remains visible (no CSS changes required for canvas itself)
+   but if you want to tint overlays, you can add rules here. */
+
+/* Ensure any headings/paragraphs inherit to avoid contrast issues */
+:global(.dark) h1,
+:global(.dark) h2,
+:global(.dark) h3,
+:global(.dark) p,
+:global(.dark) span,
+:global(.dark) label {
+  color: inherit;
 }

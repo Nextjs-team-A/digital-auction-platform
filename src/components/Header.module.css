@@ -1,6 +1,6 @@
 /* Header.module.css */
 
-/* Animation Keyframes (Same as page.tsx) */
+/* Animation Keyframes */
 @keyframes move-background {
   0% {
     background-position: 0% 0%;
@@ -20,6 +20,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -33,20 +34,21 @@
   right: 0;
   z-index: 1000;
   height: 5rem;
-  /* White Animated Gradient from page.tsx */
+
   background: linear-gradient(-45deg, #ffffff, #f8fafc, #e2e8f0, #f0fdf4);
   background-size: 400% 400%;
   animation: move-background 20s ease infinite;
+
   border-top: 1px solid rgba(16, 185, 129, 0.15);
   border-bottom: 2px solid rgba(16, 185, 129, 0.15);
+
   backdrop-filter: blur(12px);
   overflow: visible;
 }
 
 .headerCanvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   z-index: 0;
@@ -62,11 +64,9 @@
 .headerContainer {
   position: relative;
   z-index: 1;
-  /* Above canvas */
   max-width: 1300px;
   margin: 0 auto;
   padding: 0.25rem 2rem;
-  /* Tight padding to keep header small */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -77,7 +77,6 @@
   width: 250px;
   height: 350px;
   margin-top: 0.5rem;
-  /* background-color: #059669; */
 }
 
 .logo {
@@ -86,19 +85,14 @@
   height: 100% !important;
 }
 
-/* --- Desktop Navigation --- */
-.desktopNav {
-  display: none;
-  gap: 2.5rem;
-}
-
+/* Desktop Navigation */
 .desktopNav {
   display: flex;
+  gap: 2.5rem;
 }
 
 .navLink {
   color: #0f172a;
-  /* Dark text for visibility on light bg */
   text-decoration: none;
   font-weight: 600;
   font-size: 1.2rem;
@@ -110,7 +104,6 @@
   color: #059669;
 }
 
-/* Green underline */
 .navLink::after {
   content: "";
   position: absolute;
@@ -120,31 +113,53 @@
   left: 0;
   background-color: #059669;
   transform: scaleX(0);
-  /* Hidden by default */
   transition: transform 0.3s;
   transform-origin: right;
 }
 
 .navLink:hover::after {
   transform: scaleX(1);
-  /* Shown on hover */
   transform-origin: left;
 }
 
-/* --- CTA Buttons Area --- */
-.ctaButtons {
-  display: none;
+/* Right controls: theme toggle + mobile toggle */
+.rightControls {
+  display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
 }
 
-@media (min-width: 1024px) {
-  .ctaButtons {
-    display: flex;
-  }
+/* Theme Toggle */
+.themeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-/* --- Mobile Menu Toggle --- */
+.themeToggle:hover {
+  background: rgba(240, 253, 244, 0.9);
+  border-color: rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.themeIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Mobile Menu Toggle */
 .mobileMenuToggle {
   display: flex;
   align-items: center;
@@ -170,7 +185,7 @@
   }
 }
 
-/* --- Mobile Menu --- */
+/* Mobile Menu */
 .mobileMenu {
   position: fixed;
   top: 5rem;
@@ -216,7 +231,6 @@
   overflow: hidden;
 }
 
-/* Staggered animation for menu items */
 .mobileMenuOpen .mobileNavLink {
   animation: slideDown 0.4s ease forwards;
 }
@@ -224,23 +238,27 @@
 .mobileMenuOpen .mobileNavLink:nth-child(1) {
   animation-delay: 0.05s;
 }
+
 .mobileMenuOpen .mobileNavLink:nth-child(2) {
   animation-delay: 0.1s;
 }
+
 .mobileMenuOpen .mobileNavLink:nth-child(3) {
   animation-delay: 0.15s;
 }
+
 .mobileMenuOpen .mobileNavLink:nth-child(4) {
   animation-delay: 0.2s;
 }
+
 .mobileMenuOpen .mobileNavLink:nth-child(5) {
   animation-delay: 0.25s;
 }
+
 .mobileMenuOpen .mobileNavLink:nth-child(6) {
   animation-delay: 0.3s;
 }
 
-/* Left border indicator */
 .mobileNavLink::before {
   content: "";
   position: absolute;
@@ -270,9 +288,7 @@
   transform: translateX(4px) scale(0.98);
 }
 
-/* --- Responsive Breakpoints --- */
-
-/* Max Width 1024px - Tablet Landscape / Small Desktop */
+/* Responsive */
 @media (max-width: 1024px) {
   .headerContainer {
     padding: 0.25rem 1.5rem;
@@ -282,13 +298,6 @@
     width: 190px;
     height: 200px;
     margin-top: 0.5rem;
-    /* background-color: #059669; */
-  }
-
-  .logo {
-    object-fit: contain;
-    width: 100% !important;
-    height: 100% !important;
   }
 
   .desktopNav {
@@ -299,14 +308,9 @@
   .navLink {
     font-size: 1rem;
   }
-
-  .mobileMenuToggle {
-    display: none;
-    /* Force hide mobile menu button */
-  }
 }
 
-/* Max Width 768px - Tablets Portrait / Large Phones */
+/* Tablet / phones */
 @media (max-width: 768px) {
   .header {
     height: 4.5rem;
@@ -324,8 +328,7 @@
   .logoContainer {
     width: 140px;
   }
-  
-  /* Switch to Mobile Menu */
+
   .desktopNav {
     display: none;
   }
@@ -347,15 +350,12 @@
     color: #059669;
     cursor: pointer;
   }
-
 }
 
-/* Max Width 480px - Mobile Phones */
 @media (max-width: 480px) {
   .header {
     height: 4rem;
     overflow: visible;
-    /* Necessary for mobile menu to appear outside header bounds */
   }
 
   .mobileMenu {
@@ -371,7 +371,6 @@
     width: 120px;
   }
 
-  /* Switch to Mobile Menu */
   .desktopNav {
     display: none;
   }
@@ -393,4 +392,49 @@
     color: #059669;
     cursor: pointer;
   }
+}
+
+/* ===============================
+   DARK MODE OVERRIDES
+   =============================== */
+:global(.dark) .header {
+  background: linear-gradient(-45deg, #07080a, #0b0d10, #0f1217, #0a0c10);
+  background-size: 400% 400%;
+  border-top: 1px solid rgba(16, 185, 129, 0.25);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+:global(.dark) .scrolled {
+  background: rgba(10, 12, 16, 0.95);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+}
+
+:global(.dark) .navLink {
+  color: #f6f7f9;
+}
+
+:global(.dark) .navLink:hover {
+  color: #10b981;
+}
+
+:global(.dark) .mobileMenu {
+  background: rgba(10, 12, 16, 0.98);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+:global(.dark) .mobileNavLink {
+  color: #f6f7f9;
+}
+
+:global(.dark) .mobileNavLink:hover {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+:global(.dark) .themeToggle {
+  background: rgba(15, 17, 21, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
 }

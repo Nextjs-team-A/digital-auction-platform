@@ -1,3 +1,4 @@
+//ProfileCreateClient.tsx:
 "use client";
 
 import Link from "next/link";
@@ -15,6 +16,7 @@ import {
   FiLock,
 } from "react-icons/fi";
 import styles from "./ProfileCreateStyle.module.css";
+import { useTheme } from "next-themes";
 
 export default function ProfileCreateClient({
   unauthorized = false,
@@ -36,7 +38,14 @@ export default function ProfileCreateClient({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Enhanced Star Animation
+  // Theme awareness for canvas drawing
+  const { resolvedTheme } = useTheme();
+  const isDarkRef = useRef<boolean>(false);
+  useEffect(() => {
+    isDarkRef.current = resolvedTheme === "dark";
+  }, [resolvedTheme]);
+
+  // Enhanced Star Animation (theme-aware)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -44,8 +53,16 @@ export default function ProfileCreateClient({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const resizeCanvas = () => {
+      canvas.width = Math.floor(window.innerWidth * DPR);
+      canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    };
+
+    resizeCanvas();
 
     const stars: Array<{
       x: number;
@@ -58,75 +75,131 @@ export default function ProfileCreateClient({
       pulsePhase: number;
     }> = [];
 
-    for (let i = 0; i < 180; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        alpha: Math.random() * 0.6 + 0.4,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
-        pulsePhase: Math.random() * Math.PI * 2,
-      });
-    }
+    const buildStars = () => {
+      stars.length = 0;
+      const count = Math.max(
+        120,
+        Math.floor((window.innerWidth * window.innerHeight) / 14000)
+      );
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          radius: Math.random() * 2,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          alpha: Math.random() * 0.6 + 0.2,
+          pulseSpeed: Math.random() * 0.02 + 0.01,
+          pulsePhase: Math.random() * Math.PI * 2,
+        });
+      }
+    };
+
+    buildStars();
 
     let animationFrame = 0;
+    let rafId = 0;
 
     function animate() {
       if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       animationFrame++;
+
+      // Fill with subtle overlay depending on theme so stars pop correctly
+      if (isDarkRef.current) {
+        ctx.fillStyle = "rgba(7, 8, 10, 0.18)";
+        ctx.fillRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+      } else {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+        ctx.fillRect(0, 0, canvas.width / DPR, canvas.height / DPR);
+      }
 
       stars.forEach((star) => {
         star.x += star.vx;
         star.y += star.vy;
 
-        if (star.x < 0 || star.x > canvas.width) star.vx *= -1;
-        if (star.y < 0 || star.y > canvas.height) star.vy *= -1;
+        if (star.x < 0 || star.x > canvas.width / DPR) star.vx *= -1;
+        if (star.y < 0 || star.y > canvas.height / DPR) star.vy *= -1;
 
         const pulse =
           Math.sin(animationFrame * star.pulseSpeed + star.pulsePhase) * 0.3 +
           0.7;
         const currentAlpha = star.alpha * pulse;
 
-        const gradient = ctx.createRadialGradient(
-          star.x,
-          star.y,
-          0,
-          star.x,
-          star.y,
-          star.radius * 3
-        );
-        gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
-        gradient.addColorStop(0.5, `rgba(16, 185, 129, ${currentAlpha * 0.3})`);
-        gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
+        // Theme-aware gradients and core color:
+        if (isDarkRef.current) {
+          // Dark: greener halos with brighter white-ish heads for contrast
+          const gradient = ctx.createRadialGradient(
+            star.x,
+            star.y,
+            0,
+            star.x,
+            star.y,
+            star.radius * 4
+          );
+          gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.9})`);
+          gradient.addColorStop(
+            0.5,
+            `rgba(16, 185, 129, ${currentAlpha * 0.35})`
+          );
+          gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
 
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(246,247,249, ${Math.min(
+            1,
+            currentAlpha + 0.15
+          )})`;
+          ctx.fill();
+        } else {
+          // Light: subtle green halos and dark-ish heads
+          const gradient = ctx.createRadialGradient(
+            star.x,
+            star.y,
+            0,
+            star.x,
+            star.y,
+            star.radius * 4
+          );
+          gradient.addColorStop(0, `rgba(16, 185, 129, ${currentAlpha * 0.8})`);
+          gradient.addColorStop(
+            0.5,
+            `rgba(16, 185, 129, ${currentAlpha * 0.3})`
+          );
+          gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius * 4, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
 
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(16, 185, 129, ${currentAlpha})`;
-        ctx.fill();
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(16,185,129, ${currentAlpha})`;
+          ctx.fill();
+        }
       });
 
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
     }
 
     animate();
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      resizeCanvas();
+      buildStars();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+    // Include resolvedTheme so canvas updates when theme changes
+  }, [resolvedTheme]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

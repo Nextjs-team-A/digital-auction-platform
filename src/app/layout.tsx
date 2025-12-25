@@ -1,12 +1,13 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import "@/app/api/init/route";
 
 import { AuthProvider } from "@/context/auth-context";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer"; // ✅ ADD THIS
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,18 +26,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AuthProvider>
-          <Header />
-          {/* Main content wrapper with top padding to account for fixed header */}
-          <main style={{ paddingTop: "90px", flex: 1 }}>{children}</main>
-          <Footer /> {/* ✅ FOOTER NOW RENDERS GLOBALLY */}
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>
+            <Header />
+            <main style={{ paddingTop: "90px" }}>{children}</main>
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
