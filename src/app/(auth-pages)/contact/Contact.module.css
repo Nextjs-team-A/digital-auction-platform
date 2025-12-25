@@ -832,3 +832,15 @@
 :global(.dark) span {
   color: inherit;
 }
+
+/* ✅ Make FAQ badge,heroBadge white in dark mode */
+:global(.dark) .sectionBadge {
+  color: #ffffff !important;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.12);
+}
+:global(.dark) .heroBadge {
+  color: #ffffff !important;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.12);
+}

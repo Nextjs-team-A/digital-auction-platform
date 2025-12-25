@@ -137,10 +137,10 @@
 
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-
+  border-radius: 50%;
+  padding: 0rem;
   background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: .5px solid rgba(15, 23, 42, 0.12);
 
   cursor: pointer;
   transition: all 0.25s ease;
@@ -156,7 +156,7 @@
 
 .themeIcon {
   font-size: 18px;
-  line-height: 1;
+
 }
 
 /* Mobile Menu Toggle */
@@ -308,10 +308,20 @@
   .navLink {
     font-size: 1rem;
   }
+
+  .mobileMenuToggle {
+    display: none;
+  }
+}
+
+@media (max-width:1170px) {
+  .navLink {
+    font-size: 1rem;
+  }
 }
 
 /* Tablet / phones */
-@media (max-width: 768px) {
+@media (max-width: 832px) {
   .header {
     height: 4.5rem;
   }
@@ -342,7 +352,7 @@
   .mobileNavLink {
     font-size: 1rem;
     font-weight: 600;
-    padding: 5px;
+    padding: 3px;
     color: #0f172a;
   }
 

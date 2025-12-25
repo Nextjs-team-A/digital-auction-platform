@@ -577,6 +577,10 @@
   grid-template-columns: 1fr;
   gap: 2rem;
   margin-top: 4rem;
+  width: 90rem;
+  max-width: 100%;
+  margin-inline: auto;
+
 }
 
 @media (min-width: 768px) {
@@ -1002,9 +1006,9 @@
   color: rgba(255, 255, 255, 0.85);
   opacity: 1;
 }
-
-/* :global(.dark) .floatingCard {
-  background: rgba(15, 17, 21, 0.85);
-  color: #ffffff;
-  border: 1px solid rgba(16, 185, 129, 0.12);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0 */
+/* ✅ Make FAQ badge white in dark mode */
+:global(.dark) .sectionBadge {
+  color: #ffffff !important;
+  background: rgba(16, 185, 129, 0.08); /* optional: slightly transparent green background */
+  border-color: rgba(16, 185, 129, 0.12);
+}
