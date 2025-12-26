@@ -673,11 +673,11 @@ export default function ContactClient() {
               {[
                 {
                   q: "How do I create an auction?",
-                  a: "Simply sign up, navigate to the 'Create Auction' section, and follow the step-by-step guide.",
+                  a: "Sign up, log in, create your profile, go to My Products, then select Create Product."
                 },
                 {
                   q: "What payment methods do you accept?",
-                  a: "We accept all major credit cards, PayPal, and bank transfers for verified accounts.",
+                  a: "Payments are handled as cash on delivery directly between the buyer and the delivery service",
                 },
                 {
                   q: "Is my data secure?",
@@ -685,7 +685,7 @@ export default function ContactClient() {
                 },
                 {
                   q: "How do I place a bid?",
-                  a: "Browse available auctions, select an item, and click the 'Place Bid' button to submit your offer.",
+                  a: "Log in, create your profile, browse available products, select a product, click Place a Bid, enter your bid amount, and submit",
                 },
               ].map((faq, idx) => (
                 <div
