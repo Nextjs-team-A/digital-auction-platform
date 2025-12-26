@@ -1,0 +1,131 @@
+/* WhyChooseSection.module.css */
+.section {
+  padding: 96px 24px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.sectionHeader {
+  max-width: 980px;
+  margin: 0 auto 54px;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: 44px;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.sectionDesc {
+  margin: 0 auto;
+  max-width: 760px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.cards6 {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.card {
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: radial-gradient(
+      900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.18),
+      transparent 65%
+    ),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(240, 253, 244, 0.6));
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(14px);
+  transition: transform 220ms ease, box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.card:hover {
+  transform: translateY(-7px) scale(1.05);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 28px 70px rgba(16, 185, 129, 0.18);
+}
+
+.cardIcon {
+  font-size: 42px;
+  margin-bottom: 12px;
+  color: #059669;
+}
+
+.cardTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 950;
+  color: #0f172a;
+}
+
+.cardText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+:global(.dark) .section {
+  background: transparent;
+}
+
+:global(.dark) .sectionTitle,
+:global(.dark) .cardTitle {
+  color: #ffffff;
+}
+
+:global(.dark) .sectionDesc,
+:global(.dark) .cardText {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:global(.dark) .card {
+  background: radial-gradient(
+      900px 400px at 20% 30%,
+      rgba(16, 185, 129, 0.06),
+      transparent 65%
+    ),
+    linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+:global(.dark) .card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 24px 64px rgba(16, 185, 129, 0.14);
+}
+
+:global(.dark) .cardIcon {
+  color: #10b981;
+}
+
+@media (max-width: 1024px) {
+  .cards6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -1.92px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards6 {
+    grid-template-columns: 1fr;
+  }
+}
