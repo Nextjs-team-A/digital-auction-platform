@@ -54,6 +54,22 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
     null
   );
 
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    confirmText: string;
+    onConfirm: () => void;
+    variant: "danger" | "primary" | "success" | "error";
+  }>({
+    title: "",
+    message: "",
+    confirmText: "",
+    onConfirm: () => {},
+    variant: "primary",
+  });
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedTheme } = useTheme();
   const isDarkRef = useRef(false);
@@ -106,9 +122,27 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
       }
 
       setProducts((prev) => prev.filter((p) => p.id !== productId));
-      alert("Product deleted successfully!");
+      setModalConfig({
+        title: "Product Deleted",
+        message:
+          "The product has been successfully removed from the marketplace.",
+        confirmText: "Perfect",
+        variant: "success",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      setModalConfig({
+        title: "Deletion Failed",
+        message:
+          err instanceof Error
+            ? err.message
+            : "An unexpected error occurred while deleting.",
+        confirmText: "Back",
+        variant: "error",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
     } finally {
       setDeleteLoading(null);
     }
@@ -206,12 +240,14 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
         );
         gradient.addColorStop(
           0,
-          `rgba(16, 185, 129, ${currentAlpha * (isDarkRef.current ? 0.9 : 0.8)
+          `rgba(16, 185, 129, ${
+            currentAlpha * (isDarkRef.current ? 0.9 : 0.8)
           })`
         );
         gradient.addColorStop(
           0.5,
-          `rgba(16, 185, 129, ${currentAlpha * (isDarkRef.current ? 0.35 : 0.3)
+          `rgba(16, 185, 129, ${
+            currentAlpha * (isDarkRef.current ? 0.35 : 0.3)
           })`
         );
         gradient.addColorStop(1, `rgba(16, 185, 129, 0)`);
@@ -254,48 +290,70 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
     router.push(`/products/edit/${productId}`);
   };
   const handleDeleteClick = (productId: string, productTitle: string) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${productTitle}"?\n\nThis action cannot be undone.`
-    );
-
-    if (confirmed) {
-      handleDelete(productId);
-    }
+    setModalConfig({
+      title: "Delete Product",
+      message: `Are you sure you want to delete "${productTitle}"? This action cannot be undone and will remove the product from the marketplace.`,
+      confirmText: "Delete Product",
+      variant: "danger",
+      onConfirm: () => handleDelete(productId),
+    });
+    setModalOpen(true);
   };
 
   const handleRequestDelivery = async (
     productId: string,
     productTitle: string
   ) => {
-    const confirmed = window.confirm(
-      `Request delivery for "${productTitle}"?\n\nAhmad Delivery will be notified to pick up this item.`
-    );
+    setModalConfig({
+      title: "Request Delivery",
+      message: `Request delivery for "${productTitle}"? Ahmad Delivery will be notified to pick up this item from your location.`,
+      confirmText: "Confirm Request",
+      variant: "primary",
+      onConfirm: async () => {
+        try {
+          setRequestingDelivery(productId);
 
-    if (!confirmed) return;
+          const res = await fetch(
+            `/api/products/${productId}/request-delivery`,
+            {
+              method: "POST",
+            }
+          );
 
-    try {
-      setRequestingDelivery(productId);
+          const data = await res.json();
 
-      const res = await fetch(`/api/products/${productId}/request-delivery`, {
-        method: "POST",
-      });
+          if (!res.ok) {
+            throw new Error(data.message || "Failed to request delivery");
+          }
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to request delivery");
-      }
-
-      alert(
-        "✅ Delivery requested successfully!\n\nAhmad Delivery will contact you soon."
-      );
-      window.location.reload();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to request delivery");
-      console.error("Request delivery error:", err);
-    } finally {
-      setRequestingDelivery(null);
-    }
+          setModalConfig({
+            title: "Request Sent",
+            message:
+              "✅ Delivery requested successfully!\nAhmad Delivery will contact you soon to coordinate the pick-up.",
+            confirmText: "Got it!",
+            variant: "success",
+            onConfirm: () => window.location.reload(),
+          });
+          setModalOpen(true);
+        } catch (err) {
+          setModalConfig({
+            title: "Request Failed",
+            message:
+              err instanceof Error
+                ? err.message
+                : "Failed to notify Ahmad Delivery. Please try again.",
+            confirmText: "Close",
+            variant: "error",
+            onConfirm: () => setModalOpen(false),
+          });
+          setModalOpen(true);
+          console.error("Request delivery error:", err);
+        } finally {
+          setRequestingDelivery(null);
+        }
+      },
+    });
+    setModalOpen(true);
   };
 
   if (unauthorized) {
@@ -443,8 +501,9 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                 return (
                   <div
                     key={p.id}
-                    className={`${styles.productCard} ${!isActive ? styles.productCardEnded : ""
-                      }`}
+                    className={`${styles.productCard} ${
+                      !isActive ? styles.productCardEnded : ""
+                    }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     {/* Image */}
@@ -604,6 +663,76 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
           )}
         </section>
       </div>
+
+      {/* Confirmation Modal */}
+      {modalOpen && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className={styles.modalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <div
+                className={
+                  modalConfig.variant === "danger"
+                    ? styles.modalIconDanger
+                    : modalConfig.variant === "success"
+                    ? styles.modalIconSuccess
+                    : modalConfig.variant === "error"
+                    ? styles.modalIconError
+                    : styles.modalIconPrimary
+                }
+              >
+                {modalConfig.variant === "danger" ? (
+                  <FiTrash2 />
+                ) : modalConfig.variant === "success" ? (
+                  <FiCheckCircle />
+                ) : modalConfig.variant === "error" ? (
+                  <FiAlertCircle />
+                ) : (
+                  <FiTruck />
+                )}
+              </div>
+              <h2 className={styles.modalTitle}>{modalConfig.title}</h2>
+            </div>
+            <p className={styles.modalMessage}>{modalConfig.message}</p>
+            <div className={styles.modalActions}>
+              {modalConfig.variant !== "success" &&
+                modalConfig.variant !== "error" && (
+                  <button
+                    className={styles.modalCancelBtn}
+                    onClick={() => setModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              <button
+                className={
+                  modalConfig.variant === "danger"
+                    ? styles.modalConfirmBtnDanger
+                    : modalConfig.variant === "error"
+                    ? styles.modalConfirmBtnDanger
+                    : styles.modalConfirmBtnPrimary
+                }
+                onClick={() => {
+                  modalConfig.onConfirm();
+                  if (
+                    modalConfig.variant !== "success" &&
+                    modalConfig.variant !== "error"
+                  ) {
+                    setModalOpen(false);
+                  }
+                }}
+              >
+                {modalConfig.confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
