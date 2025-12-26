@@ -18,6 +18,8 @@ import {
   FiZap,
   FiLock,
   FiTrendingUp,
+  FiImage,
+  FiX,
 } from "react-icons/fi";
 import styles from "./MyProductsUI.module.css";
 import SearchBar from "@/components/SearchBar";
@@ -51,6 +53,13 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
   const [error, setError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [requestingDelivery, setRequestingDelivery] = useState<string | null>(
+    null
+  );
+
+  // Gallery State
+  const [selectedGalleryProduct, setSelectedGalleryProduct] =
+    useState<Product | null>(null);
+  const [selectedDetailImage, setSelectedDetailImage] = useState<string | null>(
     null
   );
 
@@ -542,11 +551,17 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                         )}
                       </div>
 
-                      {p.images && p.images.length > 1 && (
-                        <div className={styles.imageCount}>
-                          <FiGrid className={styles.imageCountIcon} />
-                          {p.images.length}
-                        </div>
+                      {p.images && p.images.length > 0 && (
+                        <button
+                          className={styles.viewGalleryBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedGalleryProduct(p);
+                          }}
+                        >
+                          <FiImage className={styles.galleryIcon} />
+                          Show All
+                        </button>
                       )}
 
                       <div className={styles.imageOverlay}></div>
@@ -730,6 +745,67 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
                 {modalConfig.confirmText}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Modal */}
+      {selectedGalleryProduct && (
+        <div className={styles.galleryOverlay}>
+          <div className={styles.galleryContainer}>
+            <div className={styles.galleryHeader}>
+              <h2 className={styles.galleryTitle}>
+                <FiImage className={styles.galleryTitleIcon} />
+                {selectedGalleryProduct.title} - Gallery
+              </h2>
+              <button
+                className={styles.galleryClose}
+                onClick={() => setSelectedGalleryProduct(null)}
+              >
+                <FiX />
+              </button>
+            </div>
+            <div className={styles.galleryBody}>
+              <div className={styles.galleryGrid}>
+                {selectedGalleryProduct.images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={styles.galleryItem}
+                    onClick={() => setSelectedDetailImage(img)}
+                  >
+                    <img
+                      src={img}
+                      alt={`${selectedGalleryProduct.title} - ${idx + 1}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail View Overlay */}
+      {selectedDetailImage && (
+        <div
+          className={styles.detailOverlay}
+          onClick={() => setSelectedDetailImage(null)}
+        >
+          <button
+            className={styles.detailCloseBtn}
+            onClick={() => setSelectedDetailImage(null)}
+          >
+            <FiX />
+          </button>
+          <div
+            className={styles.detailImageContainer}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={selectedDetailImage}
+              alt="Detail View"
+              className={styles.detailImage}
+            />
           </div>
         </div>
       )}
