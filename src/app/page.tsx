@@ -511,8 +511,7 @@ export default function Home() {
             </h1>
 
             <p className={styles.subtitle}>
-              A clean auction experience focused on clarity, performance, and
-              secure transactions.
+              A smarter way to buy and sell, with security you can trust.
             </p>
 
             {!isAuthenticated && (
@@ -526,9 +525,7 @@ export default function Home() {
               </div>
             )}
 
-            <p className={styles.hint}>
-              Move your mouse to pull stars. Click to trigger a shooting star.
-            </p>
+           
           </div>
         </motion.section>
 
