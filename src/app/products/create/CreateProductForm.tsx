@@ -1,8 +1,25 @@
-//CreateProductForm.tsx:
 "use client";
-
-import { useEffect, useRef, useState, FormEvent } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  FormEvent,
+  ChangeEvent,
+} from "react";
 import { useRouter } from "next/navigation";
+import {
+  FiPackage,
+  FiFileText,
+  FiDollarSign,
+  FiClock,
+  FiMapPin,
+  FiImage,
+  FiPlus,
+  FiX,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiUploadCloud,
+} from "react-icons/fi";
 import styles from "./ProductCreateStyle.module.css";
 import { useTheme } from "next-themes";
 
@@ -201,6 +218,26 @@ export default function CreateProductForm({
     "Beirut"
   );
   const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setImages((prev) => [...prev, ...newFiles]);
+
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    // Clean up memory
+    if (imagePreviews[index]) {
+      URL.revokeObjectURL(imagePreviews[index]);
+    }
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -225,13 +262,25 @@ export default function CreateProductForm({
           title,
           description,
           startingBid: parseFloat(startingBid),
-          auctionEnd: new Date(auctionEnd),
+          auctionEnd: new Date(auctionEnd).toISOString(),
           location,
           images: urls,
         }),
       });
 
-      if (!res.ok) throw new Error("Creation failed");
+      if (!res.ok) {
+        const errData = await res.json();
+        if (errData.errors) {
+          const errorMessages = Object.entries(errData.errors)
+            .map(
+              ([field, msgs]) =>
+                `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+            )
+            .join("\n");
+          throw new Error(`Validation failed:\n${errorMessages}`);
+        }
+        throw new Error(errData.message || "Product creation failed");
+      }
 
       setSuccess("Product created successfully!");
       setTimeout(() => router.push("/products/my-products"), 2000);
@@ -264,68 +313,160 @@ export default function CreateProductForm({
             </>
           ) : (
             <>
-              <h1 className={styles.title}>Create Product</h1>
-              {error && <div className={styles.error}>{error}</div>}
-              {success && <div className={styles.success}>{success}</div>}
+              <h1 className={styles.title}>Create New Auction</h1>
+              <p className={styles.subtitle}>
+                List your item and start receiving bids from our premium
+                community.
+              </p>
+
+              {error && (
+                <div className={styles.errorBanner}>
+                  <FiAlertCircle className={styles.bannerIcon} />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {success && (
+                <div className={styles.successBanner}>
+                  <FiCheckCircle className={styles.bannerIcon} />
+                  <span>{success}</span>
+                </div>
+              )}
 
               <form className={styles.form} onSubmit={handleSubmit}>
-                <label>
-                  Title
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    <FiPackage className={styles.labelIcon} />
+                    Product Title
+                  </label>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter a catchy title..."
                     required
+                    className={styles.input}
                   />
-                </label>
-                <label>
-                  Description
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    <FiFileText className={styles.labelIcon} />
+                    Description
+                  </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Provide details about your item..."
                     required
+                    rows={4}
+                    className={styles.textarea}
                   />
-                </label>
-                <label>
-                  Starting Bid
-                  <input
-                    type="number"
-                    value={startingBid}
-                    onChange={(e) => setStartingBid(e.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  Auction End
-                  <input
-                    type="datetime-local"
-                    value={auctionEnd}
-                    onChange={(e) => setAuctionEnd(e.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  Location
+                </div>
+
+                <div className={styles.twoColumnGrid}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      <FiDollarSign className={styles.labelIcon} />
+                      Starting Bid ($)
+                    </label>
+                    <input
+                      type="number"
+                      value={startingBid}
+                      onChange={(e) => setStartingBid(e.target.value)}
+                      placeholder="0.00"
+                      required
+                      min="0"
+                      step="0.01"
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>
+                      <FiClock className={styles.labelIcon} />
+                      Auction End
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={auctionEnd}
+                      onChange={(e) => setAuctionEnd(e.target.value)}
+                      required
+                      className={styles.input}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    <FiMapPin className={styles.labelIcon} />
+                    Pickup Location
+                  </label>
                   <select
                     value={location}
-                    onChange={(e) => setLocation(e.target.value as any)}
-                  >
-                    <option>Beirut</option>
-                    <option>Outside Beirut</option>
-                  </select>
-                </label>
-                <label>
-                  Images
-                  <input
-                    type="file"
-                    multiple
                     onChange={(e) =>
-                      setImages(Array.from(e.target.files || []))
+                      setLocation(e.target.value as "Beirut" | "Outside Beirut")
                     }
-                  />
-                </label>
+                    className={styles.select}
+                  >
+                    <option value="Beirut">Beirut</option>
+                    <option value="Outside Beirut">Outside Beirut</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    <FiImage className={styles.labelIcon} />
+                    Product Images
+                  </label>
+                  <div className={styles.imageUploadWrapper}>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className={styles.fileInput}
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className={styles.fileLabel}>
+                      <FiUploadCloud className={styles.uploadIcon} />
+                      <div className={styles.uploadText}>
+                        <span>Click to upload images</span>
+                        <small>Max 10 photos recommended</small>
+                      </div>
+                    </label>
+                  </div>
+
+                  {imagePreviews.length > 0 && (
+                    <div className={styles.previewGrid}>
+                      {imagePreviews.map((preview, idx) => (
+                        <div key={idx} className={styles.previewItem}>
+                          <img src={preview} alt={`Preview ${idx + 1}`} />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className={styles.removePreviewBtn}
+                            title="Remove image"
+                          >
+                            <FiX />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <button className={styles.primaryButton} disabled={loading}>
-                  {loading ? "Creating..." : "Create Product"}
+                  {loading ? (
+                    <>
+                      <div className={styles.btnSpinner}></div>
+                      Creating Listing...
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus className={styles.btnIcon} />
+                      Create Product Listing
+                    </>
+                  )}
                 </button>
               </form>
             </>
