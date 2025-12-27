@@ -254,7 +254,7 @@ const valueCards = [
     icon: FaGavel,
     title: "Live Bidding",
     description:
-      "Instant, transparent bidding powered by real-time technology (Socket.IO) for immediate updates on the product detail page.",
+      "Instant, transparent bidding powered by real-time technology for immediate updates on the product detail page.",
     color: "rgba(16, 185, 129, 0.1)",
   },
   {
@@ -268,7 +268,7 @@ const valueCards = [
     icon: FaShieldAlt,
     title: "Trust & Security",
     description:
-      "A streamlined, secure process leveraging modern stack components (JWT, TypeScript, Next.js) for high reliability.",
+      "A streamlined, secure process leveraging modern stack components for high reliability.",
     color: "rgba(16, 185, 129, 0.1)",
   },
 ];
