@@ -7,7 +7,10 @@ import Script from "next/script";
 import styles from "./page.module.css";
 
 // Christmas features (DELETE AFTER HOLIDAYS)
-import { ChristmasSnow, ChristmasBanner } from "../components/ChristmasVibes";
+import {
+  ChristmasSnow,
+  ChristmasBanner,
+} from "../components/Christmas/ChristmasVibes";
 
 // Section Components
 import BackgroundCanvas from "@/components/LandingPageSections/BackgroundCanvas";
@@ -20,7 +23,9 @@ import BuyerSellerSection from "@/components/LandingPageSections/BuyerSellerSect
 import ScrollToTopButton from "@/components/LandingPageSections/ScrollToTopButton";
 
 // Keep ssr:false for Header
-const Header = dynamic(() => import("../components/Header"), { ssr: false });
+const Header = dynamic(() => import("../components/Header/Header"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [mounted] = useState(true);
