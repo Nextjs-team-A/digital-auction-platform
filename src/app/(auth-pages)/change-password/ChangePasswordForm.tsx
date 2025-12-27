@@ -214,9 +214,8 @@ export default function ChangePasswordForm({
         <form onSubmit={handleSubmit} noValidate>
           {/* OLD */}
           <div
-            className={`${styles.field} ${
-              errors.oldPassword ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.oldPassword ? styles.fieldError : ""
+              }`}
           >
             <input
               type="password"
@@ -232,9 +231,8 @@ export default function ChangePasswordForm({
 
           {/* NEW */}
           <div
-            className={`${styles.field} ${
-              errors.newPassword ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.newPassword ? styles.fieldError : ""
+              }`}
           >
             <input
               type="password"
@@ -250,9 +248,8 @@ export default function ChangePasswordForm({
 
           {/* CONFIRM */}
           <div
-            className={`${styles.field} ${
-              errors.confirm ? styles.fieldError : ""
-            }`}
+            className={`${styles.field} ${errors.confirm ? styles.fieldError : ""
+              }`}
           >
             <input
               type="password"
@@ -270,6 +267,10 @@ export default function ChangePasswordForm({
             {loading ? "Updating..." : "Change Password"}
           </button>
         </form>
+
+        <Link href="/profile" className={styles.link}>
+          Back to profile
+        </Link>
       </div>
     </AuthBackground>
   );
