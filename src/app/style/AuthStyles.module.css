@@ -49,9 +49,11 @@
   max-width: 420px;
   padding: 2.75rem;
   border-radius: 20px;
-  background: radial-gradient(800px 400px at 20% 30%,
+  background: radial-gradient(
+      800px 400px at 20% 30%,
       rgba(16, 185, 129, 0.16),
-      transparent 65%),
+      transparent 65%
+    ),
     linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.03));
   border: 1px solid rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
@@ -120,8 +122,8 @@
   background: transparent;
 }
 
-.field input:focus+label,
-.field input:not(:placeholder-shown)+label {
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
   top: -0.55rem;
   font-size: 0.75rem;
   background: transparent;
@@ -195,9 +197,11 @@
 
 /* Card: use darker panel and white text */
 :global(.dark) .card {
-  background: radial-gradient(800px 400px at 20% 30%,
+  background: radial-gradient(
+      800px 400px at 20% 30%,
       rgba(16, 185, 129, 0.06),
-      transparent 65%),
+      transparent 65%
+    ),
     linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(10, 12, 16, 0.82));
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
@@ -227,8 +231,8 @@
   color: rgba(246, 247, 249, 0.75);
 }
 
-:global(.dark) .field input:focus+label,
-:global(.dark) .field input:not(:placeholder-shown)+label {
+:global(.dark) .field input:focus + label,
+:global(.dark) .field input:not(:placeholder-shown) + label {
   color: #10b981;
 }
 
