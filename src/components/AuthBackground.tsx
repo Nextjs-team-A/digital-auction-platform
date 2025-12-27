@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import pageStyles from "@/app/page.module.css";
+import bgStyles from "@/components/LandingPageSections/BackgroundCanvas.module.css";
 import authStyles from "@/app/style/AuthStyles.module.css";
+import pageStyles from "@/app/page.module.css";
 
 export default function AuthBackground({
   children,
@@ -13,7 +14,8 @@ export default function AuthBackground({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -82,17 +84,13 @@ export default function AuthBackground({
   return (
     <div className={pageStyles.page}>
       {/* Layer 0 */}
-      <div className={pageStyles.bgGradient} />
+      <div className={bgStyles.bgGradient} />
 
       {/* Layer 1 */}
-      {mounted && (
-        <canvas ref={canvasRef} className={pageStyles.starsBg} />
-      )}
+      {mounted && <canvas ref={canvasRef} className={bgStyles.starsBg} />}
 
       {/* ✅ Layer 2 — CENTERED AUTH CONTENT */}
-      <div className={authStyles.centerWrapper}>
-        {children}
-      </div>
+      <div className={authStyles.centerWrapper}>{children}</div>
     </div>
   );
 }
