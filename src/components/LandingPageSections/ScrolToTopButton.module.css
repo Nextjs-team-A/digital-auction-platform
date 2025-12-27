@@ -1,0 +1,40 @@
+/* ScrollToTopButton.module.css */
+.scrollTop {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  color: #064e3b;
+  font-weight: 950;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 220ms ease, transform 220ms ease, border-color 220ms ease;
+  z-index: 9999;
+}
+
+.scrollTopVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scrollTop:hover {
+  border-color: rgba(5, 150, 105, 0.55);
+  transform: translateY(-2px);
+}
+
+:global(.dark) .scrollTop {
+  background: rgba(15, 17, 21, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d1fae5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
+
+:global(.dark) .scrollTop:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+}
