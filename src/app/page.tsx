@@ -13,7 +13,7 @@ import {
 } from "../components/Christmas/ChristmasVibes";
 
 // Section Components
-import BackgroundCanvas from "@/components/LandingPageSections/BackgroundCanvas";
+import BackgroundCanvas from "@/components/AnimatedStarsBackground/BackgroundCanvas";
 import HeroSection from "@/components/LandingPageSections/HeroSection";
 import WhyChooseSection from "@/components/LandingPageSections/WhyChooseSection";
 import HowItWorksSection from "@/components/LandingPageSections/HowItWorksSection";

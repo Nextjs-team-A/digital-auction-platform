@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import bgStyles from "@/components/LandingPageSections/BackgroundCanvas.module.css";
+import bgStyles from "@/components/AnimatedStarsBackground/BackgroundCanvas.module.css";
 import authStyles from "@/app/style/AuthStyles.module.css";
 import pageStyles from "@/app/page.module.css";
 
