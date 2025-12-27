@@ -10,14 +10,14 @@ import styles from "./page.module.css";
 import { ChristmasSnow, ChristmasBanner } from "../components/ChristmasVibes";
 
 // Section Components
-import BackgroundCanvas from "@/components/sections/BackgroundCanvas";
-import HeroSection from "@/components/sections/HeroSection";
-import WhyChooseSection from "@/components/sections/WhyChooseSection";
-import HowItWorksSection from "@/components/sections/HowItWorksSection";
-import SecurityTrustSection from "@/components/sections/SecurityTrustSection";
-import DeliveryPricingSection from "@/components/sections/DeliveryPricingSection";
-import BuyerSellerSection from "@/components/sections/BuyerSellerSection";
-import ScrollToTopButton from "@/components/sections/ScrollToTopButton";
+import BackgroundCanvas from "@/components/LandingPageSections/BackgroundCanvas";
+import HeroSection from "@/components/LandingPageSections/HeroSection";
+import WhyChooseSection from "@/components/LandingPageSections/WhyChooseSection";
+import HowItWorksSection from "@/components/LandingPageSections/HowItWorksSection";
+import SecurityTrustSection from "@/components/LandingPageSections/SecurityTrustSection";
+import DeliveryPricingSection from "@/components/LandingPageSections/DeliveryPricingSection";
+import BuyerSellerSection from "@/components/LandingPageSections/BuyerSellerSection";
+import ScrollToTopButton from "@/components/LandingPageSections/ScrollToTopButton";
 
 // Keep ssr:false for Header
 const Header = dynamic(() => import("../components/Header"), { ssr: false });
