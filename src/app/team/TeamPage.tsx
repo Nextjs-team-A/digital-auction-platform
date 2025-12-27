@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { teamMembers } from "@/utils/data";
 import styles from "./TeamPage.module.css";
-import BackgroundCanvas from "@/components/LandingPageSections/BackgroundCanvas";
+import BackgroundCanvas from "@/components/AnimatedStarsBackground/BackgroundCanvas";
 import TeamHero from "./components/TeamHero";
 import TeamMemberCard from "./components/TeamMemberCard";
 
