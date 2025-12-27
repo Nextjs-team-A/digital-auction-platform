@@ -22,7 +22,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import styles from "./MyProductsUI.module.css";
-import SearchBar from "@/components/SearchBar";
+import SearchBar from "@/components/SearchBar/SearchBar";
 import { useTheme } from "next-themes";
 
 interface Product {

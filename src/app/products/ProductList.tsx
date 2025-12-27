@@ -22,7 +22,7 @@ import {
 } from "react-icons/fi";
 import styles from "./ProductsList.module.css";
 import { useAuth } from "@/hooks/useAuth";
-import SearchBar from "@/components/SearchBar";
+import SearchBar from "@/components/SearchBar/SearchBar";
 import { useTheme } from "next-themes";
 
 interface Product {
@@ -741,11 +741,12 @@ export default function ProductsList({
                 </label>
                 <input
                   type="number"
-                  placeholder={`Min: ${Math.max(
-                    selectedProduct.startingBid,
-                    selectedProduct.currentBid
-                  ) + 1
-                    }`}
+                  placeholder={`Min: ${
+                    Math.max(
+                      selectedProduct.startingBid,
+                      selectedProduct.currentBid
+                    ) + 1
+                  }`}
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className={styles.formInput}
@@ -854,8 +855,9 @@ export default function ProductsList({
       {/* Scroll to Top */}
       <button
         onClick={scrollToTop}
-        className={`${styles.scrollTop} ${scrollTopVisible ? styles.scrollTopVisible : ""
-          }`}
+        className={`${styles.scrollTop} ${
+          scrollTopVisible ? styles.scrollTopVisible : ""
+        }`}
       >
         <FiArrowUp />
       </button>

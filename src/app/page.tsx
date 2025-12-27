@@ -9,7 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import styles from "./page.module.css";
 /* --- CHRISTMAS FEATURE (DELETE AFTER HOLIDAYS) --- */
-import { ChristmasSnow, ChristmasBanner } from "../components/ChristmasVibes";
+import {
+  ChristmasSnow,
+  ChristmasBanner,
+} from "../components/Christmas/ChristmasVibes";
 /* ----------------------------------------------- */
 
 import {
@@ -30,7 +33,9 @@ import {
 import Script from "next/script";
 
 // Keep ssr:false, but render it only after mount to avoid hydration mismatch
-const Header = dynamic(() => import("../components/Header"), { ssr: false });
+const Header = dynamic(() => import("../components/Header/Header"), {
+  ssr: false,
+});
 
 type Step = { title: string; text: string; icon: React.ReactNode };
 type Feature = { title: string; text: string; icon: React.ReactNode };
@@ -524,8 +529,6 @@ export default function Home() {
                 </Link>
               </div>
             )}
-
-           
           </div>
         </motion.section>
 
@@ -739,8 +742,9 @@ export default function Home() {
         </motion.section>
 
         <button
-          className={`${styles.scrollTop} ${showTop ? styles.scrollTopVisible : ""
-            }`}
+          className={`${styles.scrollTop} ${
+            showTop ? styles.scrollTopVisible : ""
+          }`}
           onClick={scrollToTop}
           aria-label="Scroll to top"
           type="button"
