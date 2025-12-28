@@ -23,7 +23,7 @@ import { prisma } from "@/lib/db";
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Step 1: Authenticate user
@@ -35,7 +35,7 @@ export async function POST(
       );
     }
 
-    const { id: productId } = await context.params;
+    const { id: productId } = await params;
 
     // Step 2: Fetch the product with relations
     const product = await prisma.product.findUnique({
