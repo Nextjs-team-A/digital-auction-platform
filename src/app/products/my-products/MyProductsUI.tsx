@@ -326,14 +326,26 @@ export default function MyProductsUI({ unauthorized = false }: Props) {
             `/api/products/${productId}/request-delivery`,
             {
               method: "POST",
+              credentials: "include",
             }
           );
 
-          const data = await res.json();
-
+          // Standard check: if not OK, try to parse error or throw
           if (!res.ok) {
-            throw new Error(data.message || "Failed to request delivery");
+            let errorMsg = "Failed to request delivery";
+            try {
+              const contentType = res.headers.get("content-type");
+              if (contentType && contentType.includes("application/json")) {
+                const errorData = await res.json();
+                errorMsg = errorData.message || errorMsg;
+              }
+            } catch (e) {
+              console.error("Error parsing error response:", e);
+            }
+            throw new Error(errorMsg);
           }
+
+          const data = await res.json();
 
           setModalConfig({
             title: "Request Sent",
