@@ -6,11 +6,6 @@ import dynamic from "next/dynamic";
 import Script from "next/script";
 import styles from "./page.module.css";
 
-// Christmas features (DELETE AFTER HOLIDAYS)
-import {
-  ChristmasSnow,
-  ChristmasBanner,
-} from "../components/Christmas/ChristmasVibes";
 
 // Section Components
 import BackgroundCanvas from "@/components/AnimatedStarsBackground/BackgroundCanvas";
@@ -33,7 +28,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       {/* CHRISTMAS SNOW (DELETE AFTER HOLIDAYS) */}
-      <ChristmasSnow />
+    
 
       {/* Background Animation Canvas */}
       {mounted && <BackgroundCanvas />}
@@ -42,8 +37,6 @@ export default function Home() {
         {/* Header */}
         {mounted && <Header />}
 
-        {/* CHRISTMAS BANNER (DELETE AFTER HOLIDAYS) */}
-        {mounted && <ChristmasBanner />}
 
         {/* Hero Section */}
         <HeroSection />

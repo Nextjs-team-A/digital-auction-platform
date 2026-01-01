@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+
 import Snowfall from "react-snowfall";
-import { FaTree, FaStar } from "react-icons/fa";
 import styles from "./ChristmasVibes.module.css";
 
 /**
@@ -22,37 +21,11 @@ export const ChristmasSnow = () => {
   );
 };
 
-/**
- * Professional Christmas banner with React Icons.
- */
-export const ChristmasBanner = () => {
-  return (
-    <div className={styles.bannerWrapper}>
-      <div className={styles.iconsRow}>
-        <div className={styles.iconItem}>
-          <FaTree />
-        </div>
-        <div className={`${styles.iconItem} ${styles.sparkle}`}>
-          <FaStar />
-        </div>
-        <div className={styles.iconItem}>
-          <FaTree />
-        </div>
-      </div>
-
-      <div className={styles.festiveBanner}>
-        Merry Christmas & Happy New Year From BidZone ❄️
-      </div>
-    </div>
-  );
-};
-
 // Default export if needed, or we just import named members
 const ChristmasVibes = () => {
   return (
     <>
       <ChristmasSnow />
-      <ChristmasBanner />
     </>
   );
 };

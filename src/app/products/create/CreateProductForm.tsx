@@ -239,57 +239,65 @@ export default function CreateProductForm({
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
+ const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault(); // stop default form submission
+  setError("");
+  setSuccess("");
 
-    try {
-      const urls: string[] = [];
-      for (const img of images) {
-        const fd = new FormData();
-        fd.append("file", img);
-        const r = await fetch("/api/upload", { method: "POST", body: fd });
-        if (!r.ok) throw new Error("Upload failed");
-        urls.push((await r.json()).url);
-      }
+  // ✅ Add validation for images
+  if (images.length === 0) {
+    setError("Please upload at least one image.");
+    return; // stop execution here
+  }
 
-      const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          startingBid: parseFloat(startingBid),
-          auctionEnd: new Date(auctionEnd).toISOString(),
-          location,
-          images: urls,
-        }),
-      });
+  setLoading(true);
 
-      if (!res.ok) {
-        const errData = await res.json();
-        if (errData.errors) {
-          const errorMessages = Object.entries(errData.errors)
-            .map(
-              ([field, msgs]) =>
-                `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
-            )
-            .join("\n");
-          throw new Error(`Validation failed:\n${errorMessages}`);
-        }
-        throw new Error(errData.message || "Product creation failed");
-      }
-
-      setSuccess("Product created successfully!");
-      setTimeout(() => router.push("/products/my-products"), 2000);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error");
-    } finally {
-      setLoading(false);
+  try {
+    const urls: string[] = [];
+    for (const img of images) {
+      const fd = new FormData();
+      fd.append("file", img);
+      const r = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!r.ok) throw new Error("Upload failed");
+      urls.push((await r.json()).url);
     }
-  };
+
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        description,
+        startingBid: parseFloat(startingBid),
+        auctionEnd: new Date(auctionEnd).toISOString(),
+        location,
+        images: urls,
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      if (errData.errors) {
+        const errorMessages = Object.entries(errData.errors)
+          .map(
+            ([field, msgs]) =>
+              `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`
+          )
+          .join("\n");
+        throw new Error(`Validation failed:\n${errorMessages}`);
+      }
+      throw new Error(errData.message || "Product creation failed");
+    }
+
+    setSuccess("Product created successfully!");
+    setTimeout(() => router.push("/products/my-products"), 2000);
+  } catch (e) {
+    setError(e instanceof Error ? e.message : "Error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className={styles.mainContainer}>
