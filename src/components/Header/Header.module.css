@@ -448,3 +448,11 @@
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
 }
+:global(.dark) .mobileMenuToggle {
+  color: #f6f7f9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+:global(.dark) .mobileMenuToggle:hover {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}

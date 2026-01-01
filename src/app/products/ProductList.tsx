@@ -68,6 +68,22 @@ export default function ProductsList({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    confirmText: string;
+    onConfirm: () => void;
+    variant: "success" | "error";
+  }>({
+    title: "",
+    message: "",
+    confirmText: "",
+    onConfirm: () => { },
+    variant: "success",
+  });
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedTheme } = useTheme();
   const isDarkRef = useRef(false);
@@ -272,7 +288,14 @@ export default function ProductsList({
 
     const bid = parseFloat(bidAmount);
     if (isNaN(bid) || bid <= 0) {
-      alert("Please enter a valid bid amount.");
+      setModalConfig({
+        title: "Invalid Bid",
+        message: "Please enter a valid bid amount.",
+        confirmText: "OK",
+        variant: "error",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
       return;
     }
 
@@ -281,16 +304,26 @@ export default function ProductsList({
     // Example: Start 100, Current 120 -> Min Bid > 120 (e.g. 121)
 
     if (bid <= selectedProduct.startingBid) {
-      alert(
-        `Bid amount must be greater than the starting bid of $${selectedProduct.startingBid}.`
-      );
+      setModalConfig({
+        title: "Bid Too Low",
+        message: `Bid amount must be greater than the starting bid of $${selectedProduct.startingBid}.`,
+        confirmText: "OK",
+        variant: "error",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
       return;
     }
 
     if (bid <= selectedProduct.currentBid) {
-      alert(
-        `Bid amount must be higher than the current bid of $${selectedProduct.currentBid}.`
-      );
+      setModalConfig({
+        title: "Bid Too Low",
+        message: `Bid amount must be higher than the current bid of $${selectedProduct.currentBid}.`,
+        confirmText: "OK",
+        variant: "error",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
       return;
     }
 
@@ -306,19 +339,41 @@ export default function ProductsList({
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message ?? "Bid failed");
+        setModalConfig({
+          title: "Bid Failed",
+          message: data.message ?? "An error occurred while placing your bid.",
+          confirmText: "OK",
+          variant: "error",
+          onConfirm: () => setModalOpen(false),
+        });
+        setModalOpen(true);
         return;
       }
 
-      alert("Bid placed successfully!");
-      setSelectedProduct(null);
-      setBidAmount("");
-      setBidAmount("");
-      // Refresh list, keeping current search if any
-      const query = searchParams.get("q");
-      fetchProducts(query);
+      setModalConfig({
+        title: "Bid Placed Successfully",
+        message: "Your bid has been placed successfully!",
+        confirmText: "Perfect",
+        variant: "success",
+        onConfirm: () => {
+          setModalOpen(false);
+          setSelectedProduct(null);
+          setBidAmount("");
+          // Refresh list, keeping current search if any
+          const query = searchParams.get("q");
+          fetchProducts(query);
+        },
+      });
+      setModalOpen(true);
     } catch (err) {
-      alert("Bid failed.");
+      setModalConfig({
+        title: "Bid Failed",
+        message: "An unexpected error occurred. Please try again.",
+        confirmText: "OK",
+        variant: "error",
+        onConfirm: () => setModalOpen(false),
+      });
+      setModalOpen(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -741,12 +796,11 @@ export default function ProductsList({
                 </label>
                 <input
                   type="number"
-                  placeholder={`Min: ${
-                    Math.max(
-                      selectedProduct.startingBid,
-                      selectedProduct.currentBid
-                    ) + 1
-                  }`}
+                  placeholder={`Min: ${Math.max(
+                    selectedProduct.startingBid,
+                    selectedProduct.currentBid
+                  ) + 1
+                    }`}
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
                   className={styles.formInput}
@@ -786,6 +840,47 @@ export default function ProductsList({
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success/Error Modal */}
+      {modalOpen && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className={styles.modalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.modalHeader}>
+              <div
+                className={
+                  modalConfig.variant === "success"
+                    ? styles.modalIconSuccess
+                    : styles.modalIconError
+                }
+              >
+                {modalConfig.variant === "success" ? (
+                  <FiCheckCircle />
+                ) : (
+                  <FiXCircle />
+                )}
+              </div>
+              <h2 className={styles.modalTitle}>{modalConfig.title}</h2>
+            </div>
+            <p className={styles.modalMessage}>{modalConfig.message}</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.modalConfirmBtnPrimary}
+                onClick={() => {
+                  modalConfig.onConfirm();
+                }}
+              >
+                {modalConfig.confirmText}
+              </button>
             </div>
           </div>
         </div>
@@ -855,9 +950,8 @@ export default function ProductsList({
       {/* Scroll to Top */}
       <button
         onClick={scrollToTop}
-        className={`${styles.scrollTop} ${
-          scrollTopVisible ? styles.scrollTopVisible : ""
-        }`}
+        className={`${styles.scrollTop} ${scrollTopVisible ? styles.scrollTopVisible : ""
+          }`}
       >
         <FiArrowUp />
       </button>
