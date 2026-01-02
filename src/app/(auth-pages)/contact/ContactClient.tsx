@@ -488,13 +488,13 @@ export default function ContactClient() {
                 <span>Get In Touch</span>
               </div>
               <h1 className={styles.heroTitle}>
-                Let us Start a{" "}
-                <span className={styles.gradientText}>Conversation</span>
+                Let us Start a <span className={styles.gradientText}>Conversation</span>
               </h1>
+
               <p className={styles.heroSubtitle}>
-                Have questions about our digital auction platform? We are here
-                to help you succeed. Reach out and let us discuss how BidZone
-                can transform your auction experience.
+                Have questions about our digital auction platform?
+                <br />
+                We are here to help you succeed.
               </p>
             </div>
           </div>
@@ -599,7 +599,7 @@ export default function ContactClient() {
                       <div>
                         <div className={styles.infoLabel}>Email</div>
                         <div className={styles.infoValue}>
-                          support@bidzone.com
+                          contact.deska@gmail.com
                         </div>
                       </div>
                     </div>
@@ -611,7 +611,7 @@ export default function ContactClient() {
                       <div>
                         <div className={styles.infoLabel}>Phone</div>
                         <div className={styles.infoValue}>
-                          +1 (555) 123-4567
+                          +961 70 654 244
                         </div>
                       </div>
                     </div>
@@ -623,8 +623,6 @@ export default function ContactClient() {
                       <div>
                         <div className={styles.infoLabel}>Location</div>
                         <div className={styles.infoValue}>
-                          123 Auction Street
-                          <br />
                           Beirut, Lebanon
                         </div>
                       </div>
@@ -634,16 +632,10 @@ export default function ContactClient() {
                   <div className={styles.socialSection}>
                     <div className={styles.socialTitle}>Follow Us</div>
                     <div className={styles.socialLinks}>
-                      <a href="#" className={styles.socialLink}>
-                        <FaFacebook />
-                      </a>
-                      <a href="#" className={styles.socialLink}>
-                        <FaTwitter />
-                      </a>
-                      <a href="#" className={styles.socialLink}>
+                      <a href="https://www.linkedin.com/in/dev-studio-5599993a2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" className={styles.socialLink}>
                         <FaLinkedin />
                       </a>
-                      <a href="#" className={styles.socialLink}>
+                      <a href="https://www.instagram.com/devstudio.io?igsh=MXI0NXJmNmVsMWhncQ%3D%3D&utm_source=qr" className={styles.socialLink}>
                         <FaInstagram />
                       </a>
                     </div>

@@ -27,10 +27,10 @@ export default function Footer() {
         <div className={styles.contact}>
           <span className={styles.contactLabel}>Contact us:</span>
           <a
-            href="mailto:support@bidzone.com"
+            href="mailto:contact.deska@gmail.com"
             className={styles.email}
           >
-            support@bidzone.com
+            contact.deska@gmail.com
           </a>
         </div>
       </div>
