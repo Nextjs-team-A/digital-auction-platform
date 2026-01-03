@@ -15,7 +15,13 @@ import { startAuctionScheduler } from "@/lib/scheduler";
 
 // Start the scheduler immediately when this module loads
 // This happens automatically when the Next.js server starts
-startAuctionScheduler();
+// But NOT during the build process (static generation)
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build' ||
+  process.env.NEXT_PHASE === 'phase-export';
+
+if (!isBuild && typeof window === 'undefined') {
+  startAuctionScheduler();
+}
 
 /**
  * GET /api/init
